@@ -121,7 +121,8 @@ void CenterCamera(char instant) {
 	int targetY = cameraTargetY - (SCREEN_H / 2);
 	
 
-	// Adjust target coordinates to not bother moving if the player is in the box
+	// Adjust target coordinates so that the camera doesn't
+	// bother moving if the player is in the box.
 	if (cameraX < targetX) {
 		if (cameraX + boxW >= targetX) targetX = cameraX;
 	}
@@ -141,19 +142,19 @@ void CenterCamera(char instant) {
 	// and showing us useless empty space.
 	//if (targetX > cameraX) {
 //		if (targetX + SCREEN_W > levelX + (levelW - 1) + xMargin && targetX > levelX - xMargin) {
-//			printf("CAMERA target too far RIGHT\n");
+		if (targetX + SCREEN_W > levelX + (levelW - 1) + xMargin) {
+			//printf("CAMERA target too far RIGHT\n");
 //			targetX = levelX + (levelW - 1) + xMargin - SCREEN_W;
-//		}
+		}
 	//}
 	
 	//if (targetX < cameraX) {
 		//if (targetX < levelX - xMargin && targetX + SCREEN_W < levelX + (levelW - 1) + xMargin) {
 		if (targetX < levelX - xMargin) {
-			printf("CAMERA target too far LEFT\n");
-			targetX = levelX - xMargin;
+			//printf("CAMERA target too far LEFT\n");
+			//targetX = levelX - xMargin;
 		}
 	//}
-	
 
 	
 	// Adjust camera X and Y velocities to move towards newX/newY
@@ -163,12 +164,36 @@ void CenterCamera(char instant) {
 	if (cameraY > targetY) cameraYVel --;
 	if (cameraY < targetY) cameraYVel ++;
 
-	// If distance is less than velocity, whoa horsey!
-	if (abs(targetX - cameraX) < abs(cameraXVel)) {
-		if (cameraXVel < 0) cameraXVel += 2; else cameraXVel -= 2;
+	// Enforce maximum velocity limitations
+	if (cameraXVel > TILE_W) cameraXVel = TILE_W;
+	if (cameraXVel < -TILE_W) cameraXVel = -TILE_W;
+	if (cameraYVel > TILE_H) cameraYVel = TILE_H;
+	if (cameraYVel < -TILE_H) cameraYVel = -TILE_H;
+	
+	// Slow down to zero velocity by the time we reach the target X
+	if (cameraXVel != 0) {
+		if (abs(targetX - cameraX) / cameraXVel < abs(cameraXVel)) {
+			if (cameraXVel < 0) {
+				cameraXVel += 2;
+				if (cameraXVel > 0) cameraXVel = 0;
+			}
+			else {
+				cameraXVel -= 2;
+				if (cameraXVel < 0) cameraXVel = 0;
+			}
+		}
 	}
-	if (abs(targetY - cameraY) < abs(cameraYVel)) {
-		if (cameraYVel < 0) cameraYVel += 2; else cameraYVel -= 2;
+	if (cameraYVel != 0) {
+		if (abs(targetY - cameraY) / cameraYVel < abs(cameraYVel)) {
+			if (cameraYVel < 0) {
+				cameraYVel += 2;
+				if (cameraYVel > 0) cameraYVel = 0;
+			}
+			else {
+				cameraYVel -= 2;
+				if (cameraYVel < 0) cameraYVel = 0;
+			}
+		}
 	}
 
 	// Actually move the camera

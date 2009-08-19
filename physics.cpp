@@ -35,6 +35,7 @@ int BlockNumber(int x, int y, int w, int h) {
 }
 
 
+
 /** BoxContents returns:
 ***	-1 empty
 ***	-2 brick
