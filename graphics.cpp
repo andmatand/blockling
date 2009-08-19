@@ -172,7 +172,7 @@ void CenterCamera(char instant) {
 	
 	// Slow down to zero velocity by the time we reach the target X
 	if (cameraXVel != 0) {
-		if (abs(targetX - cameraX) / cameraXVel < abs(cameraXVel)) {
+		if (abs(abs(targetX - cameraX) / cameraXVel) < abs(cameraXVel)) {
 			if (cameraXVel < 0) {
 				cameraXVel += 2;
 				if (cameraXVel > 0) cameraXVel = 0;
@@ -184,7 +184,7 @@ void CenterCamera(char instant) {
 		}
 	}
 	if (cameraYVel != 0) {
-		if (abs(targetY - cameraY) / cameraYVel < abs(cameraYVel)) {
+		if (abs(abs(targetY - cameraY) / cameraYVel) < abs(cameraYVel)) {
 			if (cameraYVel < 0) {
 				cameraYVel += 2;
 				if (cameraYVel > 0) cameraYVel = 0;
