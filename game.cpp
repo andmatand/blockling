@@ -155,9 +155,11 @@ void Game() {
 							Undo(0); // Save Undo state
 							
 							if (blocks[i].GetDir() == 0) {
+								blocks[i].SetXMoving(-TILE_W);
 								blocks[b].SetXMoving(-TILE_W);
 							}
 							else {
+								blocks[i].SetXMoving(TILE_W);
 								blocks[b].SetXMoving(TILE_W);
 							}
 							if (blocks[i].GetStrong() == 1) blocks[b].SetStrong(1); // If player is strong, make this block strong for now
