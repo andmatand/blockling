@@ -138,24 +138,36 @@ void CenterCamera(char instant) {
 	}
 
 
-	// Keep the camera from going too far outside the level
-	// and showing us useless empty space.
-	//if (targetX > cameraX) {
-//		if (targetX + SCREEN_W > levelX + (levelW - 1) + xMargin && targetX > levelX - xMargin) {
-		if (targetX + SCREEN_W > levelX + (levelW - 1) + xMargin) {
-			//printf("CAMERA target too far RIGHT\n");
-//			targetX = levelX + (levelW - 1) + xMargin - SCREEN_W;
-		}
-	//}
 	
-	//if (targetX < cameraX) {
-		//if (targetX < levelX - xMargin && targetX + SCREEN_W < levelX + (levelW - 1) + xMargin) {
-		if (targetX < levelX - xMargin) {
-			//printf("CAMERA target too far LEFT\n");
-			//targetX = levelX - xMargin;
+	// For levels that are wider than the screen, keep the camera from going too far outside the level
+	// and showing us useless empty space.
+	if (levelW > SCREEN_W) {
+		// If the camera is showing too much space to the right side of the level
+		// AND the left side of the level is offscreen
+		if (targetX + (SCREEN_W - 1) > levelX + (levelW - 1) + xMargin && levelX < cameraX) {
+			// Move the level as far right as it *should* go.
+			targetX = levelX + (levelW - 1) + xMargin - (SCREEN_W - 1);
 		}
-	//}
-
+		
+		// If the camera is too far left of the left side of the level
+		// AND the right side of the level is offscreen
+		if (targetX < levelX - xMargin && levelX + (levelW - 1) > cameraX + (SCREEN_W - 1)) {
+			// Move the level as far left as it *should* go
+			targetX = levelX - xMargin;
+		}
+	}
+	// If the level's width will fit onscreen, keep the level centered
+	else {
+		targetX = -(SCREEN_W / 2);
+	}
+	
+	
+	if (levelH > SCREEN_H) {
+		
+	}
+	else {
+		targetY = -(SCREEN_H / 2);
+	}
 	
 	// Adjust camera X and Y velocities to move towards newX/newY
 	if (cameraX > targetX) cameraXVel --;
