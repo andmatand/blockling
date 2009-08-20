@@ -72,6 +72,10 @@ void Input() {
 
 				/** Turn on Player Keys **/
 				for (uint i = 0; i < NUM_PLAYER_KEYS; i++) {
+					//printf("%d", event.key.keysym.mod);
+					//std::cout << "KMOD_NONE: " << KMOD_NONE << "\n";
+					//std::cout << event.key.keysym.mod << "\n";
+					//std::cout << "anded:" << (event.key.keysym.mod & KMOD_NONE) << "\n";
 					//if (event.key.keysym.mod == KMOD_NONE) {
 						if (event.key.keysym.sym == playerKeys[i].sym) {
 							if (playerKeys[i].on == 0) {
@@ -123,6 +127,6 @@ void Input() {
 	
 	
 	
-	// Add NPC access to keyOn here
+	// Add NPC access to playerKeys here
 
 }

@@ -26,7 +26,6 @@
 
 int BlockNumber(int x, int y, int w, int h) {
 	for (int i = 0; i < static_cast<int>(numBlocks); i++) {
-		//std::cout << "i:" << i << "\n";
 		if (BoxOverlap(x, y, w, h, blocks[i].GetX(), blocks[i].GetY(), blocks[i].GetW(), blocks[i].GetH())) {
 			return i;
 		}
@@ -184,8 +183,6 @@ void block::Physics() {
 	/*** Process paths ***/
 	if (path.length() > 0 && xMoving == 0 && yMoving == 0) {
 		char s;
-		//std::cout << "==Processing Path==\n";
-		//std::cout << "path: " << path << "\n";
 		do {
 			for (i = 0; i < static_cast<int>(path.length()); i++) {
 				s = path[i];

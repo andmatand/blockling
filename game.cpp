@@ -362,7 +362,7 @@ bool LoadLevel(uint level) {
 	char filename[32];
 	FILE * f;
 
-	std::cout << "Loading level " << level << "...\n";
+	printf("\nLoading level %d...\n", level);
 	sprintf(filename, "data/levels/%03d.txt", level);
 	f = fopen(filename, "rb");
 	if (f == NULL) {
