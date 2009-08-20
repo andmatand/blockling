@@ -90,7 +90,7 @@ void Input() {
 				
 				#ifdef DEBUG
 				switch (event.key.keysym.sym) {
-					case SDLK_s:
+					case SDLK_1:
 						if (blockXSpeed == 8) {
 							blockXSpeed = 1;
 							blockYSpeed = 1;

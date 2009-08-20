@@ -95,6 +95,10 @@ void block::Animate() {
 void CenterCamera(char instant) {
 	static int cameraXVel = 0, cameraYVel = 0;
 
+	// Exit if camera has recently been manually moved
+	if (manualCameraTimer > 0 && SDL_GetTicks() < manualCameraTimer + 2000)
+		return;
+	
 	// Manual override
 	if (instant == 1) {
 		cameraXVel = 0;

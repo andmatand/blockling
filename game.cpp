@@ -52,6 +52,7 @@ void Game() {
 	bool pushedKey;
 	bool quitGame = false;
 	char wonLevel; // 0 no, 1 yes
+	float cameraXVel, cameraYVel;
 	
 	currentLevel = 0;
 
@@ -79,7 +80,7 @@ void Game() {
 		}
 		
 		wonLevel = 0;
-		
+		manualCameraTimer = 0;		
 
 		/******* GAME LOOP *******/
 		while (quitGame == false) {
@@ -104,28 +105,35 @@ void Game() {
 			
 			/** Manual Camera Movement **/
 			
-			i = 20; // camera speed
+			cameraXVel *= .85f;
+			cameraYVel *= .85f;
 			
 			// Move camera left
 			if (gameKeys[2].on > 0) {
-				cameraX -= i;
-				printf("Moving camera left");
+				cameraXVel -= 1;
+				manualCameraTimer = SDL_GetTicks();
 			}
 			
 			// Move camera right
 			if (gameKeys[3].on > 0) {
-				cameraX += i;
+				cameraXVel += 1;
+				manualCameraTimer = SDL_GetTicks();
 			}
 			
 			// Move camera up
 			if (gameKeys[4].on > 0) {
-				cameraY -= i;
+				cameraYVel -= 1;
+				manualCameraTimer = SDL_GetTicks();
 			}
 
 			// Move camera down
 			if (gameKeys[5].on > 0) {
-				cameraY += i;
+				cameraYVel += 1;
+				manualCameraTimer = SDL_GetTicks();
 			}
+			
+			cameraX += cameraXVel;
+			cameraY += cameraYVel;
 			
 			
 			/*** Handle Player Movement ***/
