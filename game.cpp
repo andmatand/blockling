@@ -80,7 +80,21 @@ void Game() {
 		}
 		
 		wonLevel = 0;
-		manualCameraTimer = 0;		
+		
+		// Reset manual camera movement
+		manualCameraTimer = 0;
+		cameraXVel = 0;
+		cameraYVel = 0;
+		
+		// Rest keys
+		for (i = 0; i < NUM_GAME_KEYS; i++) {
+			gameKeys[i].on = 0;
+		}
+		for (i = 0; i < numPlayers; i++) {
+			for (uint j = 0; j < NUM_PLAYER_KEYS; j++) {
+				playerKeys[(i * NUM_PLAYER_KEYS) + j].on = 0;
+			}
+		}
 
 		/******* GAME LOOP *******/
 		while (quitGame == false) {
@@ -110,30 +124,36 @@ void Game() {
 			
 			// Move camera left
 			if (gameKeys[2].on > 0) {
-				cameraXVel -= 1;
+				cameraXVel -= 2;
 				manualCameraTimer = SDL_GetTicks();
 			}
 			
 			// Move camera right
 			if (gameKeys[3].on > 0) {
-				cameraXVel += 1;
+				cameraXVel += 2;
 				manualCameraTimer = SDL_GetTicks();
 			}
 			
 			// Move camera up
 			if (gameKeys[4].on > 0) {
-				cameraYVel -= 1;
+				cameraYVel -= 2;
 				manualCameraTimer = SDL_GetTicks();
 			}
 
 			// Move camera down
 			if (gameKeys[5].on > 0) {
-				cameraYVel += 1;
+				cameraYVel += 2;
 				manualCameraTimer = SDL_GetTicks();
 			}
 			
-			cameraX += cameraXVel;
-			cameraY += cameraYVel;
+			// Enforce maximum camera velocity limitations
+			if (cameraXVel > TILE_W) cameraXVel = TILE_W;
+			if (cameraXVel < -TILE_W) cameraXVel = -TILE_W;
+			if (cameraYVel > TILE_H) cameraYVel = TILE_H;
+			if (cameraYVel < -TILE_H) cameraYVel = -TILE_H;
+			
+			cameraX += static_cast<int>(cameraXVel);
+			cameraY += static_cast<int>(cameraYVel);
 			
 			
 			/*** Handle Player Movement ***/

@@ -395,7 +395,7 @@ torch *torches = NULL;
 spike *spikes = NULL;
 
 // Undo stuff
-uint maxUndo = 20; // Maximum number of undo levels
+uint maxUndo = 50; // Maximum number of undo levels
 block **undoBlocks = NULL;
 bool justUndid;
 
@@ -403,7 +403,7 @@ bool justUndid;
 struct keyBinding {
 	SDLKey sym;	// Key name (e.g. SDLK_LEFT)
 	SDLMod mod;	// Modifier (e.g. KMOD_LSHIFT) - must be pushed along with 'sym' for key to be 'on'
-	bool on; 	// If the key is pushed
+	char on; 	// If the key is pushed
 	uint timer;	// Used for repeat rate
 };
 

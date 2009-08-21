@@ -106,9 +106,9 @@ void Init() {
 
 	
 	/*** Keyboard ***/
-	if (SDL_EnableKeyRepeat(200, 25) != 0) {
-		fprintf(stderr, "SDL_EnableKeyRepeat failed: %s", SDL_GetError());
-	}
+	//if (SDL_EnableKeyRepeat(200, 10) != 0) {
+	//	fprintf(stderr, "SDL_EnableKeyRepeat failed: %s", SDL_GetError());
+	//}
 	
 	
 	// Default Game keyboard layout

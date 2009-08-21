@@ -95,9 +95,21 @@ void block::Animate() {
 void CenterCamera(char instant) {
 	static int cameraXVel = 0, cameraYVel = 0;
 
-	// Exit if camera has recently been manually moved
-	if (manualCameraTimer > 0 && SDL_GetTicks() < manualCameraTimer + 2000)
-		return;
+	// If camera has recently been manually moved
+	if (manualCameraTimer > 0 && SDL_GetTicks() < manualCameraTimer + 2000) {
+		// Don't allow camera to move too far away with the level completely offscreen
+		if (cameraX + SCREEN_W < levelX)
+			cameraX = levelX - SCREEN_W;
+		if (cameraX > levelX + levelW)
+			cameraX = levelX + SCREEN_W;
+
+		if (cameraY + SCREEN_H < levelY)
+			cameraY = levelY - SCREEN_H;
+		if (cameraY > levelY + levelH)
+			cameraY = levelY + SCREEN_H;
+		
+		return; // Exit the function, avoiding any automatic camera movement
+	}
 	
 	// Manual override
 	if (instant == 1) {
@@ -147,15 +159,13 @@ void CenterCamera(char instant) {
 	// and showing us useless empty space.
 	if (levelW > SCREEN_W) {
 		// If the camera is showing too much space to the right side of the level
-		// AND the left side of the level is offscreen
-		if (targetX + (SCREEN_W - 1) > levelX + (levelW - 1) + xMargin && levelX < cameraX) {
+		if (targetX + (SCREEN_W - 1) > levelX + (levelW - 1) + xMargin) {
 			// Move the level as far right as it *should* go.
 			targetX = levelX + (levelW - 1) + xMargin - (SCREEN_W - 1);
 		}
 		
 		// If the camera is too far left of the left side of the level
-		// AND the right side of the level is offscreen
-		if (targetX < levelX - xMargin && levelX + (levelW - 1) > cameraX + (SCREEN_W - 1)) {
+		if (targetX < levelX - xMargin) {
 			// Move the level as far left as it *should* go
 			targetX = levelX - xMargin;
 		}
@@ -165,15 +175,29 @@ void CenterCamera(char instant) {
 		targetX = -(SCREEN_W / 2);
 	}
 	
-	
+	// For levels that are taller than the screen, keep the camera from going too far outside the level
+	// and showing us useless empty space.	
 	if (levelH > SCREEN_H) {
+		// If the camera is showing too much space to below the level
+		if (targetY + (SCREEN_H - 1) > levelY + (levelH - 1) + yMargin) {
+			// Move the level as far down as it *should* go.
+			targetY = levelY + (levelH - 1) + yMargin - (SCREEN_H - 1);
+		}
 		
+		// If the camera is too far above the level
+		if (targetY < levelY - yMargin) {
+			// Move the level as far up as it *should* go
+			targetY = levelY - yMargin;
+		}		
 	}
 	else {
 		targetY = -(SCREEN_H / 2);
 	}
 	
-	// Adjust camera X and Y velocities to move towards newX/newY
+	
+	
+
+	// Adjust camera X and Y velocities to move towards target X and Y
 	if (cameraX > targetX) cameraXVel --;
 	if (cameraX < targetX) cameraXVel ++;
 	
@@ -215,6 +239,8 @@ void CenterCamera(char instant) {
 	// Actually move the camera
 	cameraX += cameraXVel;
 	cameraY += cameraYVel;
+	
+	
 }
 
 
@@ -401,6 +427,7 @@ void Render(bool update) {
 	
 	
 	/*** Background ***/
+	// Move background offset X and Y (to scroll it)
 	if (SDL_GetTicks() > bgTimer + 60) {
 		bgX += 1;
 		if (bgX >= bgW) bgX = 0;
@@ -410,12 +437,19 @@ void Render(bool update) {
 		
 		bgTimer = SDL_GetTicks();
 	}
-	for (int b = -bgH + cameraY; b < (SCREEN_H / bgH) + bgH - cameraY; b+= bgH) {
-		for (int a = -bgW + cameraX; a < (SCREEN_W /bgW) + bgW - cameraX; a+= bgW) {
-			//std::cout << "bg (" << a + bgX << ", " << b + bgY << ")\n";
+/*
+	for (int b = -bgH - cameraY; b < (-bgH - cameraY) + (((SCREEN_H / bgH) + 1) * bgH); b+= bgH) {
+		for (int a = -bgW - cameraX; a < (-bgW - cameraX) + (((SCREEN_W /bgW) + 1) * bgW); a+= bgW) {
 			ApplySurface(a + bgX, b + bgY, bgSurface, screenSurface);
 		}
-	}	
+	}
+*/
+	for (int b = -bgH; b < -bgH + (((SCREEN_H / bgH) + 2) * bgH); b+= bgH) {
+		for (int a = -bgW; a < -bgW + (((SCREEN_W /bgW) + 2) * bgW); a+= bgW) {
+			ApplySurface(a + bgX, b + bgY, bgSurface, screenSurface);
+		}
+	}
+
 	
 	
 	/*** BRICKS ***/
@@ -465,6 +499,7 @@ void Render(bool update) {
 
 
 	//UnlockSurface(screenSurface);
+	//PutPixel(screenSurface, cameraX + 10, cameraY + 10, SDL_MapRGB(screenSurface->format, 0x00, 0xff, 0x00));
 
 	if (update) {
 		// Tell SDL to update the whole screenSurface

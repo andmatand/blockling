@@ -23,6 +23,7 @@
 void Input() {
 	
 	// Reset all Players's keys to 0 and let SDL_EnableKeyRepeat handle repeat rate =)
+	/*
 	for (uint i = 0; i < NUM_PLAYER_KEYS; i++) {
 		playerKeys[i].on = 0;
 	}
@@ -30,33 +31,60 @@ void Input() {
 	for (uint i = 0; i < NUM_GAME_KEYS; i++) {
 		gameKeys[i].on = 0;
 	}
+	*/
 
-
-	/*
-	// Handle repeat rate of keys already on
-	for (uint i = 0; i < NUM_KEYS; i++) {
-		if (keyOn[i] == 1) {
-			keyOn[i] = -1; // will be seen by game as Off
+	/** Manually handle repeat rate of keys already on **/
+	
+	// Game Keys
+	for (uint i = 0; i < NUM_GAME_KEYS; i++) {
+		if (gameKeys[i].on == 1) {
+			gameKeys[i].on = -1; // will be seen by game as Off
 		}
-		else if (keyOn[i] == -1) {
+		else if (gameKeys[i].on == -1) {
 			// Initial delay
-			if (SDL_GetTicks() >= keyTimer[i] + 200) {
-				keyOn[i] = 2; // will be seen by game as On
-				keyTimer[i] = SDL_GetTicks();
+			if (SDL_GetTicks() >= gameKeys[i].timer + ((i >= 2 && i <= 5) ? 0 : 200)) {
+				gameKeys[i].on = 2; // will be seen by game as On
+				gameKeys[i].timer = SDL_GetTicks();
 			}
 		}
-		else if (abs(keyOn[i]) == 2) {
+		else if (abs(gameKeys[i].on) == 2) {
 			// Repeat delay
-			if (SDL_GetTicks() >= keyTimer[i] + 0) {
-				keyOn[i] = 2; // will be seen by game as On
-				keyTimer[i] = SDL_GetTicks();
+			if (SDL_GetTicks() >= gameKeys[i].timer + 10) {
+				gameKeys[i].on = 2; // will be seen by game as On
+				gameKeys[i].timer = SDL_GetTicks();
 			}
 			else {
-				keyOn[i] = -2; // will be seen by game as Off
+				gameKeys[i].on = -2; // will be seen by game as Off
 			}
 		}
 	}
-	*/				
+
+	// Player Keys
+	for (uint i = 0; i < NUM_PLAYER_KEYS; i++) {
+		if (playerKeys[i].on == 1) {
+			playerKeys[i].on = -1; // will be seen by game as Off
+		}
+		else if (playerKeys[i].on == -1) {
+			// Initial delay
+			if (SDL_GetTicks() >= playerKeys[i].timer + 200) {
+				playerKeys[i].on = 2; // will be seen by game as On
+				playerKeys[i].timer = SDL_GetTicks();
+			}
+		}
+		else if (abs(playerKeys[i].on) == 2) {
+			// Repeat delay
+			if (SDL_GetTicks() >= playerKeys[i].timer + 0) {
+				playerKeys[i].on = 2; // will be seen by game as On
+				playerKeys[i].timer = SDL_GetTicks();
+			}
+			else {
+				playerKeys[i].on = -2; // will be seen by game as Off
+			}
+		}
+	}
+
+
+
 
 	while (SDL_PollEvent(&event)) {
 		switch (event.type) {
@@ -66,6 +94,7 @@ void Input() {
 					if (event.key.keysym.sym == gameKeys[i].sym && (gameKeys[i].mod == KMOD_NONE || event.key.keysym.mod & gameKeys[i].mod)) {
 						if (gameKeys[i].on == 0) {
 							gameKeys[i].on = 1;
+							gameKeys[i].timer = SDL_GetTicks();
 						}
 					}
 				}
@@ -80,7 +109,7 @@ void Input() {
 						if (event.key.keysym.sym == playerKeys[i].sym) {
 							if (playerKeys[i].on == 0) {
 								playerKeys[i].on = 1;
-								//playerKeys[i].timer = SDL_GetTicks();
+								playerKeys[i].timer = SDL_GetTicks();
 							}
 						}
 					//}
@@ -116,6 +145,19 @@ void Input() {
 				break;
 
 			case SDL_KEYUP:		
+				/** Turn off Game Keys **/
+				for (uint i = 0; i < NUM_GAME_KEYS; i++) {
+					if (event.key.keysym.sym == gameKeys[i].sym) {
+						gameKeys[i].on = 0;
+					}
+				}
+
+				/** Turn off Player Keys **/
+				for (uint i = 0; i < NUM_PLAYER_KEYS; i++) {
+					if (event.key.keysym.sym == playerKeys[i].sym) {
+						playerKeys[i].on = 0;
+					}
+				}
 
 				break;
 			
