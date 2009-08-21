@@ -47,11 +47,11 @@ void Game() {
 
 	uint i;
 	int x, b;
+	int oldPlayerX, oldPlayerY;
 	std::string tempPath;
 	char s[11];
 	bool pushedKey;
 	bool quitGame = false;
-	char wonLevel; // 0 no, 1 yes
 	float cameraXVel, cameraYVel;
 	
 	currentLevel = 0;
@@ -294,10 +294,13 @@ void Game() {
 					}
 				}
 			}
+
+			oldPlayerX = blocks[0].GetX();
+			oldPlayerY = blocks[0].GetY();
 			
 			
 			/*** Do Block Physics ***/
-			// Reset all DidPhysics flags
+			// Do Pre-Physics
 			for (i = 0; i < numBlocks; i++) {
 				blocks[i].SetDidPhysics(false);
 				blocks[i].SetMoved(false);
@@ -318,7 +321,7 @@ void Game() {
 			// For each player:
 			// If player is not floating and there is no block on his head, make him rise
 			for (i = 0; i < numPlayers; i++) {
-				if (blocks[i].GetType() == 1 && blocks[i].GetH() < TILE_H && BlockNumber(blocks[i].GetX(), blocks[i].GetY() - 1, blocks[i].GetW(), 1) < 0) {
+				if (blocks[i].GetType() >= 10 && blocks[i].GetH() < TILE_H && BlockNumber(blocks[i].GetX(), blocks[i].GetY() - 1, blocks[i].GetW(), 1) < 0) {
 					b = blocks[i].GetY(); 			// Save old y position
 					blocks[i].SetYMoving(-blockYSpeed);	// Set the block to move up
 					if (blocks[i].GetYMoving() < -2) blocks[i].SetYMoving(-2);
@@ -337,13 +340,16 @@ void Game() {
 				}
 				
 				// Is player at exit?
-				if (blocks[i].GetDir() != 3 && blocks[i].GetXMoving() == 0) {
+				if (wonLevel == 0) {
 					if (BoxOverlap(exitX, exitY, TILE_W, TILE_H, blocks[i].GetX(), blocks[i].GetY(), blocks[i].GetW(), blocks[i].GetH())) {
-						blocks[i].SetFace(3); // happy mouth
-						blocks[i].SetDir(2); // Face the camera
+						blocks[i].SetFace(4); // scared mouth
 						wonLevel = 1;
 					}
 				}
+				else if (wonLevel == 2 && blocks[i].GetX() == exitX && blocks[i].GetY() == exitY) {
+					wonLevel = 3;
+				}
+
 			}
 			
 		
@@ -361,14 +367,31 @@ void Game() {
 			cameraTargetX = blocks[0].GetX() + (blocks[0].GetW() / 2);
 			cameraTargetY = blocks[0].GetY() + (blocks[0].GetH() / 2);
 
+			// Open the door
+			if (wonLevel == 1) {
+				x = blocks[0].GetX();
+				b = blocks[0].GetY();
+				blocks[0].SetX(oldPlayerX);
+				blocks[0].SetY(oldPlayerY);
+				while (wonLevel < 2) {
+					Render(1);
+				}
+				blocks[0].SetX(x);
+				blocks[0].SetY(b);
+				
+				blocks[i].SetFace(3); // happy mouth
+				blocks[i].SetDir(2); // Face the camera
+			}
+
 			/** Render **/
 			Render(1);
-			
-			if (wonLevel == 1) {
+
+			if (wonLevel == 3) {
 				SDL_Delay(1000);
 				currentLevel ++;
 				break;
 			}
+
 			
 		} // End of game loop
 		
@@ -432,6 +455,7 @@ bool LoadLevel(uint level) {
 				case 'T':
 					numTorches ++;
 				case '0':
+				case '1':
 					numBricks ++;
 					break;
 				case 'x':
@@ -534,6 +558,10 @@ bool LoadLevel(uint level) {
 	blockXGravity = 0;
 	blockYGravity = blockYSpeed;
 
+	// Reset brick types to "undetermined"
+	for (uint i = 0; i < numBricks; i++) {
+		bricks[i].SetType(-1);
+	}
 
 
 	// Now read the level again, getting object coordinates
@@ -557,7 +585,7 @@ bool LoadLevel(uint level) {
 				case '@': // player
 					blocks[numPlayers].SetX(x);
 					blocks[numPlayers].SetY(y);
-					blocks[numPlayers].SetType(1);
+					blocks[numPlayers].SetType(10);
 					numPlayers ++;
 					break;
 				case '*': // exit
@@ -573,9 +601,17 @@ bool LoadLevel(uint level) {
 					torches[numTorches].SetX(x);
 					torches[numTorches].SetY(y);
 					numTorches ++;
-				case '0': // brick
+					bricks[numBricks].SetType(0); // Wall
+					// Proceed down to next case
+				case '0': // brick (type automatically selected)
 					bricks[numBricks].SetX(x);
 					bricks[numBricks].SetY(y);
+					numBricks ++;
+					break;
+				case '1': // wall brick (manual override)
+					bricks[numBricks].SetX(x);
+					bricks[numBricks].SetY(y);
+					bricks[numBricks].SetType(0);
 					numBricks ++;
 					break;
 				case 'X': // block
@@ -632,6 +668,88 @@ bool LoadLevel(uint level) {
 		}
 	}
 	fclose(f);
+	
+	/*** Change brick types based on their placement next to other bricks ***/
+	// Do walls first
+	for (uint i = 0; i < numBricks; i++) {
+		// Only change bricks that have not yet been set
+		if (bricks[i].GetType() != -1)
+			continue;
+		
+		// If (there is a brick above this brick
+		// OR there is a brick below this brick)
+		// AND there is no brick to the left
+		// AND there is no brick to the right
+		if ((BoxContents(bricks[i].GetX(), bricks[i].GetY() - TILE_H, TILE_W, TILE_H) == -2
+			|| BoxContents(bricks[i].GetX(), bricks[i].GetY() + TILE_H, TILE_W, TILE_H) == -2)
+			&& BoxContents(bricks[i].GetX() - TILE_W, bricks[i].GetY(), TILE_W, TILE_H) != -2
+			&& BoxContents(bricks[i].GetX() + TILE_W, bricks[i].GetY(), TILE_W, TILE_H) != -2)
+		{
+			bricks[i].SetType(0); // Wall
+			continue;
+		}
+	}
+	
+	// Now do land
+	int leftBrick, rightBrick;
+	for (uint i = 0; i < numBricks; i++) {
+		if (bricks[i].GetType() == -1) {
+			leftBrick = BrickNumber(bricks[i].GetX() - TILE_W, bricks[i].GetY(), TILE_W, TILE_H);
+			// Ignore wall bricks (because they aren't "connected" to land bricks)
+			if (leftBrick >= 0) {
+				if (bricks[leftBrick].GetType() == 0) {
+					leftBrick = -1;
+				}
+			}
+
+			rightBrick = BrickNumber(bricks[i].GetX() + TILE_W, bricks[i].GetY(), TILE_W, TILE_H);
+			// Ignore wall bricks (because they aren't "connected" to land bricks)
+			if (rightBrick >= 0) {
+				if (bricks[rightBrick].GetType() == 0) {
+					rightBrick = -1;
+				}
+			}
+
+			// If there is no brick to the left
+			// AND there is a brick to the right
+			if (leftBrick == -1
+				&& rightBrick >= 0)
+			{
+				bricks[i].SetType(1); // Left-side piece of land
+				continue;
+			}
+
+			// If there is a brick to the left
+			// AND there is a brick to the right
+			if (leftBrick >= 0
+				&& rightBrick >= 0)
+			{
+				bricks[i].SetType(2); // Middle piece of land
+				continue;
+			}
+
+			// If there is a brick to the left
+			// AND there is no brick to the right
+			if (leftBrick >= 0
+				&& rightBrick == -1)
+			{
+				bricks[i].SetType(3); // Right-side piece of land
+				continue;
+			}
+
+			// If there is no brick to the left
+			// AND there is no brick to the right
+			if (leftBrick == -1
+				&& rightBrick == -1)
+			{
+				bricks[i].SetType(4); // Single piece of land
+				continue;
+			}
+		}
+	}
+
+	//for (uint i = 0; i < numBricks; i++)
+	//	printf("Brick %d is type %d\n", i, bricks[i].GetType());
 	
 	
 	// Make the player face the exit

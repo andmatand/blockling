@@ -252,7 +252,7 @@ SDL_Surface* block::GetSurface() {
 		case 0:
 			return blockSurface;
 			break;
-		case 1:
+		case 10:
 			return playerSurface[GetSurfaceIndex()];
 			break;
 		default:
@@ -326,6 +326,13 @@ int block::GetSurfaceIndex() {
 	}
 }
 
+
+
+
+// Returns correct surface for the block's/player's current face & direction.
+SDL_Surface* brick::GetSurface() {
+	return brickSurface[static_cast<int>(type)];
+}
 
 
 
@@ -417,6 +424,7 @@ void PutPixel(SDL_Surface *surface, int x, int y, Uint32 pixel) {
 void Render(bool update) {
 	static uint bgTimer = 0;
 	static uint torchTimer = 0;
+	static uint doorFrame, doorFramePause;
 	uint i;
 	
 
@@ -437,13 +445,6 @@ void Render(bool update) {
 		
 		bgTimer = SDL_GetTicks();
 	}
-/*
-	for (int b = -bgH - cameraY; b < (-bgH - cameraY) + (((SCREEN_H / bgH) + 1) * bgH); b+= bgH) {
-		for (int a = -bgW - cameraX; a < (-bgW - cameraX) + (((SCREEN_W /bgW) + 1) * bgW); a+= bgW) {
-			ApplySurface(a + bgX, b + bgY, bgSurface, screenSurface);
-		}
-	}
-*/
 	for (int b = -bgH; b < -bgH + (((SCREEN_H / bgH) + 2) * bgH); b+= bgH) {
 		for (int a = -bgW; a < -bgW + (((SCREEN_W /bgW) + 2) * bgW); a+= bgW) {
 			ApplySurface(a + bgX, b + bgY, bgSurface, screenSurface);
@@ -454,7 +455,7 @@ void Render(bool update) {
 	
 	/*** BRICKS ***/
 	for (i = 0; i < numBricks; i++) {
-		ApplySurface(bricks[i].GetX() - cameraX, bricks[i].GetY() - cameraY, brickSurface, screenSurface);
+		ApplySurface(bricks[i].GetX() - cameraX, bricks[i].GetY() - cameraY, bricks[i].GetSurface(), screenSurface);
 	}
 	
 	/*** SPIKES ***/
@@ -464,7 +465,24 @@ void Render(bool update) {
 
 	
 	/*** EXIT ***/
-	ApplySurface(exitX - cameraX, exitY - cameraY, exitSurface, screenSurface);
+	if (wonLevel == 0) {
+		doorFrame = 0;
+		doorFramePause = 0;
+	}
+	if (wonLevel == 1) {
+		// Start the animation at frame 1 (not 0)
+		if (doorFrame == 0) doorFrame = 1;
+		
+		// Make each doorFrame display for multiple frames
+		doorFramePause ++;
+		if (doorFramePause == 4) {
+			doorFrame ++;
+			doorFramePause = 0;
+		}
+	}
+	if (wonLevel == 1 && doorFrame == NUM_EXIT_SURFACES - 1)
+		wonLevel = 2;
+	ApplySurface(exitX - cameraX, exitY - cameraY, exitSurface[doorFrame], screenSurface);
 
 	
 	/*** TORCHES ***/

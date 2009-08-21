@@ -33,6 +33,15 @@ int BlockNumber(int x, int y, int w, int h) {
 	return -1;
 }
 
+int BrickNumber(int x, int y, int w, int h) {
+	for (int i = 0; i < static_cast<int>(numBricks); i++) {
+		if (BoxOverlap(x, y, w, h, bricks[i].GetX(), bricks[i].GetY(), bricks[i].GetW(), bricks[i].GetH())) {
+			return i;
+		}
+	}
+	return -1;
+}
+
 
 
 /** BoxContents returns:
@@ -46,11 +55,8 @@ int BoxContents(int x, int y, int w, int h) {
 	int i;
 	
 	// Bricks
-	for (i = 0; i < static_cast<int>(numBricks); i++) {
-		if (BoxOverlap(x, y, w, h, bricks[i].GetX(), bricks[i].GetY(), bricks[i].GetW(), bricks[i].GetH())) {
-			return -2;
-		}
-	}
+	i = BrickNumber(x, y, w, h);
+	if (i >= 0) return -2;
 	
 	// Spikes
 	for (i = 0; i < static_cast<int>(numSpikes); i++) {
@@ -265,7 +271,7 @@ void block::Physics() {
 						// If the block hasn't moved this frame, we may try to
 						// push it out of the way (a block is only permitted to
 						// move once per frame)
-						if ((strong > 0 || type == 1) && blocks[hit].GetMoved() == false) {
+						if ((strong > 0 || type >= 10) && blocks[hit].GetMoved() == false) {
 							// Try pushing the block out of the way
 							// if it's not already moving
 							if (blocks[hit].GetPath().length() == 0 && blocks[hit].GetXMoving() == 0 && blocks[hit].GetYMoving() == 0) {
@@ -335,7 +341,7 @@ void block::Physics() {
 						// If the block hasn't moved this frame, we may try to
 						// push it out of the way (a block is only permitted to
 						// move once per frame)
-						if ((strong > 0 || blocks[hit].GetType() == 1) && blocks[hit].GetMoved() == false) {
+						if ((strong > 0 || blocks[hit].GetType() >= 10) && blocks[hit].GetMoved() == false) {
 							
 							// Try pushing the block out of the way
 							// if it's not already moving.
@@ -345,7 +351,7 @@ void block::Physics() {
 								// If this is a player, decrease his height so he will sink
 								// a little (2px total) under the weight of the block.  But
 								// only do this once per frame (sunkPlayer keeps track of this)
-								if (blocks[hit].GetType() == 1 && blocks[hit].GetH() > TILE_H - 2 && sunkPlayer == false && blocks[hit].GetX() == x) {
+								if (blocks[hit].GetType() >= 10 && blocks[hit].GetH() > TILE_H - 2 && sunkPlayer == false && blocks[hit].GetX() == x) {
 									blocks[hit].SetH(blocks[hit].GetH() - 2);
 									sunkPlayer = true;
 								}

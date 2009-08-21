@@ -40,8 +40,10 @@ const unsigned short SCREEN_W = 640, SCREEN_H = 400, SCREEN_BPP = 8;
 const char FPS = 30;
 
 const unsigned char NUM_PLAYER_SURFACES = 15;
+const unsigned char NUM_BRICK_SURFACES = 5;
 const unsigned char NUM_TORCH_FLAMES = 8;
 const unsigned char NUM_TELEPAD_STATES = 3;
+const unsigned char NUM_EXIT_SURFACES = 6;
 const unsigned char TELEPAD_H = 4;
 const uint NUM_GAME_KEYS = 6;
 const uint NUM_PLAYER_KEYS = 5;
@@ -64,8 +66,10 @@ uint numSpikes;
 uint numTelepads;
 
 uint currentLevel;
+char wonLevel; // 0 = not yet, 1 = yes, but door is opening, 2 = door is fully open
 
 int exitX, exitY;
+
 int cameraX, cameraY;
 int cameraTargetX, cameraTargetY; // Camera will follow this position
 uint manualCameraTimer; // For making sure camera will not automatically move if it has been manually moved recently
@@ -90,6 +94,7 @@ void Input();
 
 /* physics.cpp */
 int BlockNumber(int x, int y, int w, int h);
+int BrickNumber(int x, int y, int w, int h);
 int BoxContents(int x, int y, int w, int h);
 bool BoxOverlap (int x1, int y1, int w1, int h1, int x2, int y2, int w2, int h2);
 bool OnSolidGround(int b);
@@ -188,7 +193,7 @@ class block {
 		char dir;	// Direction the player is facing:
 				// 0 left, 1 right, 2 at camera, 3 dead
 		
-		char type;	// 0 regular block, 1 player
+		char type;	// 0 regular block, >= 10 player
 		
 		char face;	/* Players */           /* Blocks */	
 				// 0 = normal		0 = normal
@@ -245,13 +250,13 @@ int block::GetYOffset() {
 /* Bricks are stationary "land" */
 class brick {
 	public:
-		/// Constructor ///
+		/** Constructor **/
 		brick():
 			w(TILE_W),
 			h(TILE_H)
 			{};
 	
-		/// Get ///
+		/** Get **/
 		int GetX() const { return x; };
 		int GetY() const { return y; };
 		
@@ -261,15 +266,22 @@ class brick {
 		
 		int GetType() const { return type; };
 	
-		/// Set ///
+		/** Set **/
 		void SetX(int xPos) { x = xPos; };
 		void SetY(int yPos) { y = yPos; };
 		
 		void SetType(char t) { type = t; };
+		
+		/** Other **/
+		SDL_Surface* GetSurface();	// in graphics.cpp
 	private:
 		int x, y;
 		int w, h;
-		char type;	// 0 normal brick
+		char type;	// 0 wall (vertical sections & behind torches)
+				// 1 left side
+				// 2 middle
+				// 3 right side
+				// 4 singe piece of land
 };
 
 
@@ -377,12 +389,12 @@ int telepad::GetOccupant2() {
 
 /******* GLOBAL VARIABLES (part 2) *******/
 SDL_Surface *screenSurface;
-SDL_Surface *brickSurface;
+SDL_Surface *brickSurface[NUM_BRICK_SURFACES];
 SDL_Surface *blockSurface;
 SDL_Surface *torchSurface[NUM_TORCH_FLAMES];
 SDL_Surface *spikeSurface;
 SDL_Surface *telepadSurface[NUM_TELEPAD_STATES];
-SDL_Surface *exitSurface;
+SDL_Surface *exitSurface[NUM_EXIT_SURFACES];
 SDL_Surface *bgSurface;
 SDL_Surface *playerSurface[NUM_PLAYER_SURFACES];
 

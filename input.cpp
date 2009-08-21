@@ -101,18 +101,18 @@ void Input() {
 
 				/** Turn on Player Keys **/
 				for (uint i = 0; i < NUM_PLAYER_KEYS; i++) {
-					//printf("%d", event.key.keysym.mod);
-					//std::cout << "KMOD_NONE: " << KMOD_NONE << "\n";
-					//std::cout << event.key.keysym.mod << "\n";
-					//std::cout << "anded:" << (event.key.keysym.mod & KMOD_NONE) << "\n";
-					//if (event.key.keysym.mod == KMOD_NONE) {
-						if (event.key.keysym.sym == playerKeys[i].sym) {
-							if (playerKeys[i].on == 0) {
+					if (event.key.keysym.sym == playerKeys[i].sym) {
+						if (playerKeys[i].on == 0) {
+							// If shift is held
+							if (event.key.keysym.mod & KMOD_LSHIFT || event.key.keysym.mod & KMOD_RSHIFT) {
+								playerKeys[i].on = 3;
+							}
+							else {
 								playerKeys[i].on = 1;
 								playerKeys[i].timer = SDL_GetTicks();
 							}
 						}
-					//}
+					}
 				}
 				
 
@@ -159,8 +159,16 @@ void Input() {
 					}
 				}
 
+				switch (event.key.keysym.sym) {
+					case SDLK_f:
+						int r = SDL_WM_ToggleFullScreen(screenSurface);
+						printf("FullScreen toggle: %d\n", r);
+						break;
+				}
+
+
 				break;
-			
+
 			case SDL_QUIT:
 				gameKeys[0].on = 1;
 				break;

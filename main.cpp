@@ -59,10 +59,8 @@ int main(int argc, char** argv) {
 
 
 void Init() {
-	brickSurface = FillSurface("data/bmp/brick0.bmp", 1);
 	blockSurface = FillSurface("data/bmp/block0.bmp", 1);
 	spikeSurface = FillSurface("data/bmp/spike0.bmp", 1);
-	exitSurface = FillSurface("data/bmp/exit0.bmp", 1);
 
 	int a = 0, b = 0;
 	char fn[32]; // filename
@@ -82,6 +80,16 @@ void Init() {
 		}
 	}
 
+	for (uint i = 0; i < NUM_BRICK_SURFACES; i++) {
+		n = sprintf(fn, "data/bmp/brick%d.bmp", i);
+		brickSurface[i] = FillSurface(fn, 1);
+		
+		#ifdef DEBUG
+		std::cout << "Loading " << fn << "\n";
+		#endif
+	}
+
+
 	for (uint i = 0; i < NUM_TORCH_FLAMES; i++) {
 		n = sprintf(fn, "data/bmp/torch%d.bmp", i);
 		torchSurface[i] = FillSurface(fn, 1);
@@ -99,6 +107,16 @@ void Init() {
 		std::cout << "Loading " << fn << "\n";
 		#endif
 	}
+
+	for (uint i = 0; i < NUM_EXIT_SURFACES; i++) {
+		n = sprintf(fn, "data/bmp/exit%d.bmp", i);
+		exitSurface[i] = FillSurface(fn, 1);
+		
+		#ifdef DEBUG
+		std::cout << "Loading " << fn << "\n";
+		#endif
+	}
+
 
 	bgSurface = FillSurface("data/bmp/bg0.bmp", 0);
 	bgW = bgSurface->w;
