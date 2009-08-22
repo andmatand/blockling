@@ -97,8 +97,8 @@ void CenterCamera(char override) {
 	int maxXVel = TILE_W * 3;
 	int maxYVel = TILE_H * 3;
 	if (override == 2) {
-		maxXVel = TILE_W * 6;
-		maxYVel = TILE_H * 6;	
+		//maxXVel = TILE_W * 6;
+		//maxYVel = TILE_H * 6;	
 	}
 
 	// If camera has recently been manually moved
@@ -138,12 +138,13 @@ void CenterCamera(char override) {
 	int xMargin = TILE_W * 1;
 	int yMargin = TILE_H * 1;
 	
+	
 	// Target X and Y are the final destination that the camera needs to reach.
 	int targetX = cameraTargetX - (SCREEN_W / 2);
 	int targetY = cameraTargetY - (SCREEN_H / 2);
 	
 
-	if (override != 2) {
+	if (override != 2 && !stickyPlayer) {
 		// Adjust target coordinates so that the camera doesn't
 		// bother moving if the player is in the box.
 		if (cameraX < targetX) {
@@ -183,25 +184,26 @@ void CenterCamera(char override) {
 		}
 	}		
 	
-	// For levels that are taller than the screen, keep the camera from going too far outside the level
-	// and showing us useless empty space.	
-	if (levelH > SCREEN_H) {
-		// If the camera is showing too much space to below the level
-		if (targetY + (SCREEN_H - 1) > levelY + (levelH - 1) + yMargin) {
-			// Move the level as far down as it *should* go.
-			targetY = levelY + (levelH - 1) + yMargin - (SCREEN_H - 1);
+	if (!stickyPlayer) {
+		// For levels that are taller than the screen, keep the camera from going too far outside the level
+		// and showing us useless empty space.	
+		if (levelH > SCREEN_H) {
+			// If the camera is showing too much space to below the level
+			if (targetY + (SCREEN_H - 1) > levelY + (levelH - 1) + yMargin) {
+				// Move the level as far down as it *should* go.
+				targetY = levelY + (levelH - 1) + yMargin - (SCREEN_H - 1);
+			}
+			
+			// If the camera is too far above the level
+			if (targetY < levelY - yMargin) {
+				// Move the level as far up as it *should* go
+				targetY = levelY - yMargin;
+			}
 		}
-		
-		// If the camera is too far above the level
-		if (targetY < levelY - yMargin) {
-			// Move the level as far up as it *should* go
-			targetY = levelY - yMargin;
-		}		
-	}
-	else {
-		targetY = -(SCREEN_H / 2);
-	}
-	
+		else {
+			targetY = -(SCREEN_H / 2);
+		}
+	}	
 	
 	
 
@@ -220,7 +222,14 @@ void CenterCamera(char override) {
 	
 	// Slow down to zero velocity by the time we reach the target X
 	if (cameraXVel != 0) {
-		if (abs(abs(targetX - cameraX) / cameraXVel) < abs(cameraXVel)) {
+		int xStoppingDistance = 0; // How much distance it will take for the camera to come to
+		                          // a complete stop if it starts slowing down now.
+		
+		for (uint i = abs(cameraXVel); i > 0; i--) {
+			xStoppingDistance += i;
+		}
+		
+		if (xStoppingDistance > abs(targetX - cameraX)) {
 			if (cameraXVel < 0) {
 				cameraXVel += 2;
 				if (cameraXVel > 0) cameraXVel = 0;
@@ -232,7 +241,14 @@ void CenterCamera(char override) {
 		}
 	}
 	if (cameraYVel != 0) {
-		if (abs(abs(targetY - cameraY) / cameraYVel) < abs(cameraYVel)) {
+		int yStoppingDistance = 0; // How much distance it will take for the camera to come to
+		                          // a complete stop if it starts slowing down now.
+		
+		for (uint i = abs(cameraYVel); i > 0; i--) {
+			yStoppingDistance += i;
+		}
+		
+		if (yStoppingDistance > abs(targetY - cameraY)) {
 			if (cameraYVel < 0) {
 				cameraYVel += 2;
 				if (cameraYVel > 0) cameraYVel = 0;
@@ -512,21 +528,43 @@ void Render (char flag) {
 	
 	
 	
+	
 	/*** BLOCKS ***/
-	for (i = 0; i < numBlocks; i++) {
-		if (blocks[i].GetType() >= 0) {
-			//if (wonLevel == 3 && blocks[i].won()) {
-				
-			//}
-			blocks[i].Animate();
-			ApplySurface(blocks[i].GetX() - cameraX, blocks[i].GetY() - cameraY, blocks[i].GetSurface(), screenSurface);
-		}
+	// Turn stickyPlayer off when he's lined up in the new level's position.
+	if (blocks[0].GetX() - cameraX == stickyPlayerX && blocks[0].GetY() - cameraY == stickyPlayerY) {
+		stickyPlayer = false;
 	}
 	
+	// Activate stickyPlayer
+	if (wonLevel == 4 && blocks[0].GetWon() > 0 && stickyPlayer == false) {
+		stickyPlayer = true;
+		stickyPlayerOrigX = blocks[0].GetX();
+		stickyPlayerOrigY = blocks[0].GetY();
+		stickyPlayerX = blocks[0].GetX() - cameraX;
+		stickyPlayerY = blocks[0].GetY() - cameraY;
+	}
+
+	for (i = 0; i < numBlocks; i++) {
+		if (blocks[i].GetType() >= 0) {
+			blocks[i].Animate();
+			
+			if (i != 0 || !stickyPlayer) {
+				ApplySurface(blocks[i].GetX() - cameraX, blocks[i].GetY() - cameraY, blocks[i].GetSurface(), screenSurface);
+			}
+		}
+	}
+
+
 	/*** TELEPADS ***/
 	for (i = 0; i < numTelepads; i++) {
 		ApplySurface(telepads[i].GetX1() - cameraX, telepads[i].GetY1() - cameraY, telepads[i].GetSurface(), screenSurface);
 		ApplySurface(telepads[i].GetX2() - cameraX, telepads[i].GetY2() - cameraY, telepads[i].GetSurface(), screenSurface);
+	}
+
+
+	// Draw player on top of everything when sticky
+	if (stickyPlayer) {
+		ApplySurface(stickyPlayerX, stickyPlayerY, blocks[0].GetSurface(), screenSurface);
 	}
 
 

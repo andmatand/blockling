@@ -68,7 +68,9 @@ uint numTelepads;
 uint currentLevel;
 char wonLevel;	// 0 = No player has won level yet
 		// 1 = A player is opening the door (flag for Render to animate the door)
-		// 2 = The first player has won (the level is over)
+		// 2 = The first player has won (the level is over) and is walking into the door
+		// 3 = The first player has finished walking into the door
+		// 4 = The player now becomes sticky and the level scrolls into place under him
 
 int exitX, exitY;
 
@@ -76,6 +78,11 @@ int cameraX, cameraY;
 int cameraTargetX, cameraTargetY; // Camera will follow this position
 uint manualCameraTimer; // For making sure camera will not automatically move if it has been manually moved recently
 int levelX, levelY, levelW, levelH; // Used to provide info for camera to know how far to move
+
+// For making the player stay put when camera is moving to the next level
+bool stickyPlayer;
+int stickyPlayerX, stickyPlayerY; // The screen coordinates
+int stickyPlayerOrigX, stickyPlayerOrigY; // The player's game coordinates
 
 
 /******* FUNCTION PROTOTYPES *******/

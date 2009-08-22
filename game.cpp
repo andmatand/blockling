@@ -55,6 +55,7 @@ void Game() {
 	uint wonLevelTimer;
 	
 	currentLevel = 0;
+	stickyPlayer = false;
 
 	/*** Loop to advance to next level ***/
 	while(quitGame == false) {
@@ -117,43 +118,45 @@ void Game() {
 				Undo(1);
 			}
 			
+			
 			/** Manual Camera Movement **/
-			
-			cameraXVel *= .85f;
-			cameraYVel *= .85f;
-			
-			// Move camera left
-			if (gameKeys[2].on > 0) {
-				cameraXVel -= 2;
-				manualCameraTimer = SDL_GetTicks();
-			}
-			
-			// Move camera right
-			if (gameKeys[3].on > 0) {
-				cameraXVel += 2;
-				manualCameraTimer = SDL_GetTicks();
-			}
-			
-			// Move camera up
-			if (gameKeys[4].on > 0) {
-				cameraYVel -= 2;
-				manualCameraTimer = SDL_GetTicks();
-			}
+			if (!stickyPlayer) {
+				cameraXVel *= .85f;
+				cameraYVel *= .85f;
+				
+				// Move camera left
+				if (gameKeys[2].on > 0) {
+					cameraXVel -= 2;
+					manualCameraTimer = SDL_GetTicks();
+				}
+				
+				// Move camera right
+				if (gameKeys[3].on > 0) {
+					cameraXVel += 2;
+					manualCameraTimer = SDL_GetTicks();
+				}
+				
+				// Move camera up
+				if (gameKeys[4].on > 0) {
+					cameraYVel -= 2;
+					manualCameraTimer = SDL_GetTicks();
+				}
 
-			// Move camera down
-			if (gameKeys[5].on > 0) {
-				cameraYVel += 2;
-				manualCameraTimer = SDL_GetTicks();
-			}
-			
-			// Enforce maximum camera velocity limitations
-			if (cameraXVel > TILE_W) cameraXVel = TILE_W;
-			if (cameraXVel < -TILE_W) cameraXVel = -TILE_W;
-			if (cameraYVel > TILE_H) cameraYVel = TILE_H;
-			if (cameraYVel < -TILE_H) cameraYVel = -TILE_H;
-			
-			cameraX += static_cast<int>(cameraXVel);
-			cameraY += static_cast<int>(cameraYVel);
+				// Move camera down
+				if (gameKeys[5].on > 0) {
+					cameraYVel += 2;
+					manualCameraTimer = SDL_GetTicks();
+				}
+				
+				// Enforce maximum camera velocity limitations
+				if (cameraXVel > TILE_W) cameraXVel = TILE_W;
+				if (cameraXVel < -TILE_W) cameraXVel = -TILE_W;
+				if (cameraYVel > TILE_H) cameraYVel = TILE_H;
+				if (cameraYVel < -TILE_H) cameraYVel = -TILE_H;
+				
+				cameraX += static_cast<int>(cameraXVel);
+				cameraY += static_cast<int>(cameraYVel);
+			}			
 			
 			
 			/*** Handle Player Movement ***/
@@ -371,11 +374,29 @@ void Game() {
 			}
 
 
-			// Center camera on player
+			/*** Center camera on player ***/
 			//cameraX = (blocks[0].GetX() + (blocks[0].GetW() / 2)) - (SCREEN_W / 2);
 			//cameraY = (blocks[0].GetY() + (blocks[0].GetH() / 2)) - (SCREEN_H / 2);
-			cameraTargetX = blocks[0].GetX() + (blocks[0].GetW() / 2);
-			cameraTargetY = blocks[0].GetY() + (blocks[0].GetH() / 2);
+			
+			// Position cameraY so that the level is lined up with the next level's Y position of the player
+			if (stickyPlayer) {
+				//cameraX = -blocks[0].GetX() - stickyPlayerX
+				cameraTargetX = (
+							blocks[0].GetX() - stickyPlayerX
+						)
+						+ (SCREEN_W / 2); // Nullify what the CenterCamera function will
+								  // do to change this coordinate.
+				
+				cameraTargetY = (
+							blocks[0].GetY() - stickyPlayerY
+						)
+						+ (SCREEN_H / 2);
+			}
+			else {
+				cameraTargetX = blocks[0].GetX() + (blocks[0].GetW() / 2);
+				cameraTargetY = blocks[0].GetY() + (blocks[0].GetH() / 2);
+			}
+
 
 			// Open the door for a player that won
 			for (i = 0; i < numBlocks; i++) {
@@ -393,6 +414,7 @@ void Game() {
 			Render(1);
 
 			if (wonLevel == 3 && SDL_GetTicks() > wonLevelTimer + 1000) {
+				wonLevel = 4;
 				//SDL_Delay(1000);
 				currentLevel ++;
 				break;
@@ -402,7 +424,7 @@ void Game() {
 		} // End of game loop
 		
 		
-		if (quitGame == false && wonLevel == 3) {
+		if (quitGame == false && wonLevel == 4) {
 			/** Zing level offscreen **/
 			cameraTargetX = SCREEN_W * 4;
 			while (cameraX < levelX + levelW) {
@@ -537,10 +559,10 @@ bool LoadLevel(uint level) {
 	y = -(height / 2);
 	y += (abs(y) % TILE_H); // Align to grid
 
-	//cameraX = -(SCREEN_W / 2);
+	// Position cameraX so that the level is just offscreen to the right
 	cameraX = -SCREEN_W - (width / 2);
 	cameraY = -(SCREEN_H / 2);
-
+	
 	// These global variables are used by the camera
 	levelX = x;
 	levelY = y;
@@ -764,9 +786,7 @@ bool LoadLevel(uint level) {
 		}
 	}
 
-	//for (uint i = 0; i < numBricks; i++)
-	//	printf("Brick %d is type %d\n", i, bricks[i].GetType());
-	
+
 	
 	// Make the player face the exit
 	if (exitX > blocks[0].GetX()) {
