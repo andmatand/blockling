@@ -300,31 +300,32 @@ void Game() {
 
 			
 			/*** Do Block Physics ***/
-			// Do Pre-Physics
-			for (i = 0; i < numBlocks; i++) {
-				blocks[i].SetDidPhysics(false);
-				blocks[i].SetMoved(false);
-			}
-			// Do Physics
-			for (i = 0; i < numBlocks; i++) {
-				if (blocks[i].GetDidPhysics() == false) {
-					//printf("===Block %d Physics===\n", i);
-					blocks[i].Physics();
-					
-					// Temporarily suspend all physics if a player reaches the exit
-					if (blocks[i].GetWon() == 1) {
-						wonLevel = 1;
-						break;
+			if (!stickyPlayer) {
+				// Do Pre-Physics
+				for (i = 0; i < numBlocks; i++) {
+					blocks[i].SetDidPhysics(false);
+					blocks[i].SetMoved(false);
+				}
+				// Do Physics
+				for (i = 0; i < numBlocks; i++) {
+					if (blocks[i].GetDidPhysics() == false) {
+						//printf("===Block %d Physics===\n", i);
+						blocks[i].Physics();
+						
+						// Temporarily suspend all physics if a player reaches the exit
+						if (blocks[i].GetWon() == 1) {
+							wonLevel = 1;
+							break;
+						}
 					}
 				}
-			}
-			// Do Post-Physics (decrement xMoving and yMoving, revoke temporary strength privileges)
-			if (wonLevel != 1) {
-				for (i = 0; i < numBlocks; i++) {
-					blocks[i].PostPhysics();
+				// Do Post-Physics (decrement xMoving and yMoving, revoke temporary strength privileges)
+				if (wonLevel != 1) {
+					for (i = 0; i < numBlocks; i++) {
+						blocks[i].PostPhysics();
+					}
 				}
-			}
-			
+			}			
 			
 			// For each player:
 			// If player is not floating and there is no block on his head, make him rise
@@ -348,7 +349,7 @@ void Game() {
 				}
 				
 				// If the player just finished walking into the exit (with the door open)
-				if (blocks[i].GetWon() == 2 && blocks[i].GetX() == exitX && blocks[i].GetY() == exitY) {
+				if (blocks[i].GetWon() == 2 && blocks[i].GetX() == exitX && blocks[i].GetY() - blocks[i].GetYOffset() == exitY) {
 					blocks[i].SetWon(3);
 					if (i == 0) {
 						blocks[i].SetFace(3); // happy mouth
@@ -427,6 +428,7 @@ void Game() {
 		if (quitGame == false && wonLevel == 4) {
 			/** Zing level offscreen **/
 			cameraTargetX = SCREEN_W * 4;
+			cameraTargetY = cameraY;
 			while (cameraX < levelX + levelW) {
 				CenterCamera(2);
 				Render(2);
@@ -787,6 +789,9 @@ bool LoadLevel(uint level) {
 	}
 
 
+	// Make cameraY line up with where the sticky player needs to be
+	if (stickyPlayer)
+		cameraY = blocks[0].GetY() - stickyPlayerY;
 	
 	// Make the player face the exit
 	if (exitX > blocks[0].GetX()) {
