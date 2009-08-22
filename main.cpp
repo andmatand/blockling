@@ -42,6 +42,7 @@ int main(int argc, char** argv) {
 	}
 	
 	SDL_WM_SetCaption("Blockman", NULL);
+	SDL_ShowCursor(SDL_DISABLE);
 	
 	Init();
 
@@ -108,7 +109,7 @@ void Init() {
 		#endif
 	}
 
-	for (uint i = 0; i < NUM_EXIT_SURFACES; i++) {
+	for (uint i = 0; i < NUM_EXIT_FRAMES; i++) {
 		n = sprintf(fn, "data/bmp/exit%d.bmp", i);
 		exitSurface[i] = FillSurface(fn, 1);
 		

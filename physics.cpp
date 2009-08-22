@@ -49,6 +49,7 @@ int BrickNumber(int x, int y, int w, int h) {
 ***	-2 brick
 ***	-3 spike
 ***	-4 telepad
+***	-5 exit
 ***	a block number (>= 0) if it contains a block
 **/
 int BoxContents(int x, int y, int w, int h) {
@@ -56,7 +57,8 @@ int BoxContents(int x, int y, int w, int h) {
 	
 	// Bricks
 	i = BrickNumber(x, y, w, h);
-	if (i >= 0) return -2;
+	if (i >= 0)
+		return -2;
 	
 	// Spikes
 	for (i = 0; i < static_cast<int>(numSpikes); i++) {
@@ -76,7 +78,8 @@ int BoxContents(int x, int y, int w, int h) {
 
 	// Blocks
 	i = BlockNumber(x, y, w, h);
-	if (i >= 0) return i;
+	if (i >= 0)
+		return i;
 	
 	return -1;
 }
@@ -224,7 +227,7 @@ void block::Physics() {
 	int newY = y;
 	
 	if (doGravity) {
-		if (yMoving == 0) newY += blockYGravity;
+		if (yMoving == 0 && (won == 0 || y < exitY)) newY += blockYGravity;
 	}
 
 	// Process path movement
@@ -274,7 +277,8 @@ void block::Physics() {
 						if ((strong > 0 || type >= 10) && blocks[hit].GetMoved() == false) {
 							// Try pushing the block out of the way
 							// if it's not already moving
-							if (blocks[hit].GetPath().length() == 0 && blocks[hit].GetXMoving() == 0 && blocks[hit].GetYMoving() == 0) {
+							// and if it's not a player exiting the level
+							if (blocks[hit].GetPath().length() == 0 && blocks[hit].GetXMoving() == 0 && blocks[hit].GetYMoving() == 0 && blocks[hit].GetWon() == 0) {
 								oldY = blocks[hit].GetY(); // Save old position of this block we're trying to push
 								blocks[hit].SetYMoving(newY - y);
 								if (type == 0) blocks[hit].SetStrong(2); // If this is a block pushing on this block, temporarily make this block strong
@@ -286,7 +290,7 @@ void block::Physics() {
 							}
 						}
 					}
-					
+
 					// If we are still hitting something, stop here.
 					if (hit != -1) {
 						newY = i + 1; // This is as far as the block could go
@@ -302,7 +306,15 @@ void block::Physics() {
 						break; // Breaks out of the while loop.
 					}
 				}
-				if (hit == -1) break;
+				if (hit == -1) {
+					// If this is a player who hasn't won yet, and he has reached the exit
+					if (type >= 10 && won == 0 && BoxOverlap(x, i, w, 1, exitX, exitY, TILE_W, TILE_H)) {
+						won = 1;
+						return; // Delay doing the physics for now (open the door first)
+					}
+
+					break;
+				}
 			}
 			if (hit == -3) break;
 		}
@@ -320,7 +332,7 @@ void block::Physics() {
 			
 				// If this space is occupied by other object
 				if (hit != -1) {
-					
+
 					// If we hit a block, try to get it out of the way
 					if (hit >= 0) {
 						// Do its physics if it hasn't done them this frame,
@@ -344,8 +356,9 @@ void block::Physics() {
 						if ((strong > 0 || blocks[hit].GetType() >= 10) && blocks[hit].GetMoved() == false) {
 							
 							// Try pushing the block out of the way
-							// if it's not already moving.
-							if (blocks[hit].GetPath().length() == 0 && blocks[hit].GetXMoving() == 0 && blocks[hit].GetYMoving() == 0) {
+							// if it's not already moving,
+							// and if it's not a player exiting the level
+							if (blocks[hit].GetPath().length() == 0 && blocks[hit].GetXMoving() == 0 && blocks[hit].GetYMoving() == 0 && blocks[hit].GetWon() == 0) {
 								oldY = blocks[hit].GetY(); // Save old position of this block we're trying to push
 								
 								// If this is a player, decrease his height so he will sink
@@ -382,7 +395,15 @@ void block::Physics() {
 						break; // Breaks out of the while loop.
 					}
 				}
-				if (hit == -1) break;
+				if (hit == -1) {
+					// If this is a player who hasn't won yet, and he has reached the exit
+					if (type >= 10 && won == 0 && BoxOverlap(x, i + (h - 1), w, 1, exitX, exitY, TILE_W, TILE_H)) {
+						won = 1;
+						return; // Delay doing the physics for now (open the door first)
+					}
+
+					break;
+				}
 			}
 			if (hit == -3) break;
 		}
@@ -401,7 +422,7 @@ void block::Physics() {
 	int newX = x;
 	
 	if (doGravity) {
-		if (xMoving == 0 ) newX += blockXGravity; // Maybe remove the requirement that xMoving be 0
+		if (xMoving == 0 && (won == 0 || y < exitY)) newX += blockXGravity;
 	}
 
 	// Process X path movement
@@ -422,6 +443,9 @@ void block::Physics() {
 		//if (xMoving < 0) xMoving = 0;
 	}
 	
+	if (won > 0 && x == exitX) {
+		newX = x;
+	}
 
 	// Move x left to newX, processing any collisions along the way
 	if (newX < x) {
@@ -462,7 +486,9 @@ void block::Physics() {
 							// if it's not already moving
 							if (blocks[hit].GetPath().length() == 0 && blocks[hit].GetXMoving() == 0 && blocks[hit].GetYMoving() == 0 
 								// and if it's on solid ground
-								&& blocks[hit].OnSolidGround())
+								&& blocks[hit].OnSolidGround()
+								// and if it's not a player exiting the level
+								&& blocks[hit].GetWon() == 0)
 							{
 								oldX = blocks[hit].GetX(); // Save old position of this block we're trying to push
 								blocks[hit].SetXMoving(newX - x);
@@ -490,7 +516,15 @@ void block::Physics() {
 						break; // Out of while loop
 					}
 				}
-				if (hit == -1) break;
+				if (hit == -1) {
+					// If this is a player who hasn't won yet, and he has reached the exit
+					if (type >= 10 && won == 0 && BoxOverlap(i, y, 1, h, exitX, exitY, TILE_W, TILE_H)) {
+						won = 1;
+						return; // Delay doing the physics for now (open the door first)
+					}
+
+					break;
+				}
 			}
 			if (hit == -3) break;
 		}
@@ -505,8 +539,8 @@ void block::Physics() {
 				hit = BoxContents(i + (w - 1), y, 1, h); // Returns -1 if the box is clear
 				
 				// If this space is occupied by other object
-				if (hit != -1) { 
-					
+				if (hit != -1) {
+
 					// If we hit a block, try to get it out of the way
 					if (hit >= 0) {
 						// First, do its physics if it hasn't done them this frame,
@@ -535,7 +569,9 @@ void block::Physics() {
 							// if it's not already moving
 							if (blocks[hit].GetPath().length() == 0 && blocks[hit].GetXMoving() == 0 && blocks[hit].GetYMoving() == 0 
 								// and if it's on solid ground
-								&& blocks[hit].OnSolidGround())
+								&& blocks[hit].OnSolidGround()
+								// and if it's not a player exiting the level
+								&& blocks[hit].GetWon() == 0)
 							{
 								oldX = blocks[hit].GetX(); // Save old position of this block we're trying to push
 								blocks[hit].SetXMoving(newX - x);
@@ -548,7 +584,7 @@ void block::Physics() {
 							}
 						}
 					}
-					
+
 					// If we still are hitting something, stop here.
 					if (hit != -1) {
 						newX = i - 1; // This is as far as the block could go
@@ -563,7 +599,16 @@ void block::Physics() {
 						break; // Out of while loop
 					}
 				}
-				if (hit == -1) break;
+
+				if (hit == -1) {
+					// If this is a player who hasn't won yet, and he has reached the exit
+					if (type >= 10 && won == 0 && BoxOverlap(i + (w - 1), y, 1, h, exitX, exitY, TILE_W, TILE_H)) {
+						won = 1;
+						return; // Delay doing the physics for now (open the door first)
+					}
+
+					break;
+				}
 			}
 			if (hit == -3) break;
 		}

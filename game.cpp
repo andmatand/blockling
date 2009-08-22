@@ -47,12 +47,12 @@ void Game() {
 
 	uint i;
 	int x, b;
-	int oldPlayerX, oldPlayerY;
 	std::string tempPath;
 	char s[11];
 	bool pushedKey;
 	bool quitGame = false;
 	float cameraXVel, cameraYVel;
+	uint wonLevelTimer;
 	
 	currentLevel = 0;
 
@@ -295,9 +295,6 @@ void Game() {
 				}
 			}
 
-			oldPlayerX = blocks[0].GetX();
-			oldPlayerY = blocks[0].GetY();
-			
 			
 			/*** Do Block Physics ***/
 			// Do Pre-Physics
@@ -310,11 +307,19 @@ void Game() {
 				if (blocks[i].GetDidPhysics() == false) {
 					//printf("===Block %d Physics===\n", i);
 					blocks[i].Physics();
+					
+					// Temporarily suspend all physics if a player reaches the exit
+					if (blocks[i].GetWon() == 1) {
+						wonLevel = 1;
+						break;
+					}
 				}
 			}
 			// Do Post-Physics (decrement xMoving and yMoving, revoke temporary strength privileges)
-			for (i = 0; i < numBlocks; i++) {
-				blocks[i].PostPhysics();
+			if (wonLevel != 1) {
+				for (i = 0; i < numBlocks; i++) {
+					blocks[i].PostPhysics();
+				}
 			}
 			
 			
@@ -339,15 +344,20 @@ void Game() {
 					blocks[i].SetDir(2); // Facing the camer
 				}
 				
-				// Is player at exit?
-				if (wonLevel == 0) {
-					if (BoxOverlap(exitX, exitY, TILE_W, TILE_H, blocks[i].GetX(), blocks[i].GetY(), blocks[i].GetW(), blocks[i].GetH())) {
-						blocks[i].SetFace(4); // scared mouth
-						wonLevel = 1;
+				// If the player just finished walking into the exit (with the door open)
+				if (blocks[i].GetWon() == 2 && blocks[i].GetX() == exitX && blocks[i].GetY() == exitY) {
+					blocks[i].SetWon(3);
+					if (i == 0) {
+						blocks[i].SetFace(3); // happy mouth
+						blocks[i].SetDir(2); // Face the camera
+
+						wonLevel = 3;
+						wonLevelTimer = SDL_GetTicks();
 					}
-				}
-				else if (wonLevel == 2 && blocks[i].GetX() == exitX && blocks[i].GetY() == exitY) {
-					wonLevel = 3;
+					else {
+						blocks[i].SetType(-blocks[i].GetType());
+						wonLevel = 0;
+					}
 				}
 
 			}
@@ -367,27 +377,23 @@ void Game() {
 			cameraTargetX = blocks[0].GetX() + (blocks[0].GetW() / 2);
 			cameraTargetY = blocks[0].GetY() + (blocks[0].GetH() / 2);
 
-			// Open the door
-			if (wonLevel == 1) {
-				x = blocks[0].GetX();
-				b = blocks[0].GetY();
-				blocks[0].SetX(oldPlayerX);
-				blocks[0].SetY(oldPlayerY);
-				while (wonLevel < 2) {
-					Render(1);
+			// Open the door for a player that won
+			for (i = 0; i < numBlocks; i++) {
+				if (blocks[i].GetWon() == 1) {
+					blocks[i].SetFace(1); // open mouth
+					while (wonLevel < 2) {
+						Render(1);
+					}
+					
+					blocks[i].SetWon(2); // player can now finish walking into the door
 				}
-				blocks[0].SetX(x);
-				blocks[0].SetY(b);
-				
-				blocks[i].SetFace(3); // happy mouth
-				blocks[i].SetDir(2); // Face the camera
 			}
 
 			/** Render **/
 			Render(1);
 
-			if (wonLevel == 3) {
-				SDL_Delay(1000);
+			if (wonLevel == 3 && SDL_GetTicks() > wonLevelTimer + 1000) {
+				//SDL_Delay(1000);
 				currentLevel ++;
 				break;
 			}
@@ -395,6 +401,15 @@ void Game() {
 			
 		} // End of game loop
 		
+		
+		if (quitGame == false && wonLevel == 3) {
+			/** Zing level offscreen **/
+			cameraTargetX = SCREEN_W * 4;
+			while (cameraX < levelX + levelW) {
+				CenterCamera(2);
+				Render(2);
+			}
+		}
 		
 		/** Collect garbage **/
 		CollectLevelGarbage();
@@ -522,7 +537,8 @@ bool LoadLevel(uint level) {
 	y = -(height / 2);
 	y += (abs(y) % TILE_H); // Align to grid
 
-	cameraX = -(SCREEN_W / 2);
+	//cameraX = -(SCREEN_W / 2);
+	cameraX = -SCREEN_W - (width / 2);
 	cameraY = -(SCREEN_H / 2);
 
 	// These global variables are used by the camera

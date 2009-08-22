@@ -43,7 +43,7 @@ const unsigned char NUM_PLAYER_SURFACES = 15;
 const unsigned char NUM_BRICK_SURFACES = 5;
 const unsigned char NUM_TORCH_FLAMES = 8;
 const unsigned char NUM_TELEPAD_STATES = 3;
-const unsigned char NUM_EXIT_SURFACES = 6;
+const unsigned char NUM_EXIT_FRAMES = 4;
 const unsigned char TELEPAD_H = 4;
 const uint NUM_GAME_KEYS = 6;
 const uint NUM_PLAYER_KEYS = 5;
@@ -66,7 +66,9 @@ uint numSpikes;
 uint numTelepads;
 
 uint currentLevel;
-char wonLevel; // 0 = not yet, 1 = yes, but door is opening, 2 = door is fully open
+char wonLevel;	// 0 = No player has won level yet
+		// 1 = A player is opening the door (flag for Render to animate the door)
+		// 2 = The first player has won (the level is over)
 
 int exitX, exitY;
 
@@ -87,7 +89,7 @@ void Undo(char action);
 /* graphics.cpp */
 void CenterCamera(char instant);
 SDL_Surface* FillSurface(const char* file, bool transparent);
-void Render(bool update);
+void Render(char flag);
 
 /* input.cpp */
 void Input();
@@ -116,6 +118,7 @@ class block {
 			type(0),
 			face(0),
 			strong(0),
+			won(0),
 			path("")
 			{};
 	
@@ -136,6 +139,7 @@ class block {
 		char GetType() const { return type; };
 		char GetFace() const { return face; };
 		char GetStrong() const { return strong; };
+		char GetWon() const { return won; };
 		bool GetDidPhysics() const { return didPhysics; };
 		bool GetMoved() const { return moved; };
 		std::string GetPath() const { return path; };
@@ -157,6 +161,7 @@ class block {
 		void SetType(char t) { type = t; };
 		void SetFace(char f) { face = f; };
 		void SetStrong(char s) { strong = s; };
+		void SetWon(char w) { won = w; };
 		void SetDidPhysics(bool d) { didPhysics = d; };
 		void SetMoved(bool m) { moved = m; };
 		void SetPath(std::string p) { path = p; };
@@ -203,12 +208,17 @@ class block {
 				// 4 = scared mouth
 
 		
-		char strong;	// 0 Regular strength (can only lift/push 1 block at a time)
-				// 1 Strong block (used for a strong player and for the block
-				//   when a strong player acts upon it.
-				// 2 Pushed by a strong block (temporary, means this block
-				//   was pushed by a strong block, and can in turn push other
-				//   blocks, but this is reset to 0 at the end of the frame.
+		char strong;	// 0 = Regular strength (can only lift/push 1 block at a time)
+				// 1 = Strong block (used for a strong player and for the block
+				//     when a strong player acts upon it.
+				// 2 = Pushed by a strong block (temporary, means this block
+				//     was pushed by a strong block, and can in turn push other
+				//     blocks, but this is reset to 0 at the end of the frame.
+		
+		char won;	// 0 = Player has not won the level yet
+				// 1 = Player reached the exit, and is waiting for door to open
+				// 2 = Player is continuing to walk toward (now open) door
+				// 3 = Player is inside door
 		
 		bool didPhysics;	// Did the block have physics
 					// applied to it this frame yet?
@@ -394,7 +404,7 @@ SDL_Surface *blockSurface;
 SDL_Surface *torchSurface[NUM_TORCH_FLAMES];
 SDL_Surface *spikeSurface;
 SDL_Surface *telepadSurface[NUM_TELEPAD_STATES];
-SDL_Surface *exitSurface[NUM_EXIT_SURFACES];
+SDL_Surface *exitSurface[NUM_EXIT_FRAMES];
 SDL_Surface *bgSurface;
 SDL_Surface *playerSurface[NUM_PLAYER_SURFACES];
 

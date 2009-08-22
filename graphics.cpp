@@ -92,8 +92,14 @@ void block::Animate() {
 
 
 
-void CenterCamera(char instant) {
+void CenterCamera(char override) {
 	static int cameraXVel = 0, cameraYVel = 0;
+	int maxXVel = TILE_W * 3;
+	int maxYVel = TILE_H * 3;
+	if (override == 2) {
+		maxXVel = TILE_W * 6;
+		maxYVel = TILE_H * 6;	
+	}
 
 	// If camera has recently been manually moved
 	if (manualCameraTimer > 0 && SDL_GetTicks() < manualCameraTimer + 2000) {
@@ -111,8 +117,8 @@ void CenterCamera(char instant) {
 		return; // Exit the function, avoiding any automatic camera movement
 	}
 	
-	// Manual override
-	if (instant == 1) {
+	// Move the camera instantly
+	if (override == 1) {
 		cameraXVel = 0;
 		cameraYVel = 0;
 		
@@ -121,7 +127,7 @@ void CenterCamera(char instant) {
 		
 		return;
 	}
-
+	
 	// Width and height of tracking box.  The camera will only bother
 	// moving if the target moves outside of this "box" in the middle
 	// of the screen.
@@ -137,43 +143,45 @@ void CenterCamera(char instant) {
 	int targetY = cameraTargetY - (SCREEN_H / 2);
 	
 
-	// Adjust target coordinates so that the camera doesn't
-	// bother moving if the player is in the box.
-	if (cameraX < targetX) {
-		if (cameraX + boxW >= targetX) targetX = cameraX;
-	}
-	if (cameraX > targetX) {
-		if (cameraX - boxW <= targetX) targetX = cameraX;
-	}
-
-	if (cameraY < targetY) {
-		if (cameraY + boxH >= targetY) targetY = cameraY;
-	}
-	if (cameraY > targetY) {
-		if (cameraY - boxH <= targetY) targetY = cameraY;
-	}
-
-
-	
-	// For levels that are wider than the screen, keep the camera from going too far outside the level
-	// and showing us useless empty space.
-	if (levelW > SCREEN_W) {
-		// If the camera is showing too much space to the right side of the level
-		if (targetX + (SCREEN_W - 1) > levelX + (levelW - 1) + xMargin) {
-			// Move the level as far right as it *should* go.
-			targetX = levelX + (levelW - 1) + xMargin - (SCREEN_W - 1);
+	if (override != 2) {
+		// Adjust target coordinates so that the camera doesn't
+		// bother moving if the player is in the box.
+		if (cameraX < targetX) {
+			if (cameraX + boxW >= targetX) targetX = cameraX;
 		}
+		if (cameraX > targetX) {
+			if (cameraX - boxW <= targetX) targetX = cameraX;
+		}
+
+		if (cameraY < targetY) {
+			if (cameraY + boxH >= targetY) targetY = cameraY;
+		}
+		if (cameraY > targetY) {
+			if (cameraY - boxH <= targetY) targetY = cameraY;
+		}
+
+
 		
-		// If the camera is too far left of the left side of the level
-		if (targetX < levelX - xMargin) {
-			// Move the level as far left as it *should* go
-			targetX = levelX - xMargin;
+		// For levels that are wider than the screen, keep the camera from going too far outside the level
+		// and showing us useless empty space.
+		if (levelW > SCREEN_W) {
+			// If the camera is showing too much space to the right side of the level
+			if (targetX + (SCREEN_W - 1) > levelX + (levelW - 1) + xMargin) {
+				// Move the level as far right as it *should* go.
+				targetX = levelX + (levelW - 1) + xMargin - (SCREEN_W - 1);
+			}
+			
+			// If the camera is too far left of the left side of the level
+			if (targetX < levelX - xMargin) {
+				// Move the level as far left as it *should* go
+				targetX = levelX - xMargin;
+			}
 		}
-	}
-	// If the level's width will fit onscreen, keep the level centered
-	else {
-		targetX = -(SCREEN_W / 2);
-	}
+		// If the level's width will fit onscreen, keep the level centered
+		else {
+			targetX = -(SCREEN_W / 2);
+		}
+	}		
 	
 	// For levels that are taller than the screen, keep the camera from going too far outside the level
 	// and showing us useless empty space.	
@@ -205,10 +213,10 @@ void CenterCamera(char instant) {
 	if (cameraY < targetY) cameraYVel ++;
 
 	// Enforce maximum velocity limitations
-	if (cameraXVel > TILE_W) cameraXVel = TILE_W;
-	if (cameraXVel < -TILE_W) cameraXVel = -TILE_W;
-	if (cameraYVel > TILE_H) cameraYVel = TILE_H;
-	if (cameraYVel < -TILE_H) cameraYVel = -TILE_H;
+	if (cameraXVel > maxXVel) cameraXVel = maxXVel;
+	if (cameraXVel < -maxXVel) cameraXVel = -maxXVel;
+	if (cameraYVel > maxYVel) cameraYVel = maxYVel;
+	if (cameraYVel < -maxYVel) cameraYVel = -maxYVel;
 	
 	// Slow down to zero velocity by the time we reach the target X
 	if (cameraXVel != 0) {
@@ -421,7 +429,10 @@ void PutPixel(SDL_Surface *surface, int x, int y, Uint32 pixel) {
 
 
 
-void Render(bool update) {
+// flag	0 = No screen update (drawing only)
+//      1 = normal
+//      2 = no CenterCamera
+void Render (char flag) {
 	static uint bgTimer = 0;
 	static uint torchTimer = 0;
 	static uint doorFrame, doorFramePause;
@@ -430,8 +441,8 @@ void Render(bool update) {
 
 	//if (LockSurface(screenSurface) == false) return;
 
-
-	CenterCamera(0);
+	if (flag != 2)
+		CenterCamera(0);
 	
 	
 	/*** Background ***/
@@ -475,12 +486,12 @@ void Render(bool update) {
 		
 		// Make each doorFrame display for multiple frames
 		doorFramePause ++;
-		if (doorFramePause == 4) {
+		if (doorFramePause == 2) {
 			doorFrame ++;
 			doorFramePause = 0;
 		}
 	}
-	if (wonLevel == 1 && doorFrame == NUM_EXIT_SURFACES - 1)
+	if (wonLevel == 1 && doorFrame == NUM_EXIT_FRAMES - 1)
 		wonLevel = 2;
 	ApplySurface(exitX - cameraX, exitY - cameraY, exitSurface[doorFrame], screenSurface);
 
@@ -504,6 +515,9 @@ void Render(bool update) {
 	/*** BLOCKS ***/
 	for (i = 0; i < numBlocks; i++) {
 		if (blocks[i].GetType() >= 0) {
+			//if (wonLevel == 3 && blocks[i].won()) {
+				
+			//}
 			blocks[i].Animate();
 			ApplySurface(blocks[i].GetX() - cameraX, blocks[i].GetY() - cameraY, blocks[i].GetSurface(), screenSurface);
 		}
@@ -519,7 +533,7 @@ void Render(bool update) {
 	//UnlockSurface(screenSurface);
 	//PutPixel(screenSurface, cameraX + 10, cameraY + 10, SDL_MapRGB(screenSurface->format, 0x00, 0xff, 0x00));
 
-	if (update) {
+	if (flag != 0) {
 		// Tell SDL to update the whole screenSurface
 		SDL_UpdateRect(screenSurface, 0, 0, 0, 0);
 	}

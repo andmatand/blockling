@@ -161,8 +161,9 @@ void Input() {
 
 				switch (event.key.keysym.sym) {
 					case SDLK_f:
-						int r = SDL_WM_ToggleFullScreen(screenSurface);
-						printf("FullScreen toggle: %d\n", r);
+						printf("FullScreen toggle: %d\n", SDL_WM_ToggleFullScreen(screenSurface));
+						break;
+					default:
 						break;
 				}
 
