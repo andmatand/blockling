@@ -137,6 +137,10 @@ void Input() {
 					case SDLK_MINUS:
 						currentLevel --;
 						break;
+					case SDLK_x:
+						blocks[0].SetWon(3);
+						wonLevel = 3;
+						break;
 					default:
 						break;
 				}

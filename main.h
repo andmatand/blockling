@@ -20,13 +20,10 @@
  */
 
 #define DEBUG
+typedef unsigned int uint;
 
 /******* PRE-INCLUDES *******/
-#if defined(_MSC_VER)
-	#include "SDL.h"
-#else
-	#include "SDL/SDL.h"
-#endif
+#include "SDL/SDL.h"
 #include <iostream>
 #include <string>
 #include <sstream>
