@@ -3,7 +3,7 @@
  *      
  *   Copyright 2009 Andrew Anderson <billamonster.com>
  *      
- *   This file is part of Blockman
+ *   This file is part of Blockman.
  *
  *   Blockman is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -19,7 +19,9 @@
  *   along with Blockman.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+
 #define DEBUG
+
 typedef unsigned int uint;
 
 /******* PRE-INCLUDES *******/
@@ -31,7 +33,7 @@ typedef unsigned int uint;
 
 
 
-/******* CONSTANTS *******/
+/******* GLOBAL CONSTANTS *******/
 const unsigned char TILE_W = 16, TILE_H = 16;
 const unsigned short SCREEN_W = 640, SCREEN_H = 400, SCREEN_BPP = 8;
 const char FPS = 30;
@@ -40,13 +42,14 @@ const unsigned char NUM_PLAYER_SURFACES = 15;
 const unsigned char NUM_BRICK_SURFACES = 5;
 const unsigned char NUM_TORCH_FLAMES = 8;
 const unsigned char NUM_TELEPAD_STATES = 3;
-const unsigned char NUM_EXIT_FRAMES = 4;
+const unsigned char NUM_EXIT_FRAMES = 3;
+const unsigned char NUM_ITEM_TYPES = 1;
 const unsigned char TELEPAD_H = 4;
 const uint NUM_GAME_KEYS = 6;
 const uint NUM_PLAYER_KEYS = 5;
 const std::string GAME_TITLE = "Blockman";
-
-
+const std::string TILE_BASE_DIR = "data/tiles/";
+const std::string DEFAULT_TILESET_DIR = "default";
 
 
 /******* GLOBAL VARIABLES (part 1) ********/
@@ -61,6 +64,7 @@ uint numPlayers;
 uint numTorches;
 uint numSpikes;
 uint numTelepads;
+uint numItems;
 
 uint currentLevel;
 char wonLevel;	// 0 = No player has won level yet
@@ -92,7 +96,8 @@ void Undo(char action);
 
 /* graphics.cpp */
 void CenterCamera(char instant);
-SDL_Surface* FillSurface(const char* file, bool transparent);
+SDL_Surface* TileSurface(std::string path, const char *file, bool transparent);
+void LoadTileset(std::string tilesetDir);
 void Render(char flag);
 
 /* input.cpp */
@@ -399,6 +404,13 @@ int telepad::GetOccupant2() {
 
 
 
+// Items are "power-ups" that have no physics.  They disappear when
+// a player touches them, and they cause something to happen.
+class item : public brick {
+	// Types
+	// 0 spinach
+};
+
 
 
 /******* GLOBAL VARIABLES (part 2) *******/
@@ -407,6 +419,7 @@ SDL_Surface *brickSurface[NUM_BRICK_SURFACES];
 SDL_Surface *blockSurface;
 SDL_Surface *torchSurface[NUM_TORCH_FLAMES];
 SDL_Surface *spikeSurface;
+SDL_Surface *itemSurface[NUM_ITEM_TYPES];
 SDL_Surface *telepadSurface[NUM_TELEPAD_STATES];
 SDL_Surface *exitSurface[NUM_EXIT_FRAMES];
 SDL_Surface *bgSurface;

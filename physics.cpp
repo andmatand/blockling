@@ -20,10 +20,6 @@
  */
 
 
-
-
-
-
 int BlockNumber(int x, int y, int w, int h) {
 	for (int i = 0; i < static_cast<int>(numBlocks); i++) {
 		if (BoxOverlap(x, y, w, h, blocks[i].GetX(), blocks[i].GetY(), blocks[i].GetW(), blocks[i].GetH())) {
@@ -826,7 +822,7 @@ void telepad::Teleport() {
 	SDL_Surface *destSurf = MakeSurface(sH);
 	
 
-	int pX, pY; // pixel offset coordinates	
+	uint pX, pY; // pixel offset coordinates	
 	uint col; // pixel color
 	uint squareSize = 4; // How many pixels will make up each square that is moved
 	
@@ -922,8 +918,9 @@ void telepad::Teleport() {
 	
 	// Free the surfaces
 	SDL_FreeSurface(sourceSurf);
+	sourceSurf = NULL;
 	SDL_FreeSurface(destSurf);
-
+	destSurf = NULL;
 
 	
 	

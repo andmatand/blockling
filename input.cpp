@@ -117,35 +117,6 @@ void Input() {
 				
 
 				
-				#ifdef DEBUG
-				switch (event.key.keysym.sym) {
-					case SDLK_1:
-						if (blockXSpeed == 8) {
-							blockXSpeed = 1;
-							blockYSpeed = 1;
-							blockYGravity = blockYSpeed;
-						}
-						else {
-							blockXSpeed = 8;
-							blockYSpeed = 8;
-							blockYGravity = blockYSpeed;
-						}
-						break;
-					case SDLK_EQUALS:
-						currentLevel ++;
-						break;
-					case SDLK_MINUS:
-						currentLevel --;
-						break;
-					case SDLK_x:
-						blocks[0].SetWon(3);
-						wonLevel = 3;
-						break;
-					default:
-						break;
-				}
-				#endif
-				
 				break;
 
 			case SDL_KEYUP:		
@@ -170,6 +141,41 @@ void Input() {
 					default:
 						break;
 				}
+
+
+				
+				#ifdef DEBUG
+				switch (event.key.keysym.sym) {
+					case SDLK_1:
+						if (blockXSpeed == 8) {
+							blockXSpeed = 1;
+							blockYSpeed = 1;
+							blockYGravity = blockYSpeed;
+						}
+						else {
+							blockXSpeed = 8;
+							blockYSpeed = 8;
+							blockYGravity = blockYSpeed;
+						}
+						break;
+					case SDLK_EQUALS:
+						currentLevel ++;
+						break;
+					case SDLK_MINUS:
+						currentLevel --;
+						break;
+					case SDLK_x:
+						blocks[0].SetWon(3);
+						wonLevel = 3;
+						break;
+					case SDLK_t:
+						LoadTileset("scifi");
+						break;
+					default:
+						break;
+				}
+				#endif
+
 
 
 				break;

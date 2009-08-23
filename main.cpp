@@ -59,70 +59,16 @@ int main(int argc, char** argv) {
 }
 
 
+
+
+
+
+
 void Init() {
-	blockSurface = FillSurface("data/bmp/block0.bmp", 1);
-	spikeSurface = FillSurface("data/bmp/spike0.bmp", 1);
+	
+	LoadTileset("default");
 
-	int a = 0, b = 0;
-	char fn[32]; // filename
-	int n;
-	for (uint i = 0; i < NUM_PLAYER_SURFACES; i++) {
-		n = sprintf(fn, "data/bmp/player%d_%d.bmp", a, b);
-		playerSurface[i] = FillSurface(fn, 1);
-		
-		#ifdef DEBUG
-		std::cout << "Loading " << fn << "\n";
-		#endif
-		
-		b++;
-		if (b > (NUM_PLAYER_SURFACES / 3) - 1) {
-			b = 0;
-			a++;
-		}
-	}
-
-	for (uint i = 0; i < NUM_BRICK_SURFACES; i++) {
-		n = sprintf(fn, "data/bmp/brick%d.bmp", i);
-		brickSurface[i] = FillSurface(fn, 1);
-		
-		#ifdef DEBUG
-		std::cout << "Loading " << fn << "\n";
-		#endif
-	}
-
-
-	for (uint i = 0; i < NUM_TORCH_FLAMES; i++) {
-		n = sprintf(fn, "data/bmp/torch%d.bmp", i);
-		torchSurface[i] = FillSurface(fn, 1);
-		
-		#ifdef DEBUG
-		std::cout << "Loading " << fn << "\n";
-		#endif
-	}
-
-	for (uint i = 0; i < NUM_TELEPAD_STATES; i++) {
-		n = sprintf(fn, "data/bmp/telepad%d.bmp", i);
-		telepadSurface[i] = FillSurface(fn, 1);
-		
-		#ifdef DEBUG
-		std::cout << "Loading " << fn << "\n";
-		#endif
-	}
-
-	for (uint i = 0; i < NUM_EXIT_FRAMES; i++) {
-		n = sprintf(fn, "data/bmp/exit%d.bmp", i);
-		exitSurface[i] = FillSurface(fn, 1);
-		
-		#ifdef DEBUG
-		std::cout << "Loading " << fn << "\n";
-		#endif
-	}
-
-
-	bgSurface = FillSurface("data/bmp/bg0.bmp", 0);
-	bgW = bgSurface->w;
-	bgH = bgSurface->h;
-
+	
 	
 	/*** Keyboard ***/
 	//if (SDL_EnableKeyRepeat(200, 10) != 0) {

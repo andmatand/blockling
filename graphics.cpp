@@ -40,7 +40,7 @@ void ApplySurface(int x, int y, SDL_Surface* source, SDL_Surface* destination) {
 
 
 
-SDL_Surface* FillSurface(const char* file, bool transparent) {
+SDL_Surface* FillSurface(const char *file, bool transparent) {
 	SDL_Surface *temp = SDL_LoadBMP(file);
 	SDL_Surface *surface = NULL;
 	
@@ -59,6 +59,27 @@ SDL_Surface* FillSurface(const char* file, bool transparent) {
 	}
 	
 	return surface;
+}
+
+
+SDL_Surface* TileSurface(std::string path, const char *file, bool transparent) {
+	std::string filename = file;
+	const char *openPath = (path + filename).c_str();
+	
+	// If the file does not exist in this path, default to DEFAULT_TILESET_DIR
+	FILE *fp = fopen(openPath, "r");
+	if (!fp) {
+		fprintf(stderr, "Error: %s does not exist in this tileset's directory (%s); using the default tile instead.\n", file, path.c_str());
+		path = TILE_BASE_DIR + DEFAULT_TILESET_DIR + "/";
+	}
+	else {
+		fclose(fp);
+	}
+	
+	// Add filename to end of path
+	path += filename;
+
+	return FillSurface(path.c_str(), transparent);
 }
 
 
@@ -392,6 +413,124 @@ SDL_Surface* telepad::GetSurface() {
 			return NULL;
 			break;
 	}
+}
+
+
+
+// Loads the tiles of the currently selected tileset, defaulting back
+// to the default tileset for (and only for) any tiles not found in
+// the tilesetDir.
+void LoadTileset(std::string tilesetDir) {
+	
+	/*** Free all old surfaces ***/
+	SDL_FreeSurface(bgSurface);
+	SDL_FreeSurface(blockSurface);
+	SDL_FreeSurface(spikeSurface);
+	for (uint i = 0; i < NUM_PLAYER_SURFACES; i++) {
+		SDL_FreeSurface(playerSurface[i]);
+	}
+	for (uint i = 0; i < NUM_BRICK_SURFACES; i++) {
+		SDL_FreeSurface(brickSurface[i]);
+	}	
+	for (uint i = 0; i < NUM_TORCH_FLAMES; i++) {
+		SDL_FreeSurface(torchSurface[i]);
+	}
+	for (uint i = 0; i < NUM_TELEPAD_STATES; i++) {
+		SDL_FreeSurface(telepadSurface[i]);
+	}
+	for (uint i = 0; i < NUM_EXIT_FRAMES; i++) {
+		SDL_FreeSurface(exitSurface[i]);
+	}
+	for (uint i = 0; i < NUM_ITEM_TYPES; i++) {
+		SDL_FreeSurface(itemSurface[i]);
+	}
+
+
+
+	/*** Load new tile bmps into surfaces ***/
+	// Set the path
+	std::string path;
+	path = TILE_BASE_DIR + tilesetDir + "/";
+	
+	bgSurface = TileSurface(path, "bg.bmp", 0);
+	bgW = bgSurface->w;
+	bgH = bgSurface->h;
+
+	blockSurface = TileSurface(path, "block.bmp", 1);
+	spikeSurface = TileSurface(path, "spike.bmp", 1);
+
+	int a = 0, b = 0;
+	char fn[32]; // filename
+	int n;
+	
+	// Player surfaces
+	for (uint i = 0; i < NUM_PLAYER_SURFACES; i++) {
+		n = sprintf(fn, "player%d_%d.bmp", a, b);
+		playerSurface[i] = TileSurface(path, fn, 1);
+		
+		#ifdef DEBUG
+		std::cout << "Loading " << fn << "\n";
+		#endif
+		
+		b++;
+		if (b > (NUM_PLAYER_SURFACES / 3) - 1) {
+			b = 0;
+			a++;
+		}
+	}
+
+	// Brick surfaces
+	for (uint i = 0; i < NUM_BRICK_SURFACES; i++) {
+		n = sprintf(fn, "brick%d.bmp", i);
+		brickSurface[i] = TileSurface(path, fn, 1);
+		
+		#ifdef DEBUG
+		std::cout << "Loading " << fn << "\n";
+		#endif
+	}
+
+
+	// Torch surfaces
+	for (uint i = 0; i < NUM_TORCH_FLAMES; i++) {
+		n = sprintf(fn, "torch%d.bmp", i);
+		torchSurface[i] = TileSurface(path, fn, 1);
+		
+		#ifdef DEBUG
+		std::cout << "Loading " << fn << "\n";
+		#endif
+	}
+
+	// Telepad surfaces
+	for (uint i = 0; i < NUM_TELEPAD_STATES; i++) {
+		n = sprintf(fn, "telepad%d.bmp", i);
+		telepadSurface[i] = TileSurface(path, fn, 1);
+		
+		#ifdef DEBUG
+		std::cout << "Loading " << fn << "\n";
+		#endif
+	}
+
+	// Exit surfaces
+	for (uint i = 0; i < NUM_EXIT_FRAMES; i++) {
+		n = sprintf(fn, "exit%d.bmp", i);
+		exitSurface[i] = TileSurface(path, fn, 1);
+		
+		#ifdef DEBUG
+		std::cout << "Loading " << fn << "\n";
+		#endif
+	}
+
+	// Item surfaces
+	for (uint i = 0; i < NUM_ITEM_TYPES; i++) {
+		n = sprintf(fn, "item%d.bmp", i);
+		itemSurface[i] = TileSurface(path, fn, 1);
+		
+		#ifdef DEBUG
+		std::cout << "Loading " << fn << "\n";
+		#endif
+	}
+
+
 }
 
 

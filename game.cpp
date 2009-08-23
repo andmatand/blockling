@@ -19,6 +19,7 @@
  *   along with Blockman.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+
 bool LoadLevel(uint level);
 
 
@@ -165,7 +166,7 @@ void Game() {
 				
 
 				// If the player is not already moving
-				if (blocks[i].GetXMoving() == 0 && blocks[i].GetYMoving() == 0 
+				if (blocks[i].GetPath().length() == 0 &&blocks[i].GetXMoving() == 0 && blocks[i].GetYMoving() == 0 
 					// and is on solid ground
 					&& blocks[i].OnSolidGround())
 				{
