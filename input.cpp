@@ -168,7 +168,10 @@ void Input() {
 						blocks[0].SetWon(3);
 						wonLevel = 3;
 						break;
-					case SDLK_t:
+					case SDLK_PAGEUP:
+						LoadTileset("default");
+						break;
+					case SDLK_PAGEDOWN:
 						LoadTileset("scifi");
 						break;
 					default:

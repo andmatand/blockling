@@ -803,7 +803,7 @@ void telepad::Teleport() {
 
 	/*** Animate the teleportation ***/
 	// Create source surface
-	SDL_Surface *sourceSurf = MakeSurface(sH);
+	SDL_Surface *sourceSurf = MakeSurface(TILE_W, sH);
 	
 	int yPos = sH; // Keeps track of current y Position (bottom to top)
 	for (uint i = 0; i < numToMove; i++) {
@@ -819,7 +819,7 @@ void telepad::Teleport() {
 	//SDL_UpdateRect(sourceSurf, 0, 0, 0, 0);
 
 	// Create destination surface
-	SDL_Surface *destSurf = MakeSurface(sH);
+	SDL_Surface *destSurf = MakeSurface(TILE_W, sH);
 	
 
 	uint pX, pY; // pixel offset coordinates	

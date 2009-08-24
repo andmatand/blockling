@@ -20,10 +20,7 @@
  */
 
 
-void ApplySurface(int x, int y, SDL_Surface* source, SDL_Surface* destination);
-Uint32 GetPixel(SDL_Surface *surface, int x, int y);
 void PutPixel(SDL_Surface *surface, int x, int y, Uint32 pixel);
-SDL_Surface* MakeSurface(int height);
 
 
 void ApplySurface(int x, int y, SDL_Surface* source, SDL_Surface* destination) {
@@ -37,6 +34,7 @@ void ApplySurface(int x, int y, SDL_Surface* source, SDL_Surface* destination) {
 	//Blit the surface
 	SDL_BlitSurface(source, NULL, destination, &offset);
 }
+
 
 
 
@@ -549,10 +547,10 @@ bool LockSurface(SDL_Surface *surf) {
 
 
 // Makes a surface with certain characteristics (used for teleportation animation)
-SDL_Surface* MakeSurface(int height) {
+SDL_Surface* MakeSurface(int width, int height) {
 	//return FillSurface("data/bmp/block0.bmp", true);
 
-	SDL_Surface *temp = SDL_CreateRGBSurface(SDL_SWSURFACE, TILE_W, height, SCREEN_BPP, screenSurface->format->Rmask, screenSurface->format->Gmask, screenSurface->format->Bmask, 0); //screenSurface->format->Amask
+	SDL_Surface *temp = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height, SCREEN_BPP, screenSurface->format->Rmask, screenSurface->format->Gmask, screenSurface->format->Bmask, 0); //screenSurface->format->Amask
 	SDL_Surface *surface = NULL;
 	
 	surface = SDL_DisplayFormat(temp);
@@ -564,7 +562,7 @@ SDL_Surface* MakeSurface(int height) {
 
 	// Fill surface with transparent color
 	for (int j = 0; j < height; j++) {
-		for (int i = 0; i < TILE_W; i++) {
+		for (int i = 0; i < width; i++) {
 			PutPixel(surface, i, j, colorKey);
 		}
 	}
@@ -669,9 +667,10 @@ void Render (char flag) {
 	
 	
 	/*** BLOCKS ***/
-	// Turn stickyPlayer off when he's lined up in the new level's position.
+	// Deactivate stickyPlayer when he's lined up in the new level's position.
 	if (blocks[0].GetX() - cameraX <= stickyPlayerX && blocks[0].GetY() - cameraY == stickyPlayerY) {
 		stickyPlayer = false;
+		blocks[0].SetFace(0); // normal
 	}
 	
 	// Activate stickyPlayer
@@ -709,6 +708,13 @@ void Render (char flag) {
 
 	//UnlockSurface(screenSurface);
 	//PutPixel(screenSurface, cameraX + 10, cameraY + 10, SDL_MapRGB(screenSurface->format, 0x00, 0xff, 0x00));
+
+
+	/*** Text ***/
+	char message[128];
+	sprintf(message, "Level %d", currentLevel);
+	DrawText(message, 10, 380);
+	
 
 	if (flag != 0) {
 		// Tell SDL to update the whole screenSurface

@@ -67,7 +67,7 @@ int main(int argc, char** argv) {
 void Init() {
 	
 	LoadTileset("default");
-
+	LoadFont("data/font/font.bmp");
 	
 	
 	/*** Keyboard ***/

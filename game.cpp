@@ -426,11 +426,16 @@ void Game() {
 		} // End of game loop
 		
 		
+		/** Zing level offscreen **/
 		if (quitGame == false && wonLevel == 4) {
-			/** Zing level offscreen **/
 			cameraTargetX = SCREEN_W * 4;
 			cameraTargetY = cameraY;
+			wonLevelTimer = SDL_GetTicks();
 			while (cameraX < levelX + levelW) {
+				// Make the player look scared shortly after he starts "moving"
+				if (SDL_GetTicks() >= wonLevelTimer + 500)
+					blocks[0].SetFace(4); // Scared
+				
 				CenterCamera(2);
 				Render(2);
 			}
@@ -790,9 +795,12 @@ bool LoadLevel(uint level) {
 	}
 
 
-	// Make cameraY line up with where the sticky player needs to be
-	if (stickyPlayer)
+	if (stickyPlayer) {
+		// Make cameraY line up with where the sticky player needs to be
 		cameraY = blocks[0].GetY() - stickyPlayerY;
+		
+		blocks[0].SetFace(4); // Scared
+	}
 	
 	// Make the player face the exit
 	if (exitX > blocks[0].GetX()) {

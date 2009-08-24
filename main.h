@@ -95,10 +95,15 @@ void Game();
 void Undo(char action);
 
 /* graphics.cpp */
+void ApplySurface(int x, int y, SDL_Surface* source, SDL_Surface* destination);
 void CenterCamera(char instant);
-SDL_Surface* TileSurface(std::string path, const char *file, bool transparent);
+SDL_Surface* FillSurface(const char *file, bool transparent);
+Uint32 GetPixel(SDL_Surface *surface, int x, int y);
 void LoadTileset(std::string tilesetDir);
+SDL_Surface* MakeSurface(int width, int height);
 void Render(char flag);
+SDL_Surface* TileSurface(std::string path, const char *file, bool transparent);
+
 
 /* input.cpp */
 void Input();
@@ -461,6 +466,7 @@ SDL_Event event;
 
 
 /******* POST-INCLUDES *******/
+#include "font.cpp"
 #include "game.cpp"
 #include "graphics.cpp"
 #include "input.cpp"
