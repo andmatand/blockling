@@ -113,28 +113,69 @@ void block::Animate() {
 
 void CenterCamera(char override) {
 	static int cameraXVel = 0, cameraYVel = 0;
-	int maxXVel = TILE_W * 3;
-	int maxYVel = TILE_H * 3;
-	if (override == 2) {
-		//maxXVel = TILE_W * 6;
-		//maxYVel = TILE_H * 6;	
-	}
-
+	static char currentMovement = 0;
+	int maxXVel;
+	int maxYVel;
+	
 	// If camera has recently been manually moved
 	if (manualCameraTimer > 0 && SDL_GetTicks() < manualCameraTimer + 2000) {
 		// Don't allow camera to move too far away with the level completely offscreen
 		if (cameraX + SCREEN_W < levelX)
 			cameraX = levelX - SCREEN_W;
 		if (cameraX > levelX + levelW)
-			cameraX = levelX + SCREEN_W;
+			cameraX = levelX + levelW;
 
 		if (cameraY + SCREEN_H < levelY)
 			cameraY = levelY - SCREEN_H;
 		if (cameraY > levelY + levelH)
-			cameraY = levelY + SCREEN_H;
+			cameraY = levelY + levelH;
+		
+		cameraXVel = 0;
+		cameraYVel = 0;
+		//currentMovement = 2; // Re-center the camera quickly
 		
 		return; // Exit the function, avoiding any automatic camera movement
 	}
+	
+	
+	
+	// If the camera is not currently in a movement
+	if (currentMovement == 0) {
+		// If the target is onscreen (e.g. the camera is just auto-tracking the player's movements)
+		// make the camera move no quicker than the player's movements (to avoid jerky camera movements)
+		if (cameraTargetX >= cameraX && cameraTargetX <= cameraX + (SCREEN_W - 1) 
+			&& cameraTargetY >= cameraY && cameraTargetY <= cameraY + (SCREEN_H - 1))
+		{
+			currentMovement = 1; // Mark the beginning of a slow movement
+		}
+		else {
+			currentMovement = 2; // Camera is moving to get the target onscreen
+					     // and should thus move quickly for the entire movement.
+					     // (This marks the beginning of a fast movement)
+		}
+	}
+
+	// Slow movement's max velocity
+	if (currentMovement == 1) {
+		maxXVel = TILE_W * .5;
+		maxYVel = TILE_H * .5;
+	}
+	// Default max velocity
+	else {
+		maxXVel = TILE_W * 3;
+		maxYVel = TILE_H * 3;
+	}
+	
+	// Velocity for "zinging" to next level!
+	if (override == 2 || stickyPlayer) {
+		maxXVel = TILE_W * 3;
+		maxYVel = TILE_H * 3;	
+	}
+	
+
+	
+
+
 	
 	// Move the camera instantly
 	if (override == 1) {
@@ -158,7 +199,9 @@ void CenterCamera(char override) {
 	int yMargin = TILE_H * 1;
 	
 	
-	// Target X and Y are the final destination that the camera needs to reach.
+	// Target X and Y are the final destination that the camera needs to reach,
+	// which are the position that will make cameraTargetX and Y appear in the
+	// middle of the screen.
 	int targetX = cameraTargetX - (SCREEN_W / 2);
 	int targetY = cameraTargetY - (SCREEN_H / 2);
 	
@@ -233,11 +276,30 @@ void CenterCamera(char override) {
 	if (cameraY > targetY) cameraYVel --;
 	if (cameraY < targetY) cameraYVel ++;
 
-	// Enforce maximum velocity limitations
-	if (cameraXVel > maxXVel) cameraXVel = maxXVel;
-	if (cameraXVel < -maxXVel) cameraXVel = -maxXVel;
-	if (cameraYVel > maxYVel) cameraYVel = maxYVel;
-	if (cameraYVel < -maxYVel) cameraYVel = -maxYVel;
+
+	// Enforce maximum velocity limitations, slowing down smoothly
+	if (cameraXVel > maxXVel) {
+		cameraXVel = maxXVel;
+		//cameraXVel =- 2;
+		//if (cameraXVel < 0) cameraXVel = 0;
+	}
+	if (cameraXVel < -maxXVel) {
+		cameraXVel = -maxXVel;
+		//cameraXVel += 2;
+		//if (cameraXVel > 0) cameraXVel = 0;	
+	}
+
+	if (cameraYVel > maxYVel) {
+		cameraYVel = maxYVel;
+		//cameraYVel =- 2;
+		//if (cameraYVel < 0) cameraYVel = 0;
+	}
+	if (cameraYVel < -maxYVel) {
+		cameraYVel = -maxYVel;
+		//cameraYVel += 2;
+		//if (cameraYVel > 0) cameraYVel = 0;	
+	}
+
 	
 	// Slow down to zero velocity by the time we reach the target X
 	if (cameraXVel != 0) {
@@ -279,6 +341,12 @@ void CenterCamera(char override) {
 		}
 	}
 
+	// Detect when the currentMovement has ended
+	if (currentMovement > 0) {
+		if (cameraXVel == 0 && cameraYVel == 0) currentMovement = 0;
+	}
+	
+	
 	// Actually move the camera
 	cameraX += cameraXVel;
 	cameraY += cameraYVel;

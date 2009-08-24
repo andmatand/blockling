@@ -20,13 +20,7 @@
  */
 
 
-typedef struct {
-	uint w;
-	//int yOffset;
-	SDL_Surface * surf;
-} letter;
-
-letter font[(122 - 33) + 1];
+#include "font.h"
 
 void LoadFont(const char * file) {
 	int chrW = 16; // character width in BMP file

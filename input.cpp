@@ -95,6 +95,14 @@ void Input() {
 						if (gameKeys[i].on == 0) {
 							gameKeys[i].on = 1;
 							gameKeys[i].timer = SDL_GetTicks();
+							
+							/*
+							// Make camera controls smoother by turning off LEFT when RIGHT is pushed, etc.
+							if (i == 2) gameKeys[3].on = 0;
+							if (i == 3) gameKeys[2].on = 0;
+							if (i == 4) gameKeys[5].on = 0;
+							if (i == 5) gameKeys[4].on = 0;
+							*/
 						}
 					}
 				}
