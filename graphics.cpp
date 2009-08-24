@@ -713,7 +713,7 @@ void Render (char flag) {
 	/*** Text ***/
 	char message[128];
 	sprintf(message, "Level %d", currentLevel);
-	DrawText(message, 10, 380);
+	DrawText(10, 380, message, 220, 220, 220);
 	
 
 	if (flag != 0) {

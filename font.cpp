@@ -99,7 +99,25 @@ void LoadFont(const char * file) {
 
 
 
-void DrawText(char *text, int x, int y) {
+void DrawText(int x, int y, char *text, uint r, uint g, uint b) {
+
+	// Set shadow palette
+	SDL_Color shadowPalette[256];
+	for (uint i = 0; i < 256; i++) {
+		shadowPalette[i].r = 0;
+		shadowPalette[i].g = 0;
+		shadowPalette[i].b = 0;
+	}
+
+
+	// Set text palette
+	SDL_Color palette[256];
+	for (uint i = 0; i < 256; i++) {
+		palette[i].r = r;
+		palette[i].g = g;
+		palette[i].b = b;
+	}
+
 	int c;
 	for (uint i = 0; i < static_cast<uint>(strlen(text)); i++) {
 		// Get index number (so that '!' starts at 0)
@@ -107,10 +125,16 @@ void DrawText(char *text, int x, int y) {
 
 		switch (c) {
 			case -1:
-				//x += font[].w;
-				x += 16;
+				x += font[9].w / 2; // character 9 ('*') has maximum width
 			default:
+				// Draw "shadow"
+				SDL_SetPalette(font[c].surf, SDL_LOGPAL, shadowPalette, 0, 256);
+				ApplySurface(x + 2, y + 2, font[c].surf, screenSurface);
+				
+				// Draw text
+				SDL_SetPalette(font[c].surf, SDL_LOGPAL, palette, 0, 256);
 				ApplySurface(x, y, font[c].surf, screenSurface);
+				
 				x += font[c].w + 1;
 				break;
 		}
