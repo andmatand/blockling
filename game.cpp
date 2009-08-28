@@ -20,7 +20,7 @@
  */
 
 
-bool LoadLevel(uint level);
+bool LoadLevel(std::string levelSet, uint level);
 
 
 void CollectLevelGarbage() {
@@ -61,8 +61,9 @@ void Game() {
 	/*** Loop to advance to next level ***/
 	while(quitGame == false) {
 		// Load Level
-		if (LoadLevel(currentLevel) == false) {
-			fprintf(stderr, "Error: Loading level %d failed.", currentLevel);
+		//if (LoadLevel("bman1", currentLevel) == false) {
+		if (LoadLevel("default", currentLevel) == false) {
+			fprintf(stderr, "Error: Loading level %d failed.\n", currentLevel);
 
 			currentLevel = 0;
 			CollectLevelGarbage();
@@ -82,6 +83,8 @@ void Game() {
 		}
 		
 		wonLevel = 0;
+		levelTime = 0;
+		levelTimeRunning = false;
 		
 		// Reset manual camera movement
 		manualCameraTimer = 0;
@@ -208,12 +211,12 @@ void Game() {
 								Undo(0); // Save Undo state
 								
 								blocks[i].Climb(0);
-								pushedKey = true; // Now player can't push other buttons this frame
 							}
 						}
 						else {
 							blocks[i].SetDir(0);
 						}
+						pushedKey = true; // Now player can't push other buttons this frame
 					}
 
 					// Right
@@ -224,12 +227,12 @@ void Game() {
 								Undo(0); // Save Undo state
 								
 								blocks[i].Climb(1);
-								pushedKey = true; // Now player can't push other buttons this frame
 							}
 						}
 						else {
 							blocks[i].SetDir(1);
 						}
+						pushedKey = true; // Now player can't push other buttons this frame
 					}
 					
 					// Up (pick up block)
@@ -412,6 +415,19 @@ void Game() {
 				}
 			}
 
+			/** Timer **/
+			// Increment the timer
+			if (levelTimeRunning && wonLevel == 0) {
+				levelTime += (SDL_GetTicks() - levelTimeTick);
+				levelTimeTick = SDL_GetTicks();
+			}
+			// Start the timer when the first movement is made
+			if (levelTimeRunning == false && pushedKey) {
+				levelTimeRunning = true;
+				levelTimeTick = SDL_GetTicks();
+			}
+			
+			
 			/** Render **/
 			Render(1);
 
@@ -453,13 +469,17 @@ void Game() {
 
 
 
-bool LoadLevel(uint level) {
+bool LoadLevel(std::string levelSet, uint level) {
 	bool syntaxError = false;
-	char filename[32];
+	
+	char levelFile[256];
+	sprintf(levelFile, "%03d.txt", level);
+	const char *filename = (LEVEL_BASE_DIR + levelSet + "/" + levelFile).c_str();
+	std::cout << "filename = " << filename << "\n";
+	
 	FILE * f;
 
 	printf("\nLoading level %d...\n", level);
-	sprintf(filename, "data/levels/%03d.txt", level);
 	f = fopen(filename, "rb");
 	if (f == NULL) {
 		return false;
@@ -483,11 +503,16 @@ bool LoadLevel(uint level) {
 	numTelepads = 0;
 	numTorches = 0;
 	numSpikes = 0;
+	bool charOnThisLine = false;
+	bool restOfLineIsComment = false;
 	while (!feof(f)) {
 		c = fgetc(f);
 
-		if (c > 32) {
+		if (c > 32 && restOfLineIsComment == false) {
 			switch (c) {
+				case '#': // Comment
+					restOfLineIsComment = true;
+					break;
 				case '@': // player
 					numPlayers ++;
 					numBlocks ++;
@@ -510,6 +535,7 @@ bool LoadLevel(uint level) {
 				default:
 					break;
 			}
+			
 			// Check for lowercase a - z (telepad pairs)
 			if (c >= 97 && c <= 122) {
 				addNewTelepad = true;
@@ -526,14 +552,21 @@ bool LoadLevel(uint level) {
 				}
 			}
 			
+			// Only increment the level height if there is a character on this line
+			if (charOnThisLine == false && restOfLineIsComment == false) {
+				height += TILE_H;
+				charOnThisLine = true;
+			}
+
 			x += TILE_W;
 			if (x > width) width = x;
 		}
 
 		// New Line (LF)
 		if (c == 10) {
+			charOnThisLine = false;
+			restOfLineIsComment = false;
 			x = 0;
-			height += TILE_H;			
 		}
 	}
 	
@@ -626,8 +659,18 @@ bool LoadLevel(uint level) {
 	while (!feof(f)) {
 		c = fgetc(f);
 		
-		if (c > 32) {
+		if (c > 32 && restOfLineIsComment == false) {
+			// Only increment the y coordinate if there is a character on this line
+			if (charOnThisLine == false && restOfLineIsComment == false) {
+				y += TILE_H;
+				charOnThisLine = true;
+			}
+
 			switch (c) {
+				case '#': // Comment
+					restOfLineIsComment = true;
+					y -= TILE_H;
+					break;
 				case '@': // player
 					blocks[numPlayers].SetX(x);
 					blocks[numPlayers].SetY(y);
@@ -707,10 +750,11 @@ bool LoadLevel(uint level) {
 
 		// New Line (LF)
 		if (c == 10) {
+			charOnThisLine = false;
+			restOfLineIsComment = false;
+			
 			x = -(width / 2);
 			x += (abs(x) % TILE_W); // Align to grid
-			
-			y += TILE_H;
 		}
 	}
 	fclose(f);

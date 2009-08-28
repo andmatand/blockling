@@ -425,18 +425,10 @@ void block::Physics() {
 	if (xMoving < 0) {
 		newX -= blockXSpeed;
 		if (newX < x + xMoving) newX = x + xMoving; // Protect against high block speed moving it too far
-		
-		// Decrease pixels remaining to move along path
-		//xMoving += blockXSpeed;
-		//if (xMoving > 0) xMoving = 0;
 	}
 	if (xMoving > 0) {
 		newX += blockXSpeed;
 		if (newX > x + xMoving) newX = x + xMoving; // Protect against high block speed moving it too far
-
-		// Decrease pixels remaining to move along path
-		//xMoving -= blockXSpeed;
-		//if (xMoving < 0) xMoving = 0;
 	}
 	
 	if (won > 0 && x == exitX) {
@@ -619,7 +611,6 @@ void block::Physics() {
 	if (x !=oldX) {
 		int b = BlockNumber(oldX, y - 1, w, 1);
 		if (b >= 0 && blocks[b].GetX() == oldX && blocks[b].GetMoved() == false && blocks[b].GetXMoving() == 0 && blocks[b].GetYMoving() == 0) {
-		//if (b >= 0 && blocks[b].GetMoved() == false && blocks[b].GetXMoving() == 0 && blocks[b].GetYMoving() == 0) {
 			blocks[b].SetXMoving(x - oldX);
 			blocks[b].Physics();
 			// Jesus is Lord.  Thank you Jesus for sacrificing yourself for me!

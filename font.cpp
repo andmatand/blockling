@@ -64,9 +64,9 @@ void LoadFont(const char * file) {
 		}
 		font[i].w = (rightSide - leftSide) + 1;
 		
-		std::cout << "\nWidth of character " << i << " is " << font[i].w << "\n";
-		std::cout << "leftSide = " << leftSide << "\n";
-		std::cout << "rightSide = " << rightSide << "\n";
+		//std::cout << "\nWidth of character " << static_cast<char>(i + 33) << " is " << font[i].w << "\n";
+		//std::cout << "leftSide = " << leftSide << "\n";
+		//std::cout << "rightSide = " << rightSide << "\n";
 
 		/*
 		// Determine the letter's yOffset
@@ -83,7 +83,7 @@ void LoadFont(const char * file) {
 		*/
 		
 		font[i].surf = MakeSurface(chrW, chrH);
-		ApplySurface(0, sourceOffset, fontSurf, font[i].surf);
+		ApplySurface(-leftSide, sourceOffset, fontSurf, font[i].surf);
 		i++;
 		sourceOffset -= chrH; // Move the big tall bmp up
 	}

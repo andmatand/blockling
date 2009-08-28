@@ -50,6 +50,8 @@ const uint NUM_PLAYER_KEYS = 5;
 const std::string GAME_TITLE = "Blockman";
 const std::string TILE_BASE_DIR = "data/tiles/";
 const std::string DEFAULT_TILESET_DIR = "default";
+const std::string LEVEL_BASE_DIR = "data/levels/";
+const std::string DEFAULT_LEVELSET_DIR = "default";
 
 
 /******* GLOBAL VARIABLES (part 1) ********/
@@ -67,6 +69,9 @@ uint numTelepads;
 uint numItems;
 
 uint currentLevel;
+bool levelTimeRunning; // If the level timer is running
+uint levelTime;	//How long the player has taken on this level (in milliseconds)
+uint levelTimeTick; // For tracking how long each frame takes
 char wonLevel;	// 0 = No player has won level yet
 		// 1 = A player is opening the door (flag for Render to animate the door)
 		// 2 = The first player has won (the level is over) and is walking into the door

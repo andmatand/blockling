@@ -5,4 +5,13 @@
 -Speech
 
 Bugs
--Level 17 telepad bug when holding block & holding RIGHT
+-Level 8 can no longer set down multiple blocks when carrying them (Was working before; I must have
+changed something accidentally)
+-Level 13 telepad bug when holding block & holding RIGHT
+
+
+
+
+==Times==
+3	31
+4	54

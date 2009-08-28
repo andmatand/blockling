@@ -780,9 +780,18 @@ void Render (char flag) {
 
 	/*** Text ***/
 	char message[128];
+	// Level #
 	sprintf(message, "Level %d", currentLevel);
 	DrawText(10, 380, message, 220, 220, 220);
 	
+	// Timer
+	if (levelTimeRunning) {
+		int min = static_cast<int>((levelTime / 1000) / 60);
+		int sec = (levelTime / 1000) % 60;
+		sprintf(message, "%02d:%02d", min, sec);
+		DrawText(((levelTime < 76) ? SCREEN_W - levelTime : SCREEN_W - 76), 380, message, 220, 220, 220);
+	}
+
 
 	if (flag != 0) {
 		// Tell SDL to update the whole screenSurface
