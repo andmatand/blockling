@@ -85,12 +85,13 @@ void Game() {
 		wonLevel = 0;
 		levelTime = 0;
 		levelTimeRunning = false;
-		
+		physicsStarted = 0;
+	
 		// Reset manual camera movement
 		manualCameraTimer = 0;
 		cameraXVel = 0;
 		cameraYVel = 0;
-		
+	
 		// Rest keys
 		for (i = 0; i < NUM_GAME_KEYS; i++) {
 			gameKeys[i].on = 0;
@@ -124,7 +125,7 @@ void Game() {
 			
 			
 			/** Manual Camera Movement **/
-			if (!stickyPlayer) {
+			if (physicsStarted) {
 				cameraXVel *= .85f;
 				cameraYVel *= .85f;
 				
@@ -282,7 +283,16 @@ void Game() {
 							}
 							blocks[b].SetPath(tempPath);
 							
-							if (blocks[i].GetStrong() == 1) blocks[b].SetStrong(1); // If player is strong, make this block strong for now
+							// If player is strong, make this block strong for now
+							if (blocks[i].GetStrong() == 1) blocks[b].SetStrong(1);
+							
+							// If the player is carrying more than one block on his
+							// head and is trying to set them down, make this
+							// block temporarily strong.
+							if (BlockNumber(blocks[b].GetX(), blocks[b].GetY() - 1, TILE_W, 1) >= 0) {
+								blocks[b].SetStrong(1);
+							}
+							
 							playerBlock[i] = b; // Player can't move until this block stops moving
 							pushedKey = true; // Now player can't push other buttons this frame
 						}
@@ -303,13 +313,29 @@ void Game() {
 			}
 
 			
+
+			
 			/*** Do Block Physics ***/
-			if (!stickyPlayer) {
+			if (!stickyPlayer && physicsStarted) {
 				// Do Pre-Physics
 				for (i = 0; i < numBlocks; i++) {
 					blocks[i].SetDidPhysics(false);
 					blocks[i].SetMoved(false);
 				}
+
+				// For each player:
+				// If player is not floating and there is no block on his head, make him rise
+				for (i = 0; i < numPlayers; i++) {
+					if (blocks[i].GetType() >= 10 && blocks[i].GetH() < TILE_H && BlockNumber(blocks[i].GetX(), blocks[i].GetY() - 1, blocks[i].GetW(), 1) < 0) {
+						b = blocks[i].GetY(); 			// Save old y position
+						blocks[i].SetYMoving(-blockYSpeed);	// Set the block to move up
+						if (blocks[i].GetYMoving() < -2) blocks[i].SetYMoving(-2);
+						blocks[i].Physics(); 			// Try to move the block up
+						if (blocks[i].GetY() < b) 		// If it moved up, increase the height by the amount moved
+							blocks[i].SetH(blocks[i].GetH() + (b - blocks[i].GetY()));
+					}
+				}
+
 				// Do Physics
 				for (i = 0; i < numBlocks; i++) {
 					if (blocks[i].GetDidPhysics() == false) {
@@ -331,18 +357,7 @@ void Game() {
 				}
 			}			
 			
-			// For each player:
-			// If player is not floating and there is no block on his head, make him rise
-			for (i = 0; i < numPlayers; i++) {
-				if (blocks[i].GetType() >= 10 && blocks[i].GetH() < TILE_H && BlockNumber(blocks[i].GetX(), blocks[i].GetY() - 1, blocks[i].GetW(), 1) < 0) {
-					b = blocks[i].GetY(); 			// Save old y position
-					blocks[i].SetYMoving(-blockYSpeed);	// Set the block to move up
-					if (blocks[i].GetYMoving() < -2) blocks[i].SetYMoving(-2);
-					blocks[i].Physics(); 			// Try to move the block up
-					if (blocks[i].GetY() < b) 		// If it moved up, increase the height by the amount moved
-						blocks[i].SetH(blocks[i].GetH() + (b - blocks[i].GetY()));
-				}
-			}
+
 
 			// Check if player is on/in certain tiles
 			for (i = 0; i < numPlayers; i++) {
@@ -425,6 +440,7 @@ void Game() {
 			if (levelTimeRunning == false && pushedKey) {
 				levelTimeRunning = true;
 				levelTimeTick = SDL_GetTicks();
+				physicsStarted = true; // Also start physics if they haven't already
 			}
 			
 			
@@ -760,28 +776,43 @@ bool LoadLevel(std::string levelSet, uint level) {
 	fclose(f);
 	
 	/*** Change brick types based on their placement next to other bricks ***/
-	// Do walls first
+	int leftBrick, rightBrick, topBrick, bottomBrick;
+	// Do "wall" bricks
 	for (uint i = 0; i < numBricks; i++) {
 		// Only change bricks that have not yet been set
 		if (bricks[i].GetType() != -1)
 			continue;
 		
+		// Find surrounding bricks, and ignore them if they are of type 0 (wall)
+		leftBrick = BrickNumber(bricks[i].GetX() - TILE_W, bricks[i].GetY(), TILE_W, TILE_H);
+		if (bricks[leftBrick].GetType() == 0) leftBrick = -1; // Pretend like this brick isn't here
+		
+		rightBrick = BrickNumber(bricks[i].GetX() + TILE_W, bricks[i].GetY(), TILE_W, TILE_H);
+		if (bricks[rightBrick].GetType() == 0) rightBrick = -1; // Pretend like this brick isn't here
+		
+		topBrick = BrickNumber(bricks[i].GetX(), bricks[i].GetY() - TILE_H, TILE_W, TILE_H);
+		//if (bricks[topBrick].GetType() == 0) topBrick = -1; // Pretend like this brick isn't here
+		
+		bottomBrick = BrickNumber(bricks[i].GetX(), bricks[i].GetY() + TILE_H, TILE_W, TILE_H);
+		//if (bricks[bottomBrick].GetType() == 0) bottomBrick = -1; // Pretend like this brick isn't here
+		
 		// If (there is a brick above this brick
 		// OR there is a brick below this brick)
 		// AND there is no brick to the left
 		// AND there is no brick to the right
-		if ((BoxContents(bricks[i].GetX(), bricks[i].GetY() - TILE_H, TILE_W, TILE_H) == -2
-			|| BoxContents(bricks[i].GetX(), bricks[i].GetY() + TILE_H, TILE_W, TILE_H) == -2)
-			&& BoxContents(bricks[i].GetX() - TILE_W, bricks[i].GetY(), TILE_W, TILE_H) != -2
-			&& BoxContents(bricks[i].GetX() + TILE_W, bricks[i].GetY(), TILE_W, TILE_H) != -2)
+		if ((topBrick >= 0
+			|| bottomBrick >= 0)
+			&& leftBrick == -1
+			&& rightBrick == -1)
 		{
 			bricks[i].SetType(0); // Wall
 			continue;
 		}
 	}
 	
-	// Now do land
-	int leftBrick, rightBrick;
+	// Make horizontal
+	
+	// Do "land" bricks
 	for (uint i = 0; i < numBricks; i++) {
 		if (bricks[i].GetType() == -1) {
 			leftBrick = BrickNumber(bricks[i].GetX() - TILE_W, bricks[i].GetY(), TILE_W, TILE_H);

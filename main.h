@@ -276,7 +276,7 @@ int block::GetYOffset() {
 
 
 
-/* Bricks are stationary "land" */
+// Bricks are stationary "land"
 class brick {
 	public:
 		/** Constructor **/
@@ -423,6 +423,7 @@ class item : public brick {
 
 
 
+
 /******* GLOBAL VARIABLES (part 2) *******/
 SDL_Surface *screenSurface;
 SDL_Surface *brickSurface[NUM_BRICK_SURFACES];
@@ -443,6 +444,8 @@ telepad *telepads = NULL;
 torch *torches = NULL;
 spike *spikes = NULL;
 
+bool physicsStarted;
+
 // Undo stuff
 uint maxUndo = 50; // Maximum number of undo levels
 block **undoBlocks = NULL;
@@ -460,9 +463,7 @@ keyBinding gameKeys[NUM_GAME_KEYS];	// Game's keymap (for Quit, Undo, etc.)
 keyBinding *playerKeys; 		// Players' keymap (for moving players).  Initialized in LoadLevel()
 
 
-
-
-uint lastTick = 0; // For FPS timing
+int lastTick = 0; // For FPS timing
 
 SDL_Event event;
 

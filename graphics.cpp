@@ -343,7 +343,10 @@ void CenterCamera(char override) {
 
 	// Detect when the currentMovement has ended
 	if (currentMovement > 0) {
-		if (cameraXVel == 0 && cameraYVel == 0) currentMovement = 0;
+		if (cameraXVel == 0 && cameraYVel == 0) {
+			currentMovement = 0;
+			physicsStarted = true;
+		}
 	}
 	
 	
