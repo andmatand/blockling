@@ -91,7 +91,7 @@ int stickyPlayerX, stickyPlayerY; // The screen coordinates
 int stickyPlayerOrigX, stickyPlayerOrigY; // The player's game coordinates
 
 
-/******* FUNCTION PROTOTYPES *******/
+/******* FUNCTION PROTOTYPES (Not exhaustive) *******/
 /* main.cpp */
 void Init();
 
@@ -104,14 +104,19 @@ void ApplySurface(int x, int y, SDL_Surface* source, SDL_Surface* destination);
 void CenterCamera(char instant);
 SDL_Surface* FillSurface(const char *file, bool transparent);
 Uint32 GetPixel(SDL_Surface *surface, int x, int y);
+void LimitFPS();
 void LoadTileset(std::string tilesetDir);
 SDL_Surface* MakeSurface(int width, int height);
 void Render(char flag);
 SDL_Surface* TileSurface(std::string path, const char *file, bool transparent);
 
-
 /* input.cpp */
-void Input();
+void GameInput();
+char MenuInput();
+
+/* menus.cpp */
+int MainMenu();
+int PauseMenu();
 
 /* physics.cpp */
 int BlockNumber(int x, int y, int w, int h);
@@ -436,7 +441,7 @@ SDL_Surface *exitSurface[NUM_EXIT_FRAMES];
 SDL_Surface *bgSurface;
 SDL_Surface *playerSurface[NUM_PLAYER_SURFACES];
 
-int bgX, bgY, bgW, bgH;  // For scrolling background
+int bgW, bgH;  // For scrolling background
 
 brick *bricks = NULL;
 block *blocks = NULL;
@@ -463,8 +468,6 @@ keyBinding gameKeys[NUM_GAME_KEYS];	// Game's keymap (for Quit, Undo, etc.)
 keyBinding *playerKeys; 		// Players' keymap (for moving players).  Initialized in LoadLevel()
 
 
-int lastTick = 0; // For FPS timing
-
 SDL_Event event;
 
 
@@ -476,4 +479,5 @@ SDL_Event event;
 #include "game.cpp"
 #include "graphics.cpp"
 #include "input.cpp"
+#include "menus.cpp"
 #include "physics.cpp"

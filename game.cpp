@@ -109,14 +109,31 @@ void Game() {
 			#endif
 			
 			justUndid = false;
-			Input();
+			GameInput();
 						
 			#ifdef DEBUG
 			if (currentLevel != i) break;
 			#endif
 
+			/*** Pause Menu (when Esc is pushed) ***/
 			if (gameKeys[0].on > 0) {
-				quitGame = true;
+				i = SDL_GetTicks(); // To ignore the time spent in the pause menu
+				switch (PauseMenu()) {
+					case 0: // Resume Game
+						break;
+					case 1: // Help
+						// Help();
+						break;
+					case -1: // Esc
+						break; // Resume the game
+					case -2: // Close window
+					case 2: // Quit Game
+						quitGame = true;
+						break;
+				}
+				gameKeys[0].on = 0;
+				// Make the time spent in the menu undetectable to the timer incrementer
+				levelTimeTick += SDL_GetTicks() - i;
 			}
 			
 			if (gameKeys[1].on > 0) {
@@ -491,7 +508,6 @@ bool LoadLevel(std::string levelSet, uint level) {
 	char levelFile[256];
 	sprintf(levelFile, "%03d.txt", level);
 	const char *filename = (LEVEL_BASE_DIR + levelSet + "/" + levelFile).c_str();
-	std::cout << "filename = " << filename << "\n";
 	
 	FILE * f;
 
@@ -521,6 +537,7 @@ bool LoadLevel(std::string levelSet, uint level) {
 	numSpikes = 0;
 	bool charOnThisLine = false;
 	bool restOfLineIsComment = false;
+	int numExits = 0;
 	while (!feof(f)) {
 		c = fgetc(f);
 
@@ -534,6 +551,7 @@ bool LoadLevel(std::string levelSet, uint level) {
 					numBlocks ++;
 					break;
 				case '*': // exit
+					numExits ++;
 					break;
 				case '^':
 					numSpikes ++;
@@ -587,6 +605,8 @@ bool LoadLevel(std::string levelSet, uint level) {
 	}
 	
 	
+	/*** Check Level for Errors ***/
+	
 	// Check for telepad errors
 	for (uint i = 0; i < numTelepads; i++) {
 		if (telepadMates[i] != 1) {
@@ -594,8 +614,18 @@ bool LoadLevel(std::string levelSet, uint level) {
 			syntaxError = true;
 		}
 	}
+
+	// Check for missing exit
+	if (numExits != 1) {
+		fprintf(stderr, "Level data syntax error: There must be exactly 1 level exit, but there are %d.\n", numExits);
+		syntaxError = true;	
+	}
 	
-	
+	// Check for missing player
+	if (numPlayers == 0) {
+		fprintf(stderr, "Level data syntax error: There must be at least one player.\n");
+		syntaxError = true;	
+	}
 	
 	// Don't load the level if there are syntax errors
 	if (syntaxError == true) {
@@ -618,13 +648,20 @@ bool LoadLevel(std::string levelSet, uint level) {
 
 	// Position cameraX so that the level is just offscreen to the right
 	cameraX = -SCREEN_W - (width / 2);
-	cameraY = -(SCREEN_H / 2);
+	cameraY = -((SCREEN_H / 2) - (TILE_H / 2) - (TILE_H * 2));
 	
 	// These global variables are used by the camera
 	levelX = x;
 	levelY = y;
 	levelW = width;
 	levelH = height;
+	
+	#ifdef DEBUG
+	printf("levelX = %d\n", levelX);
+	printf("levelY = %d\n", levelY);
+	printf("levelW = %d\n", levelW);
+	printf("levelH = %d\n", levelH);
+	#endif
 
 	playerKeys = new keyBinding[NUM_PLAYER_KEYS * numPlayers];
 	// Default Player keyboard layout
@@ -666,7 +703,7 @@ bool LoadLevel(std::string levelSet, uint level) {
 	numTorches = 0;
 	numSpikes = 0;
 
-	// Reset telepad pairing arrays
+	// Reset telepad mate counts
 	for (uint i = 0; i < 26; i++) {
 		telepadMates[i] = -1;
 	}

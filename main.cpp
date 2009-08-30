@@ -46,13 +46,23 @@ int main(int argc, char** argv) {
 	
 	Init();
 
+	bool quitProgram = false;
 	while (true) {
-		
-		//Menu();
-		
-		Game();
-		
-		if (gameKeys[0].on) break;
+		switch (MainMenu()) {
+			case 0: // Start Game
+				Game();
+				break;
+			case 1: // Options
+				//switch(OptionsMenu()) {
+				//}
+				break;
+			case -1: // Esc
+			case -2: // Close window
+			case 2: // Quit
+				quitProgram = true;
+				break;
+		}
+		if (quitProgram) break;	
 	}
 	
 	return 0;

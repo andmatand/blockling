@@ -227,7 +227,7 @@ void CenterCamera(char override) {
 		
 		// For levels that are wider than the screen, keep the camera from going too far outside the level
 		// and showing us useless empty space.
-		if (levelW > SCREEN_W) {
+		if (levelW > SCREEN_W - (xMargin * 2)) {
 			// If the camera is showing too much space to the right side of the level
 			if (targetX + (SCREEN_W - 1) > levelX + (levelW - 1) + xMargin) {
 				// Move the level as far right as it *should* go.
@@ -242,18 +242,18 @@ void CenterCamera(char override) {
 		}
 		// If the level's width will fit onscreen, keep the level centered
 		else {
-			targetX = -(SCREEN_W / 2);
+			targetX = -((SCREEN_W / 2) - (TILE_W / 2));
 		}
-	}		
+	}
 	
 	if (!stickyPlayer) {
 		// For levels that are taller than the screen, keep the camera from going too far outside the level
 		// and showing us useless empty space.	
-		if (levelH > SCREEN_H) {
-			// If the camera is showing too much space to below the level
-			if (targetY + (SCREEN_H - 1) > levelY + (levelH - 1) + yMargin) {
+		if (levelH > SCREEN_H - (yMargin * 2) - TILE_H) {
+			// If the camera is showing too much space to below the level (and one extra tile for text)
+			if (targetY + (SCREEN_H - 1) > levelY + (levelH - 1) + yMargin + TILE_H) {
 				// Move the level as far down as it *should* go.
-				targetY = levelY + (levelH - 1) + yMargin - (SCREEN_H - 1);
+				targetY = levelY + (levelH - 1) + yMargin + TILE_H - (SCREEN_H - 1);
 			}
 			
 			// If the camera is too far above the level
@@ -263,7 +263,7 @@ void CenterCamera(char override) {
 			}
 		}
 		else {
-			targetY = -(SCREEN_H / 2);
+			targetY = -((SCREEN_H / 2) - (TILE_H / 2) - (TILE_H * 2));
 		}
 	}	
 	
@@ -652,24 +652,10 @@ void PutPixel(SDL_Surface *surface, int x, int y, Uint32 pixel) {
 
 
 
-
-// flag	0 = No screen update (drawing only)
-//      1 = normal
-//      2 = no CenterCamera
-void Render (char flag) {
+void DrawBackground() {
+	static int bgX, bgY;
 	static uint bgTimer = 0;
-	static uint torchTimer = 0;
-	static uint doorFrame, doorFramePause;
-	uint i;
 	
-
-	//if (LockSurface(screenSurface) == false) return;
-
-	if (flag != 2)
-		CenterCamera(0);
-	
-	
-	/*** Background ***/
 	// Move background offset X and Y (to scroll it)
 	if (SDL_GetTicks() > bgTimer + 60) {
 		bgX += 1;
@@ -685,6 +671,26 @@ void Render (char flag) {
 			ApplySurface(a + bgX, b + bgY, bgSurface, screenSurface);
 		}
 	}
+}
+
+
+// flag	0 = No screen update (drawing only)
+//      1 = normal
+//      2 = no CenterCamera
+void Render (char flag) {
+	static uint torchTimer = 0;
+	static uint doorFrame, doorFramePause;
+	uint i;
+	
+
+	//if (LockSurface(screenSurface) == false) return;
+
+	if (flag != 2)
+		CenterCamera(0);
+	
+	
+	/*** Background ***/
+	DrawBackground();
 
 	
 	
@@ -801,6 +807,15 @@ void Render (char flag) {
 		SDL_UpdateRect(screenSurface, 0, 0, 0, 0);
 	}
 	
+	LimitFPS();
+	
+}
+
+
+
+void LimitFPS() {
+	static uint lastTick;
+	
 	// Limit FPS
 	while (SDL_GetTicks() <= lastTick + (1000 / FPS)) {
 		SDL_Delay(1);
@@ -808,7 +823,6 @@ void Render (char flag) {
 
 	lastTick = SDL_GetTicks();
 }
-
 
 
 

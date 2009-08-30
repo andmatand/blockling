@@ -20,9 +20,9 @@
  */
 
 
-void Input() {
+void GameInput() {
 	
-	// Reset all Players's keys to 0 and let SDL_EnableKeyRepeat handle repeat rate =)
+	// Reset all Players's keys to 0 and let SDL_EnableKeyRepeat handle repeat rate
 	/*
 	for (uint i = 0; i < NUM_PLAYER_KEYS; i++) {
 		playerKeys[i].on = 0;
@@ -201,4 +201,56 @@ void Input() {
 	
 	// Add NPC access to playerKeys here
 
+}
+
+
+
+// Return values:
+//	0 No key
+//	1 Up
+//	2 Down
+//	3 Left
+//	4 Right
+//	5 Enter
+//	6 Home
+//	7 End
+//	8 Esc
+//	9 Window close button
+char MenuInput() {
+
+	while (SDL_PollEvent(&event)) {
+		switch (event.type) {
+			case SDL_KEYDOWN:
+				switch (event.key.keysym.sym) {
+					case SDLK_RETURN:
+						return 5;
+					case SDLK_UP:
+						return 1;
+						break;
+					case SDLK_DOWN:
+						return 2;
+						break;
+					case SDLK_HOME:
+						return 6;
+						break;
+					case SDLK_END:
+						return 7;
+						break;
+					case SDLK_ESCAPE:
+						return 8;
+						break;
+					default:
+						break;
+				}
+				break;
+			//case SDL_KEYUP:
+				
+			//	break;
+			case SDL_QUIT:
+				return 9;
+				break;
+		}
+	}
+	
+	return 0;
 }
