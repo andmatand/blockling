@@ -137,8 +137,10 @@ pos(0), moves(0) {
 	bufferSize = buffSize;
 	steps = new replayStep[bufferSize];
 	
-	filename = new char[strlen(file) + 1];
-	strcpy(filename, file);
+	if (file != NULL) {
+		filename = new char[strlen(file) + 1];
+		strcpy(filename, file);
+	}
 
 	title = new char[MAX_REPLAY_TITLE_LENGTH + 1];
 	
