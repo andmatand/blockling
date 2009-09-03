@@ -71,6 +71,7 @@ void GameInput() {
 				playerKeys[i].timer = SDL_GetTicks();
 			}
 		}
+		/*
 		else if (abs(playerKeys[i].on) == 2) {
 			// Repeat delay
 			if (SDL_GetTicks() >= playerKeys[i].timer + 0) {
@@ -81,6 +82,7 @@ void GameInput() {
 				playerKeys[i].on = -2; // will be seen by game as Off
 			}
 		}
+		*/
 	}
 
 

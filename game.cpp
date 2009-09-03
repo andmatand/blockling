@@ -44,7 +44,7 @@ void CollectLevelGarbage() {
 
 
 
-void Game() {
+void Game(char *replayFile) {
 
 	uint i;
 	int x, b;
@@ -54,6 +54,28 @@ void Game() {
 	bool quitGame = false;
 	float cameraXVel, cameraYVel;
 	uint wonLevelTimer;
+
+	bool recordingReplay = false;
+	// If we are not going to play a replay
+	if (replayFile == NULL) {
+		recordingReplay = false;
+	}
+	else {
+		// Add: "if this option is enabled"
+		recordingReplay = true;
+	}
+	char replayTempFile[] = "data/replays/tempreplay.tmp";
+	replay replayWrite(replayTempFile, 10);
+		
+	int showingReplay;
+	// If we are going to play a replay 
+	if (replayFile != NULL) {
+		showingReplay = 1;
+	}
+	else {
+		showingReplay = 0;
+	}
+	replay replayRead(replayFile, 100);
 	
 	currentLevel = 0;
 	stickyPlayer = false;
@@ -92,7 +114,7 @@ void Game() {
 		cameraXVel = 0;
 		cameraYVel = 0;
 	
-		// Rest keys
+		// Reset keys
 		for (i = 0; i < NUM_GAME_KEYS; i++) {
 			gameKeys[i].on = 0;
 		}
@@ -100,6 +122,15 @@ void Game() {
 			for (uint j = 0; j < NUM_PLAYER_KEYS; j++) {
 				playerKeys[(i * NUM_PLAYER_KEYS) + j].on = 0;
 			}
+		}
+		
+		// Initialize the replay object which will store the replay data
+		if (recordingReplay) {
+			replayWrite.InitWrite();
+		}
+
+		if (showingReplay == 1) {
+			replayRead.InitRead();
 		}
 
 		/******* GAME LOOP *******/
@@ -136,9 +167,6 @@ void Game() {
 				levelTimeTick += SDL_GetTicks() - i;
 			}
 			
-			if (gameKeys[1].on > 0) {
-				Undo(1);
-			}
 			
 			
 			/** Manual Camera Movement **/
@@ -192,6 +220,25 @@ void Game() {
 					&& blocks[i].OnSolidGround())
 				{
 					
+					/*** Perform next keypress from replay file ***/
+					if (showingReplay == 1 && physicsStarted) {
+						//printf("Pushing next key in replay...\n");
+						
+						if ( !replayRead.PushNextKey() ) {
+							printf("Replay is over\n");
+							
+							// The replay is over.
+							showingReplay = 2;
+						}
+					}
+					
+					/*** Undo ***/
+					if (gameKeys[1].on > 0) {
+						if (recordingReplay) replayWrite.SaveKey(5); // Save the keypress in the replay
+						Undo(1);
+						break;
+					}
+					
 					// Enter (push a block)
 					if (pushedKey == false && playerBlock[i] == -1 && playerKeys[(i * NUM_PLAYER_KEYS) + 4].on > 0) {
 						// Determine which tile the player is looking at.
@@ -205,6 +252,7 @@ void Game() {
 						if (b < 0) b = BlockNumber(x, blocks[i].GetY(), TILE_W, 1); // If that didn't work, push from top
 						
 						if (b >= 0 && blocks[b].OnSolidGround()) {
+							if (recordingReplay) replayWrite.SaveKey(4); // Save the keypress in the replay
 							Undo(0); // Save Undo state
 							
 							if (blocks[i].GetDir() == 0) {
@@ -234,6 +282,7 @@ void Game() {
 						else {
 							blocks[i].SetDir(0);
 						}
+						if (recordingReplay) replayWrite.SaveKey(0); // Save the keypress in the replay
 						pushedKey = true; // Now player can't push other buttons this frame
 					}
 
@@ -250,6 +299,7 @@ void Game() {
 						else {
 							blocks[i].SetDir(1);
 						}
+						if (recordingReplay) replayWrite.SaveKey(1); // Save the keypress in the replay
 						pushedKey = true; // Now player can't push other buttons this frame
 					}
 					
@@ -266,13 +316,18 @@ void Game() {
 						
 						// If it's a block, make it climb up onto the player =)
 						if (b >= 0) {
+							if (recordingReplay) replayWrite.SaveKey(2); // Save the keypress in the replay
 							Undo(0); // Save Undo state
 							
 							// If player is strong, make this block strong for now
 							if (blocks[i].GetStrong() == 1) blocks[b].SetStrong(1);
 							
 							// Climb
-							blocks[b].Climb((blocks[i].GetDir() == 0) ? 1 : 0);
+							blocks[b].Climb(static_cast<char>(
+										(blocks[i].GetDir() == 0)
+										? 1
+										: 0
+									));
 							
 							playerBlock[i] = b; // Player can't move until this block stops moving
 							pushedKey = true; // Now player can't push other buttons this frame
@@ -287,6 +342,7 @@ void Game() {
 
 						// If it's a block, set its path to be set down.
 						if (b >= 0 && blocks[b].GetXMoving() == 0 && blocks[b].GetYMoving() == 0) {
+							if (recordingReplay) replayWrite.SaveKey(3); // Save the keypress in the replay
 							Undo(0); // Save Undo state
 							
 							tempPath = "";
@@ -314,8 +370,12 @@ void Game() {
 							pushedKey = true; // Now player can't push other buttons this frame
 						}
 					}
+					if (pushedKey == false) {
+						if (recordingReplay) replayWrite.SaveKey(-1); // Save the non-keypress (sleep) in the replay
+					}
 				}
 
+				
 				// Check if player is waiting for a block he's acted upon to finish moving
 				if (playerBlock[i] != -1) {
 					// If it's not moving (along a path) anymore
@@ -372,7 +432,7 @@ void Game() {
 						blocks[i].PostPhysics();
 					}
 				}
-			}			
+			}
 			
 
 
@@ -395,7 +455,8 @@ void Game() {
 						wonLevelTimer = SDL_GetTicks();
 					}
 					else {
-						blocks[i].SetType(-blocks[i].GetType());
+						// If this isn't player 0, make it disappear
+						blocks[i].SetType( static_cast<char>(-blocks[i].GetType()) );
 						wonLevel = 0;
 					}
 				}
@@ -467,13 +528,50 @@ void Game() {
 			if (wonLevel == 3 && SDL_GetTicks() > wonLevelTimer + 1000) {
 				wonLevel = 4;
 				//SDL_Delay(1000);
-				currentLevel ++;
-				break;
+				if (showingReplay == 0) {
+					currentLevel ++;
+					break;
+				}
+				else {
+					showingReplay = 2;
+				}
+			}
+							
+			// If the replay is done playing
+			if (showingReplay == 2) {
+				// If the player reached the exit
+				if (wonLevel == 4) {
+					// Exit the Game Engine (go back to the Load Replay menu
+					quitGame = true;
+					break;
+				}
+				// The player hasn't reached the exit
+				else {
+					// Show the replay pause menu
+					switch (ReplayPauseMenu(true)) {
+						case 0: // Watch It Again (since the replay is finished)
+							break;
+						case 1: // Take Control
+							showingReplay = 0;
+							break;
+						case -2: // Close Window
+						case -1: // Esc
+						case 3:  // Quit Game
+							quitGame = true;
+							break;
+					}
+				}
 			}
 
-			
 		} // End of game loop
 		
+
+		// Save the replay recording
+		if (recordingReplay) {
+			char replaySaveFile[] = "data/replays/replay1";
+			char replayTitle[] = "Test Replay";
+			replayWrite.SaveToFile(replaySaveFile, currentLevel - 1, replayTitle);
+		}
 		
 		/** Zing level offscreen **/
 		if (quitGame == false && wonLevel == 4) {
@@ -506,7 +604,7 @@ bool LoadLevel(std::string levelSet, uint level) {
 	bool syntaxError = false;
 	
 	char levelFile[256];
-	sprintf(levelFile, "%03d.txt", level);
+	sprintf(levelFile, "%03d", level);
 	const char *filename = (LEVEL_BASE_DIR + levelSet + "/" + levelFile).c_str();
 	
 	FILE * f;

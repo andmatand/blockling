@@ -50,15 +50,21 @@ int main(int argc, char** argv) {
 	while (true) {
 		switch (MainMenu()) {
 			case 0: // Start Game
-				Game();
+				Game (NULL); // (with no replay file)
 				break;
-			case 1: // Options
+			case 1: // Load a Replay
+				// If Close Window was pushed
+				if (LoadReplayMenu() == -2) {
+					quitProgram = true;
+				}
+				break;
+			case 2: // Options
 				//switch(OptionsMenu()) {
 				//}
 				break;
 			case -1: // Esc
-			case -2: // Close window
-			case 2: // Quit
+			case -2: // Close Window
+			case 3: // Quit
 				quitProgram = true;
 				break;
 		}

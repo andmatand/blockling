@@ -804,7 +804,7 @@ void telepad::Teleport() {
 		ApplySurface(0, yPos, blocks[ba[i]].GetSurface(), sourceSurf);
 	
 		// Make all teleporting blocks invisible so they wont be rendered by their GetSurface()
-		blocks[ba[i]].SetType( -(blocks[ba[i]].GetType() + 1));
+		blocks[ba[i]].SetType(static_cast<char>( -(blocks[ba[i]].GetType() + 1) ));
 	}
 	// Update the source surface
 	//SDL_UpdateRect(sourceSurf, 0, 0, 0, 0);
@@ -850,7 +850,7 @@ void telepad::Teleport() {
 		for (uint i = 0; i < (sH / squareSize); i++) {
 			// Check if we've moved all the pixels over
 			numPixels = 0;
-			for (int j = 0; j < (sH * TILE_W) / squareSize; j++) {
+			for (uint j = 0; j < (sH * TILE_W) / squareSize; j++) {
 				if (map[j] == true) numPixels ++;
 			}
 			if (numPixels == (sH * TILE_W) / squareSize) break;
@@ -872,8 +872,8 @@ void telepad::Teleport() {
 			}
 		
 			// Trasfer one squares at a time (whose dimensions are (squareSize / 2) x (squareSize / 2))
-			for (int sqY = 0; sqY < squareSize / 2; sqY++) {
-				for (int sqX = 0; sqX < squareSize / 2; sqX++) {
+			for (uint sqY = 0; sqY < squareSize / 2; sqY++) {
+				for (uint sqX = 0; sqX < squareSize / 2; sqX++) {
 					// Get pixel color from source
 					col = GetPixel(sourceSurf, pX + sqX, pY + sqY);
 
@@ -923,7 +923,7 @@ void telepad::Teleport() {
 		blocks[ba[i]].SetY(yPos);
 
 		// Make all teleporting blocks visible again (convert -1 back to 0, -2 back to 1)
-		blocks[ba[i]].SetType( -(blocks[ba[i]].GetType() + 1));
+		blocks[ba[i]].SetType(static_cast<char>( -(blocks[ba[i]].GetType() + 1) ));
 	}
 
 

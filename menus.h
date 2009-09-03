@@ -106,6 +106,10 @@ void menu::SetTitle(const char *aTitle) {
 	strcpy(title, tempTitle);
 }
 void menu::SetTitle(char *aTitle) {
+	// Clean up old text data
+	delete [] title;
+	title = NULL;
+	
 	title = new char[strlen(aTitle) + 1];
 	strcpy(title, aTitle);
 }
@@ -137,8 +141,8 @@ void menu::NameItem(uint item, char *name) {
 void menu::AutoArrange(char type) {
 	titleX = x;
 	titleY = y;
-	// Position first item right below title
-	items[0].SetX(x);
+	// Position first item right below title, and to the right a little
+	items[0].SetX(x + TILE_W);
 	items[0].SetY(y + TILE_H + (TILE_H / 4));
 	
 	// Type 0
@@ -209,7 +213,7 @@ int menu::Input() {
 	}
 	
 	if (sel < 0) sel = 0;
-	if (sel > numItems - 1) sel = numItems - 1;
+	if (sel > static_cast<int>(numItems - 1)) sel = static_cast<int>(numItems - 1);
 	
 	return 0;
 }

@@ -438,6 +438,8 @@ int block::GetSurfaceIndex() {
 			}
 			break;
 	}
+
+	return 0;
 }
 
 

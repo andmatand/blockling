@@ -24,11 +24,12 @@
 
 typedef unsigned int uint;
 
-/******* PRE-INCLUDES *******/
+/******* INCLUDES (part 1) *******/
 #include "SDL/SDL.h"
 #include <iostream>
 #include <string>
 #include <sstream>
+#include <ctime>
 
 
 
@@ -52,6 +53,8 @@ const std::string TILE_BASE_DIR = "data/tiles/";
 const std::string DEFAULT_TILESET_DIR = "default";
 const std::string LEVEL_BASE_DIR = "data/levels/";
 const std::string DEFAULT_LEVELSET_DIR = "default";
+const unsigned char MAX_REPLAY_TITLE_LENGTH = 16;
+
 
 
 /******* GLOBAL VARIABLES (part 1) ********/
@@ -91,12 +94,14 @@ int stickyPlayerX, stickyPlayerY; // The screen coordinates
 int stickyPlayerOrigX, stickyPlayerOrigY; // The player's game coordinates
 
 
+
+
 /******* FUNCTION PROTOTYPES (Not exhaustive) *******/
 /* main.cpp */
 void Init();
 
 /* game.cpp */
-void Game();
+void Game (char *replayFile);
 void Undo(char action);
 
 /* graphics.cpp */
@@ -116,6 +121,7 @@ char MenuInput();
 
 /* menus.cpp */
 int MainMenu();
+int ReplayPauseMenu(bool finished);
 int PauseMenu();
 
 /* physics.cpp */
@@ -341,15 +347,15 @@ class torch {
 		void FlickerFlame();
 	private:
 		int x, y;
-		char flame;	// Current frame of animated flame
+		int flame;	// Current frame of animated flame
 };
 
 void torch::FlickerFlame() {
 	if (rand() % 2 == 0) {
-		flame -= static_cast<char>((rand() % 2) + 1);
+		flame -= (rand() % 2) + 1;
 	}
 	else {
-		flame += static_cast<char>((rand() % 2) + 1);
+		flame += (rand() % 2) + 1;
 	}
 	
 	if (flame < 0) flame += 2;
@@ -456,28 +462,21 @@ uint maxUndo = 50; // Maximum number of undo levels
 block **undoBlocks = NULL;
 bool justUndid;
 
-// Keyboard stuff
-struct keyBinding {
-	SDLKey sym;	// Key name (e.g. SDLK_LEFT)
-	SDLMod mod;	// Modifier (e.g. KMOD_LSHIFT) - must be pushed along with 'sym' for key to be 'on'
-	char on; 	// If the key is pushed
-	uint timer;	// Used for repeat rate
-};
-
-keyBinding gameKeys[NUM_GAME_KEYS];	// Game's keymap (for Quit, Undo, etc.)
-keyBinding *playerKeys; 		// Players' keymap (for moving players).  Initialized in LoadLevel()
-
-
-SDL_Event event;
 
 
 
 
+/******* INCLUDES (part 2) ********/
+#include "input.h"
+#include "replay.h"
 
-/******* POST-INCLUDES *******/
+
+/******* INCLUDES (part 3) *******/
+
 #include "font.cpp"
 #include "game.cpp"
 #include "graphics.cpp"
 #include "input.cpp"
 #include "menus.cpp"
 #include "physics.cpp"
+
