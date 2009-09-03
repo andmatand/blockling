@@ -126,7 +126,7 @@ class replay {
 		/*** Meta-Data ***/
 		char levelSet[256];	// Which levelSet the level is in
 		uint level;		// Which level this replay is for
-		uint moves;		// How many moves were made (not couting sleeps)
+		uint moves;		// How many moves were made (not counting sleeps)
 		char *title;		// User-created tile of this replay
 		char date[17];		// Date/time the replay was recorded (e.g. "1973-02-31 19:57")
 };
@@ -187,7 +187,7 @@ void replay::InitRead() {
 			// Store the line in the correct variable, based on line number
 			switch(n) {
 				case 0:
-					strncpy(title, line, sizeof(title));
+					strncpy(title, line, MAX_REPLAY_TITLE_LENGTH);
 					break;
 				case 1:
 					level = atoi(line);
@@ -204,7 +204,7 @@ void replay::InitRead() {
 		}
 	}
 	
-	printf("title = \"%s\"\nlevel = %d\ndate = \"%s\"\n", title, level, date);
+	printf("title = \"%s\"\nlevel = %d\nmoves = %d\ndate = \"%s\"\n", title, level, moves, date);
 	
 	FillBuffer();
 }

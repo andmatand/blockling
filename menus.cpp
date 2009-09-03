@@ -47,7 +47,7 @@ int ReplaySelectMenu(uint levelNum, uint levelReplays, replay * replays, uint nu
 		// If this replay is for the current level
 		if (replays[i].GetLevel() == levelNum) {
 			// Create the menu item name
-			sprintf(tempMenuString, "\"%s\" (%d ", replays[i].GetTitle(), levelReplays);
+			sprintf(tempMenuString, "\"%s\" (%d ", replays[i].GetTitle(), replays[i].GetMoves());
 			strcat(tempMenuString, (replays[i].GetMoves() > 1) ? "moves)" : "move)");
 			
 			// Remember which replay this menuItem is referring to
