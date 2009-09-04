@@ -679,6 +679,7 @@ void DrawBackground() {
 // flag	0 = No screen update (drawing only)
 //      1 = normal
 //      2 = no CenterCamera
+//	3 = combination of 0 and 2
 void Render (char flag) {
 	static uint torchTimer = 0;
 	static uint doorFrame, doorFramePause;
@@ -687,7 +688,7 @@ void Render (char flag) {
 
 	//if (LockSurface(screenSurface) == false) return;
 
-	if (flag != 2)
+	if (flag != 2 && flag != 3)
 		CenterCamera(0);
 	
 	
@@ -747,7 +748,7 @@ void Render (char flag) {
 	
 	/*** BLOCKS ***/
 	// Deactivate stickyPlayer when he's lined up in the new level's position.
-	if (blocks[0].GetX() - cameraX <= stickyPlayerX && blocks[0].GetY() - cameraY == stickyPlayerY) {
+	if (flag != 3 && blocks[0].GetX() - cameraX <= stickyPlayerX && blocks[0].GetY() - cameraY == stickyPlayerY) {
 		stickyPlayer = false;
 		blocks[0].SetFace(0); // normal
 	}
@@ -804,7 +805,7 @@ void Render (char flag) {
 	}
 
 
-	if (flag != 0) {
+	if (flag != 0 && flag != 3) {
 		// Tell SDL to update the whole screenSurface
 		SDL_UpdateRect(screenSurface, 0, 0, 0, 0);
 	}

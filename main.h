@@ -53,8 +53,7 @@ const std::string TILE_BASE_DIR = "data/tiles/";
 const std::string DEFAULT_TILESET_DIR = "default";
 const std::string LEVEL_BASE_DIR = "data/levels/";
 const std::string DEFAULT_LEVELSET_DIR = "default";
-const unsigned char MAX_REPLAY_TITLE_LENGTH = 16;
-
+const char TEMP_PATH[] = "./";
 
 
 /******* GLOBAL VARIABLES (part 1) ********/
@@ -101,7 +100,7 @@ int stickyPlayerOrigX, stickyPlayerOrigY; // The player's game coordinates
 void Init();
 
 /* game.cpp */
-void Game (char *replayFile);
+void Game ();
 void Undo(char action);
 
 /* graphics.cpp */
@@ -121,8 +120,10 @@ char MenuInput();
 
 /* menus.cpp */
 int MainMenu();
-int ReplayPauseMenu(bool finished);
+int ReplayPauseMenu();
+int EndOfLevelMenu();
 int PauseMenu();
+uint NextFreeReplayNumber(uint level);
 
 /* physics.cpp */
 int BlockNumber(int x, int y, int w, int h);

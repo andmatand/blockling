@@ -89,21 +89,15 @@ class replay {
 	public:
 		/*** Constructor ***/
 		replay(char *file, uint buffSize);
-		replay(); // Alternate contructor (for Load Replay menu); used only to hold meta-data
 		
 		/*** Write ***/
 		void SaveKey(char key);
-		void SetFilename(char * fn);
 		void DumpBuffer(); // Writes the buffer to the temp file
-		void SaveToFile(char *saveFilename, uint theLevel, char *theTitle); // Saves the final replay to a file, with the user-specified metadata
 		
 		/*** Read ***/
 		void FillBuffer(); // Parses the replay file and loads a chunk of data into the replayStep array
-		uint GetLevel() const { return level; };
-		uint GetMoves() const { return moves; };
-		char * GetTitle() const { return title; };
-		char * GetFilename() const { return filename; };
-		bool PushNextKey();
+		//char * GetFilename() const { return filename; };
+		void PushNextKey();
 		
 		/*** Other ***/
 		void InitRead();
@@ -122,18 +116,11 @@ class replay {
 		replayStep *steps;	// Will point to an array of replaySteps
 		
 		uint pos;		// The current step (whether recording or playing)
-		
-		/*** Meta-Data ***/
-		char levelSet[256];	// Which levelSet the level is in
-		uint level;		// Which level this replay is for
-		uint moves;		// How many moves were made (not counting sleeps)
-		char *title;		// User-created tile of this replay
-		char date[17];		// Date/time the replay was recorded (e.g. "1973-02-31 19:57")
 };
 
 // Constructor
 replay::replay(char *file, uint buffSize):
-pos(0), moves(0) {
+pos(0) {
 	bufferSize = buffSize;
 	steps = new replayStep[bufferSize];
 	
@@ -141,25 +128,8 @@ pos(0), moves(0) {
 		filename = new char[strlen(file) + 1];
 		strcpy(filename, file);
 	}
-
-	title = new char[MAX_REPLAY_TITLE_LENGTH + 1];
-	
-	time_t theTime;
-  	time( &theTime );   // get the calendar time
-
-	strftime(date, sizeof(date), "%Y-%m-%d %H:%M", localtime(&theTime));
 }
 
-// Alternate Constructor (used by Load Replay Menu)
-replay::replay():
-pos(0) {
-	// We don't need any replaySteps, since the replay will hold only meta data
-	bufferSize = 0;
-	
-	title = new char[MAX_REPLAY_TITLE_LENGTH + 1];
-	
-	filename = NULL;
-}
 
 
 
@@ -172,40 +142,6 @@ void replay::InitRead() {
 		fprintf(stderr, "File error: Could not open file \"%s\" for reading.", filename);
 	}
 
-	// Read the meta-data information at the top of the file
-	char line[100];
-	uint n = 0; // Line number
-	while ( !feof(fp) && n < 4 ) {
-		// Read a line.  If it wasn't the end of the file, store it to the correct variable
-		if (fgets(line, sizeof(line), fp) != NULL) {
-			printf("Reading line %d of replay header...\n", n + 1);
-			printf("Line contents: \"%s\"\n", line);
-
-			// Remove \n at end of line
-			if (line[strlen(line) - 1] == '\n') line[strlen(line) - 1] = '\0';
-
-			// Store the line in the correct variable, based on line number
-			switch(n) {
-				case 0:
-					strncpy(title, line, MAX_REPLAY_TITLE_LENGTH);
-					break;
-				case 1:
-					level = atoi(line);
-					break;
-				case 2:
-					moves = atoi(line);
-					break;
-				case 3:
-					strncpy(date, line, sizeof(date));
-					break;
-			}
-				
-			n++;
-		}
-	}
-	
-	printf("title = \"%s\"\nlevel = %d\nmoves = %d\ndate = \"%s\"\n", title, level, moves, date);
-	
 	FillBuffer();
 }
 
@@ -214,7 +150,6 @@ void replay::DeInitRead() {
 		fprintf(stderr, "File error: Could not close replay file \"%s\"", filename);
 	}
 	
-	//delete fp;
 	fp = NULL;
 }
 
@@ -226,7 +161,6 @@ void replay::InitWrite() {
 	if (fp == NULL) {
 		fprintf(stderr, "File error: Could not open file \"%s\" for writing.", filename);
 	}
-	
 }
 
 void replay::DeInitWrite() {
@@ -294,7 +228,7 @@ void replay::FillBuffer() {
 					
 					
 					// Determine the key number from the action symbol
-					n = -1; // Recycling!  It's good for the environment or something.
+					n = -1; // Recycling our used variable.  It's good for the environment or something.
 					switch (line[j]) {
 						case 's': // Sleep
 							n = -1;
@@ -379,9 +313,6 @@ void replay::SaveKey(char key) {
 		steps[pos].SetKey(key);
 		steps[pos].SetNum(1);
 		
-		// Increment moves if this is not a sleep
-		if (key != -1) moves++;
-		
 		// Make pos contain the number of the next step
 		pos++;
 	}
@@ -391,67 +322,19 @@ void replay::SaveKey(char key) {
 		
 		// Increment the number of presses of the last key
 		steps[pos - 1].SetNum(steps[pos - 1].GetNum() + 1);
-
-		// Increment moves if this is not a sleep
-		if (key != -1) moves++;
 	}
 }
 
-
-void replay::SaveToFile(char *saveFilename, uint theLevel, char *theTitle) {
-	// Close the file
-	DeInitWrite();
-
-	// Open the new file and write to it the meta data header, followed by the contents of the temp file
-	FILE * readFile = fopen(filename, "r");
-	FILE * writeFile = fopen(saveFilename, "w");
-	
-	if (readFile == NULL) {
-		fprintf(stderr, "File error: Could not open file \"%s\" for reading.\n", filename);
-	}
-	else if (writeFile == NULL) {
-		fprintf(stderr, "File error: Could not open file \"%s\" for writing.\n", saveFilename);
-	}
-	else {
-		// Print the meta data
-		fprintf(writeFile, "%s\n%d\n%d\n%s\n", theTitle, theLevel, moves, date);
-		
-		// Print the rest of the lines
-		char line[12];
-		while (!feof(readFile)) {
-			if (fgets(line, sizeof(line), readFile) != NULL) {
-				fprintf(writeFile, "%s", line);
-			}
-		}
-
-		// Close both files
-		fclose(readFile);
-		fclose(writeFile);
-
-		// Delete the temp replay file
-		if (remove(filename) != 0) {
-			fprintf(stderr, "File error: Could not delete temporary replay file \"%s\".\n", filename);
-		}
-	}
-}
 
 
 // Press the next key in the replay file
-bool replay::PushNextKey() {
+void replay::PushNextKey() {
 	// Check for the flag set by FillBuffer to signal EOF
 	if (steps[pos].GetNum() == 0) {
-		return false;
+		return;
 	}
 
 	int k = steps[pos].GetKey();
-	
-	// Turn all playerKeys off
-	for (uint i = 0; i < NUM_PLAYER_KEYS; i++) {
-		playerKeys[i].on = 0;
-	}
-	
-	// Turn undo key off
-	gameKeys[1].on = 0;
 	
 	/*** Turn the correct key on ***/
 	// Undo
@@ -479,17 +362,4 @@ bool replay::PushNextKey() {
 		}
 		
 	}
-	
-	return true;
-}
-
-
-
-void replay::SetFilename(char * fn) {
-	// Clean up old text data
-	delete [] filename;
-	filename = NULL;
-	
-	filename = new char[strlen(fn) + 1];
-	strcpy(filename, fn);
 }

@@ -44,7 +44,7 @@ void CollectLevelGarbage() {
 
 
 
-void Game(char *replayFile) {
+void Game() {
 
 	uint i;
 	int x, b;
@@ -55,30 +55,26 @@ void Game(char *replayFile) {
 	float cameraXVel, cameraYVel;
 	uint wonLevelTimer;
 
-	bool recordingReplay = false;
-	// If we are not going to play a replay
-	if (replayFile == NULL) {
-		recordingReplay = false;
-	}
-	else {
-		// Add: "if this option is enabled"
-		recordingReplay = true;
-	}
-	char replayTempFile[] = "data/replays/tempreplay.tmp";
-	replay replayWrite(replayTempFile, 10);
-		
-	int showingReplay;
-	// If we are going to play a replay 
-	if (replayFile != NULL) {
-		showingReplay = 1;
-	}
-	else {
-		showingReplay = 0;
-	}
-	replay replayRead(replayFile, 100);
-	
+	int *playerBlock = NULL; 	// Stores which block the player is currently picking
+					// up and waiting on until he can move again.
+
+
 	currentLevel = 0;
 	stickyPlayer = false;
+
+	// Replay switches
+	bool recordingReplay = false;
+	bool showingReplay = false;
+	
+	// Replay object pointer
+	replay *neatoReplay = NULL;
+
+	// Add: "if this option is enabled"
+	// if prefs[0] = 1 {
+		recordingReplay = true;
+	// }
+	
+	
 
 	/*** Loop to advance to next level ***/
 	while(quitGame == false) {
@@ -90,14 +86,9 @@ void Game(char *replayFile) {
 			currentLevel = 0;
 			CollectLevelGarbage();
 			continue;
-			//escKey = 1;
-			//break;
 		}
 		
-		
-		
-		int playerBlock[numPlayers]; 	// Stores which block the player is currently picking
-						// up and waiting on until he can move again.
+		playerBlock = new int[numPlayers];
 		
 		// Initialize playerBlock
 		for (i = 0; i < numPlayers; i++) {
@@ -123,14 +114,23 @@ void Game(char *replayFile) {
 				playerKeys[(i * NUM_PLAYER_KEYS) + j].on = 0;
 			}
 		}
-		
-		// Initialize the replay object which will store the replay data
-		if (recordingReplay) {
-			replayWrite.InitWrite();
-		}
 
-		if (showingReplay == 1) {
-			replayRead.InitRead();
+
+		/*** Initialze replay ***/
+		if (showingReplay) {
+			// Initialize the replay for reading
+			neatoReplay->InitRead();
+		}
+		else if (recordingReplay) {
+			// Get full filename for the replay temp file
+			char replayTempFile[256];
+			sprintf(replayTempFile, "%stempreplay.tmp", TEMP_PATH);
+
+			// Create the replay object
+			neatoReplay = new replay(replayTempFile, 100); // A buffer of 100 takes about 500 bytes of memory
+
+			// Initialize the replay object for writing
+			neatoReplay->InitWrite();
 		}
 
 		/******* GAME LOOP *******/
@@ -149,20 +149,58 @@ void Game(char *replayFile) {
 			/*** Pause Menu (when Esc is pushed) ***/
 			if (gameKeys[0].on > 0) {
 				i = SDL_GetTicks(); // To ignore the time spent in the pause menu
-				switch (PauseMenu()) {
-					case 0: // Resume Game
-						break;
-					case 1: // Help
-						// Help();
-						break;
-					case -1: // Esc
-						break; // Resume the game
-					case -2: // Close window
-					case 2: // Quit Game
-						quitGame = true;
-						break;
+				
+				if (showingReplay) {
+					i = currentLevel;
+					
+					// Show special replay pause menu
+					switch (ReplayPauseMenu()) {
+						case -1: // Esc
+						case 0: // Resume
+							break;
+						case 1: // Take Control
+							// Turn off any keys that might still be on
+							for (i = 0; i < NUM_PLAYER_KEYS; i++) {
+								playerKeys[i].on = 0;
+							}
+							for (i = 0; i < NUM_GAME_KEYS; i++) {
+								gameKeys[i].on = 0;
+							}
+
+							showingReplay = false;
+							break;
+						case 2: // Next Level
+							showingReplay = false;
+							currentLevel += 1;
+							break;
+						case -2: // Close Window
+						case 3:  // Quit Game
+							quitGame = true;
+							break;
+					}
+					
+					// If "Next Level" was chosen, break from main loop
+					if (currentLevel != i) break;
 				}
+				else { // Normal pause menu
+					switch (PauseMenu()) {
+						case 0: // Resume Game
+							break;
+						case 1: // Help
+							// Help();
+							break;
+						case -1: // Esc
+							break; // Resume the game
+						case -2: // Close window
+						case 2: // Quit Game
+							quitGame = true;
+							break;
+					}
+				}
+				
+				// No more Esc
 				gameKeys[0].on = 0;
+				
 				// Make the time spent in the menu undetectable to the timer incrementer
 				levelTimeTick += SDL_GetTicks() - i;
 			}
@@ -221,20 +259,24 @@ void Game(char *replayFile) {
 				{
 					
 					/*** Perform next keypress from replay file ***/
-					if (showingReplay == 1 && physicsStarted) {
-						//printf("Pushing next key in replay...\n");
+					if (showingReplay) {
+						// Turn all playerKeys off
+						for (uint i = 0; i < NUM_PLAYER_KEYS; i++) {
+							playerKeys[i].on = 0;
+						}
 						
-						if ( !replayRead.PushNextKey() ) {
-							printf("Replay is over\n");
-							
-							// The replay is over.
-							showingReplay = 2;
+						// Turn undo key off
+						gameKeys[1].on = 0;
+						
+						if (physicsStarted) {
+							// Push the next key
+							neatoReplay->PushNextKey();
 						}
 					}
 					
 					/*** Undo ***/
 					if (gameKeys[1].on > 0) {
-						if (recordingReplay) replayWrite.SaveKey(5); // Save the keypress in the replay
+						if (recordingReplay) neatoReplay->SaveKey(5); // Save the keypress in the replay
 						Undo(1);
 						break;
 					}
@@ -252,7 +294,7 @@ void Game(char *replayFile) {
 						if (b < 0) b = BlockNumber(x, blocks[i].GetY(), TILE_W, 1); // If that didn't work, push from top
 						
 						if (b >= 0 && blocks[b].OnSolidGround()) {
-							if (recordingReplay) replayWrite.SaveKey(4); // Save the keypress in the replay
+							if (recordingReplay) neatoReplay->SaveKey(4); // Save the keypress in the replay
 							Undo(0); // Save Undo state
 							
 							if (blocks[i].GetDir() == 0) {
@@ -282,7 +324,7 @@ void Game(char *replayFile) {
 						else {
 							blocks[i].SetDir(0);
 						}
-						if (recordingReplay) replayWrite.SaveKey(0); // Save the keypress in the replay
+						if (recordingReplay) neatoReplay->SaveKey(0); // Save the keypress in the replay
 						pushedKey = true; // Now player can't push other buttons this frame
 					}
 
@@ -299,7 +341,7 @@ void Game(char *replayFile) {
 						else {
 							blocks[i].SetDir(1);
 						}
-						if (recordingReplay) replayWrite.SaveKey(1); // Save the keypress in the replay
+						if (recordingReplay) neatoReplay->SaveKey(1); // Save the keypress in the replay
 						pushedKey = true; // Now player can't push other buttons this frame
 					}
 					
@@ -316,7 +358,7 @@ void Game(char *replayFile) {
 						
 						// If it's a block, make it climb up onto the player =)
 						if (b >= 0) {
-							if (recordingReplay) replayWrite.SaveKey(2); // Save the keypress in the replay
+							if (recordingReplay) neatoReplay->SaveKey(2); // Save the keypress in the replay
 							Undo(0); // Save Undo state
 							
 							// If player is strong, make this block strong for now
@@ -342,7 +384,7 @@ void Game(char *replayFile) {
 
 						// If it's a block, set its path to be set down.
 						if (b >= 0 && blocks[b].GetXMoving() == 0 && blocks[b].GetYMoving() == 0) {
-							if (recordingReplay) replayWrite.SaveKey(3); // Save the keypress in the replay
+							if (recordingReplay) neatoReplay->SaveKey(3); // Save the keypress in the replay
 							Undo(0); // Save Undo state
 							
 							tempPath = "";
@@ -371,7 +413,7 @@ void Game(char *replayFile) {
 						}
 					}
 					if (pushedKey == false) {
-						if (recordingReplay) replayWrite.SaveKey(-1); // Save the non-keypress (sleep) in the replay
+						if (recordingReplay) neatoReplay->SaveKey(-1); // Save the non-keypress (sleep) in the replay
 					}
 				}
 
@@ -526,55 +568,30 @@ void Game(char *replayFile) {
 			Render(1);
 
 			if (wonLevel == 3 && SDL_GetTicks() > wonLevelTimer + 1000) {
-				wonLevel = 4;
-				//SDL_Delay(1000);
-				if (showingReplay == 0) {
-					currentLevel ++;
-					break;
-				}
-				else {
-					showingReplay = 2;
-				}
-			}
-							
-			// If the replay is done playing
-			if (showingReplay == 2) {
-				// If the player reached the exit
-				if (wonLevel == 4) {
-					// Exit the Game Engine (go back to the Load Replay menu
-					quitGame = true;
-					break;
-				}
-				// The player hasn't reached the exit
-				else {
-					// Show the replay pause menu
-					switch (ReplayPauseMenu(true)) {
-						case 0: // Watch It Again (since the replay is finished)
+				if (recordingReplay) {
+					// Show menu asking if user wants to save the replay
+					switch (EndOfLevelMenu()) {
+						case 0: // Next Level
 							break;
-						case 1: // Take Control
-							showingReplay = 0;
-							break;
-						case -2: // Close Window
-						case -1: // Esc
-						case 3:  // Quit Game
-							quitGame = true;
+						case 1: // View Replay
+							stickyPlayer = false;
+							showingReplay = true;
 							break;
 					}
 				}
-			}
 
+				wonLevel = 4;
+				if (showingReplay == false) {
+					currentLevel ++;
+				}
+				
+				break;
+			}
 		} // End of game loop
 		
-
-		// Save the replay recording
-		if (recordingReplay) {
-			char replaySaveFile[] = "data/replays/replay1";
-			char replayTitle[] = "Test Replay";
-			replayWrite.SaveToFile(replaySaveFile, currentLevel - 1, replayTitle);
-		}
-		
+			
 		/** Zing level offscreen **/
-		if (quitGame == false && wonLevel == 4) {
+		if (quitGame == false && wonLevel == 4 && showingReplay == false) {
 			cameraTargetX = SCREEN_W * 4;
 			cameraTargetY = cameraY;
 			wonLevelTimer = SDL_GetTicks();
@@ -588,11 +605,25 @@ void Game(char *replayFile) {
 			}
 		}
 		
-		/** Collect garbage **/
+		// Collect garbage for global object pointers
 		CollectLevelGarbage();
 
+		// Collect garbage for playBlock
+		delete [] playerBlock;
+		playerBlock = NULL;
+		
+		// Collect garbage for replay
+		if (recordingReplay) {
+			neatoReplay->DeInitWrite();
+		}
+		if (showingReplay == false) {
+			delete neatoReplay;
+			neatoReplay = NULL;
+		}
 
 	} // Back to top of while loop to load next level
+	
+
 }
 
 

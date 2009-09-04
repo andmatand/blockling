@@ -168,6 +168,7 @@ void GameInput() {
 							blockYGravity = blockYSpeed;
 						}
 						break;
+					case SDLK_PLUS:
 					case SDLK_EQUALS:
 						currentLevel ++;
 						break;
@@ -218,12 +219,15 @@ void GameInput() {
 //	7 End
 //	8 Esc
 //	9 Window close button
+//	10 Page Up
+//	11 Page Down
 char MenuInput() {
 
 	while (SDL_PollEvent(&event)) {
 		switch (event.type) {
 			case SDL_KEYDOWN:
 				switch (event.key.keysym.sym) {
+					case SDLK_KP_ENTER:
 					case SDLK_RETURN:
 						return 5;
 					case SDLK_UP:
@@ -238,6 +242,13 @@ char MenuInput() {
 					case SDLK_END:
 						return 7;
 						break;
+					case SDLK_PAGEUP:
+						return 10;
+						break;
+					case SDLK_PAGEDOWN:
+						return 11;
+						break;
+					case SDLK_BACKSPACE:
 					case SDLK_ESCAPE:
 						return 8;
 						break;

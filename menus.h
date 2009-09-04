@@ -204,6 +204,12 @@ int menu::Input() {
 		case 7: // End
 			sel = numItems - 1;
 			break;
+		case 10: // Page Up
+			sel -= 7;
+			break;
+		case 11: // Page Down
+			sel += 7;
+			break;
 		case 8: // Esc
 			return -1;
 			break;

@@ -50,21 +50,15 @@ int main(int argc, char** argv) {
 	while (true) {
 		switch (MainMenu()) {
 			case 0: // Start Game
-				Game (NULL); // (with no replay file)
+				Game(); // (with no replay file)
 				break;
-			case 1: // Load a Replay
-				// If Close Window was pushed
-				if (LoadReplayMenu() == -2) {
-					quitProgram = true;
-				}
-				break;
-			case 2: // Options
+			case 1: // Options
 				//switch(OptionsMenu()) {
 				//}
 				break;
 			case -1: // Esc
 			case -2: // Close Window
-			case 3: // Quit
+			case 2: // Quit
 				quitProgram = true;
 				break;
 		}
@@ -87,11 +81,7 @@ void Init() {
 	
 	
 	/*** Keyboard ***/
-	//if (SDL_EnableKeyRepeat(200, 10) != 0) {
-	//	fprintf(stderr, "SDL_EnableKeyRepeat failed: %s", SDL_GetError());
-	//}
-	
-	
+
 	// Default Game keyboard layout
 	gameKeys[0].sym = SDLK_ESCAPE;	// Quit
 	gameKeys[0].mod = KMOD_NONE;	// modifier
