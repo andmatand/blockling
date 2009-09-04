@@ -69,12 +69,6 @@ void Game() {
 	// Replay object pointer
 	replay *neatoReplay = NULL;
 
-	// Add: "if this option is enabled"
-	// if prefs[0] = 1 {
-		recordingReplay = true;
-	// }
-	
-	
 
 	/*** Loop to advance to next level ***/
 	while(quitGame == false) {
@@ -98,7 +92,7 @@ void Game() {
 		wonLevel = 0;
 		levelTime = 0;
 		levelTimeRunning = false;
-		physicsStarted = 0;
+		physicsStarted = false;
 	
 		// Reset manual camera movement
 		manualCameraTimer = 0;
@@ -108,7 +102,7 @@ void Game() {
 		// Reset keys
 		for (i = 0; i < NUM_GAME_KEYS; i++) {
 			gameKeys[i].on = 0;
-		}
+		}	
 		for (i = 0; i < numPlayers; i++) {
 			for (uint j = 0; j < NUM_PLAYER_KEYS; j++) {
 				playerKeys[(i * NUM_PLAYER_KEYS) + j].on = 0;
@@ -117,9 +111,17 @@ void Game() {
 
 
 		/*** Initialze replay ***/
+		// Add: "if this option is enabled"
+		// if prefs[0] = 1 {
+			recordingReplay = true;
+		// }
+	
 		if (showingReplay) {
 			// Initialize the replay for reading
 			neatoReplay->InitRead();
+			
+			// Disable recording
+			recordingReplay = false;
 		}
 		else if (recordingReplay) {
 			// Get full filename for the replay temp file
@@ -249,7 +251,7 @@ void Game() {
 			
 			/*** Handle Player Movement ***/
 			for (i = 0; i < numPlayers; i++) {
-				pushedKey = false; // This will forbid certain actions from both happening in the same frame
+				pushedKey = false; // This will forbid multiple actions from happening in the same frame
 				
 
 				// If the player is not already moving
@@ -412,8 +414,8 @@ void Game() {
 							pushedKey = true; // Now player can't push other buttons this frame
 						}
 					}
-					if (pushedKey == false) {
-						if (recordingReplay) neatoReplay->SaveKey(-1); // Save the non-keypress (sleep) in the replay
+					if (pushedKey == false && recordingReplay && physicsStarted) {
+						neatoReplay->SaveKey(-1); // Save the non-keypress (sleep) in the replay
 					}
 				}
 
@@ -567,11 +569,13 @@ void Game() {
 			/** Render **/
 			Render(1);
 
+			/*** Stuff for when the player reached the exit ***/
 			if (wonLevel == 3 && SDL_GetTicks() > wonLevelTimer + 1000) {
-				if (recordingReplay) {
-					// Show menu asking if user wants to save the replay
+				if (recordingReplay || showingReplay) {
+					// Show menu asking what to do next
 					switch (EndOfLevelMenu()) {
 						case 0: // Next Level
+							showingReplay = false;
 							break;
 						case 1: // View Replay
 							stickyPlayer = false;
