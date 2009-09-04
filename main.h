@@ -112,11 +112,13 @@ void LimitFPS();
 void LoadTileset(std::string tilesetDir);
 SDL_Surface* MakeSurface(int width, int height);
 void Render(char flag);
+void SetCameraTargetBlock(uint b);
 SDL_Surface* TileSurface(std::string path, const char *file, bool transparent);
 
 /* input.cpp */
 void GameInput();
 char MenuInput();
+void TurnOffAllKeys();
 
 /* menus.cpp */
 int MainMenu();

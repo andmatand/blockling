@@ -60,6 +60,7 @@ SDL_Surface* FillSurface(const char *file, bool transparent) {
 }
 
 
+
 SDL_Surface* TileSurface(std::string path, const char *file, bool transparent) {
 	std::string filename = file;
 	const char *openPath = (path + filename).c_str();
@@ -107,6 +108,14 @@ void block::Animate() {
 	
 	// Talking
 }	
+
+
+
+
+void SetCameraTargetBlock(uint b) {
+	cameraTargetX = blocks[b].GetX() + (blocks[b].GetW() / 2);
+	cameraTargetY = blocks[b].GetY() + (blocks[b].GetH() / 2);
+}
 
 
 
@@ -173,20 +182,6 @@ void CenterCamera(char override) {
 	}
 	
 
-	
-
-
-	
-	// Move the camera instantly
-	if (override == 1) {
-		cameraXVel = 0;
-		cameraYVel = 0;
-		
-		cameraX = cameraTargetX;
-		cameraY = cameraTargetY;
-		
-		return;
-	}
 	
 	// Width and height of tracking box.  The camera will only bother
 	// moving if the target moves outside of this "box" in the middle
@@ -268,7 +263,17 @@ void CenterCamera(char override) {
 	}	
 	
 	
-
+	// Move the camera instantly
+	if (override == 1) {
+		cameraXVel = 0;
+		cameraYVel = 0;
+		
+		cameraX = cameraTargetX;
+		cameraY = cameraTargetY;
+		
+		return;
+	}
+	
 	// Adjust camera X and Y velocities to move towards target X and Y
 	if (cameraX > targetX) cameraXVel --;
 	if (cameraX < targetX) cameraXVel ++;

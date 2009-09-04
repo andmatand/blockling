@@ -168,10 +168,12 @@ void GameInput() {
 							blockYGravity = blockYSpeed;
 						}
 						break;
+					case SDLK_KP_PLUS:
 					case SDLK_PLUS:
 					case SDLK_EQUALS:
 						currentLevel ++;
 						break;
+					case SDLK_KP_MINUS:
 					case SDLK_MINUS:
 						currentLevel --;
 						break;
@@ -266,4 +268,17 @@ char MenuInput() {
 	}
 	
 	return 0;
+}
+
+
+
+
+void TurnOffAllKeys() {
+	uint i;
+	for (i = 0; i < NUM_PLAYER_KEYS; i++) {
+		playerKeys[i].on = 0;
+	}
+	for (i = 0; i < NUM_GAME_KEYS; i++) {
+		gameKeys[i].on = 0;
+	}
 }

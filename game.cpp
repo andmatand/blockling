@@ -20,7 +20,7 @@
  */
 
 
-bool LoadLevel(std::string levelSet, uint level);
+bool LoadLevel(std::string levelSet, uint level, bool zing);
 
 
 void CollectLevelGarbage() {
@@ -74,7 +74,7 @@ void Game() {
 	while(quitGame == false) {
 		// Load Level
 		//if (LoadLevel("bman1", currentLevel) == false) {
-		if (LoadLevel("default", currentLevel) == false) {
+		if (LoadLevel("default", currentLevel, (stickyPlayer ? true : false)) == false) {
 			fprintf(stderr, "Error: Loading level %d failed.\n", currentLevel);
 
 			currentLevel = 0;
@@ -162,13 +162,7 @@ void Game() {
 							break;
 						case 1: // Take Control
 							// Turn off any keys that might still be on
-							for (i = 0; i < NUM_PLAYER_KEYS; i++) {
-								playerKeys[i].on = 0;
-							}
-							for (i = 0; i < NUM_GAME_KEYS; i++) {
-								gameKeys[i].on = 0;
-							}
-
+							TurnOffAllKeys();
 							showingReplay = false;
 							break;
 						case 2: // Next Level
@@ -414,7 +408,7 @@ void Game() {
 							pushedKey = true; // Now player can't push other buttons this frame
 						}
 					}
-					if (pushedKey == false && recordingReplay && physicsStarted) {
+					if (pushedKey == false && recordingReplay && levelTimeRunning) {
 						neatoReplay->SaveKey(-1); // Save the non-keypress (sleep) in the replay
 					}
 				}
@@ -535,8 +529,7 @@ void Game() {
 						+ (SCREEN_H / 2);
 			}
 			else {
-				cameraTargetX = blocks[0].GetX() + (blocks[0].GetW() / 2);
-				cameraTargetY = blocks[0].GetY() + (blocks[0].GetH() / 2);
+				SetCameraTargetBlock(0);
 			}
 
 
@@ -635,7 +628,7 @@ void Game() {
 
 
 
-bool LoadLevel(std::string levelSet, uint level) {
+bool LoadLevel(std::string levelSet, uint level, bool zing) {
 	bool syntaxError = false;
 	
 	char levelFile[256];
@@ -779,9 +772,8 @@ bool LoadLevel(std::string levelSet, uint level) {
 	y = -(height / 2);
 	y += (abs(y) % TILE_H); // Align to grid
 
-	// Position cameraX so that the level is just offscreen to the right
-	cameraX = -SCREEN_W - (width / 2);
-	cameraY = -((SCREEN_H / 2) - (TILE_H / 2) - (TILE_H * 2));
+
+	
 	
 	// These global variables are used by the camera
 	levelX = x;
@@ -980,7 +972,6 @@ bool LoadLevel(std::string levelSet, uint level) {
 		}
 	}
 	
-	// Make horizontal
 	
 	// Do "land" bricks
 	for (uint i = 0; i < numBricks; i++) {
@@ -1053,6 +1044,20 @@ bool LoadLevel(std::string levelSet, uint level) {
 	}
 	else {
 		blocks[0].SetDir(0);
+	}
+
+	
+	if (zing) {
+		// Position cameraY so that the level is centered on the player
+		CenterCamera(1);
+
+		// Position cameraX so that the level is just offscreen to the right
+		cameraX = -SCREEN_W - (width / 2);
+	}
+	else {
+		// Position cameraX and cameraY so that the level is centered on the player
+		SetCameraTargetBlock(0);
+		CenterCamera(1);
 	}
 
 	return true;
