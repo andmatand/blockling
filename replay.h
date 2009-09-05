@@ -197,23 +197,29 @@ void replay::FillBuffer() {
 	char tempString[11];
 	uint i;
 	
-	printf("[FillBuffer]==Filling buffer==\n");
-	
 	for (i = 0; i < bufferSize; i++) {
+		#ifdef DEBUG_REPLAY
 		printf("[FillBuffer] Filling step %d\n", i);
+		#endif
 		
 		// Break when the end of the file is reached
 		if (feof(fp)) break;
 		
 		// Read a line.  If it wasn't the end of the file, parse it
 		if (fgets(line, sizeof(line), fp) != NULL) {
+			#ifdef DEBUG_REPLAY
 			printf("[FillBuffer] Parsing line...\n");
+			#endif
+			
 			// Empty tempString
 			tempString[0] = '\0';
 			
 			// Look at each character
 			for (uint j = 0; j < strlen(line); j++) {
+				#ifdef DEBUG_REPLAY
 				printf("[FillBuffer] Examining character %d: \"%c\"\n", j, line[j]);
+				#endif
+				
 				// If this character is a lower-case letter
 				if (line[j] >= 97 && line[j] <= 122) {
 					// Get the number from the first part of the line
@@ -299,12 +305,17 @@ void replay::SaveKey(char key) {
 	// If this is the very first key, OR if this is not the same key
 	// as the previous key, OR if the previous key has been pushed the maximum number of times
 	if (pos == 0 || key != steps[pos - 1].GetKey() || maxNum) {
+		#ifdef DEBUG_REPLAY
 		printf("[replay] pos = %d\n", pos);
 		printf("[replay] New key (%d) was pressed.\n", key);
+		#endif
 		
 		// If the buffer is filled
 		if (pos == bufferSize) {
+			#ifdef DEBUG_REPLAY
 			printf("[replay] Buffer is full, dumping to file...\n");
+			#endif
+			
 			// Dump the buffer to the replay file
 			DumpBuffer();				
 		}

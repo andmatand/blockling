@@ -152,7 +152,9 @@ void CenterCamera(char override) {
 	if (currentMovement == 0) {
 		// If the target is onscreen (e.g. the camera is just auto-tracking the player's movements)
 		// make the camera move no quicker than the player's movements (to avoid jerky camera movements)
-		if (cameraTargetX >= cameraX && cameraTargetX <= cameraX + (SCREEN_W - 1) 
+		if (
+			!stickyPlayer
+			&& cameraTargetX >= cameraX && cameraTargetX <= cameraX + (SCREEN_W - 1) 
 			&& cameraTargetY >= cameraY && cameraTargetY <= cameraY + (SCREEN_H - 1))
 		{
 			currentMovement = 1; // Mark the beginning of a slow movement
@@ -164,10 +166,12 @@ void CenterCamera(char override) {
 		}
 	}
 
+	printf("currentMovement = %d\n", currentMovement);
+
 	// Slow movement's max velocity
 	if (currentMovement == 1) {
-		maxXVel = TILE_W * .5;
-		maxYVel = TILE_H * .5;
+		maxXVel = blockXSpeed;
+		maxYVel = blockYSpeed;
 	}
 	// Default max velocity
 	else {
@@ -268,8 +272,8 @@ void CenterCamera(char override) {
 		cameraXVel = 0;
 		cameraYVel = 0;
 		
-		cameraX = cameraTargetX;
-		cameraY = cameraTargetY;
+		cameraX = targetX;
+		cameraY = targetY;
 		
 		return;
 	}

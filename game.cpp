@@ -46,7 +46,7 @@ void CollectLevelGarbage() {
 
 void Game() {
 
-	uint i;
+	uint i, j;
 	int x, b;
 	std::string tempPath;
 	char s[11];
@@ -150,7 +150,7 @@ void Game() {
 
 			/*** Pause Menu (when Esc is pushed) ***/
 			if (gameKeys[0].on > 0) {
-				i = SDL_GetTicks(); // To ignore the time spent in the pause menu
+				j = SDL_GetTicks(); // To ignore the time spent in the pause menu
 				
 				if (showingReplay) {
 					i = currentLevel;
@@ -198,7 +198,7 @@ void Game() {
 				gameKeys[0].on = 0;
 				
 				// Make the time spent in the menu undetectable to the timer incrementer
-				levelTimeTick += SDL_GetTicks() - i;
+				levelTimeTick += SDL_GetTicks() - j;
 			}
 			
 			
@@ -438,19 +438,6 @@ void Game() {
 					blocks[i].SetMoved(false);
 				}
 
-				// For each player:
-				// If player is not floating and there is no block on his head, make him rise
-				for (i = 0; i < numPlayers; i++) {
-					if (blocks[i].GetType() >= 10 && blocks[i].GetH() < TILE_H && BlockNumber(blocks[i].GetX(), blocks[i].GetY() - 1, blocks[i].GetW(), 1) < 0) {
-						b = blocks[i].GetY(); 			// Save old y position
-						blocks[i].SetYMoving(-blockYSpeed);	// Set the block to move up
-						if (blocks[i].GetYMoving() < -2) blocks[i].SetYMoving(-2);
-						blocks[i].Physics(); 			// Try to move the block up
-						if (blocks[i].GetY() < b) 		// If it moved up, increase the height by the amount moved
-							blocks[i].SetH(blocks[i].GetH() + (b - blocks[i].GetY()));
-					}
-				}
-
 				// Do Physics
 				for (i = 0; i < numBlocks; i++) {
 					if (blocks[i].GetDidPhysics() == false) {
@@ -464,6 +451,28 @@ void Game() {
 						}
 					}
 				}
+
+				// For each player:
+				// If player is not floating and there is no block on his head, make him rise
+				for (i = 0; i < numPlayers; i++) {
+					if (blocks[i].GetType() >= 10 && blocks[i].GetH() < TILE_H && BlockNumber(blocks[i].GetX(), blocks[i].GetY() - 1, blocks[i].GetW(), 1) < 0) {
+						b = blocks[i].GetY(); 			// Save old y position
+						blocks[i].SetYMoving(-blockYSpeed);	// Set the block to move up
+						if (blocks[i].GetYMoving() < -2) blocks[i].SetYMoving(-2);
+						
+						// Temporarily disable xMoving
+						x = blocks[i].GetXMoving(); // Save it
+						blocks[i].SetXMoving(0); // Set it to 0
+						
+						blocks[i].Physics(); 			// Try to move the block up
+						
+						blocks[i].SetXMoving(x); // Restore xMoving
+						
+						if (blocks[i].GetY() < b) 		// If it moved up, increase the height by the amount moved
+							blocks[i].SetH(blocks[i].GetH() + (b - blocks[i].GetY()));
+					}
+				}
+
 				// Do Post-Physics (decrement xMoving and yMoving, revoke temporary strength privileges)
 				if (wonLevel != 1) {
 					for (i = 0; i < numBlocks; i++) {
@@ -771,11 +780,8 @@ bool LoadLevel(std::string levelSet, uint level, bool zing) {
 	
 	y = -(height / 2);
 	y += (abs(y) % TILE_H); // Align to grid
-
-
 	
-	
-	// These global variables are used by the camera
+	// These global variables (*gasp*) are used by the camera
 	levelX = x;
 	levelY = y;
 	levelW = width;
@@ -1031,13 +1037,6 @@ bool LoadLevel(std::string levelSet, uint level, bool zing) {
 	}
 
 
-	if (stickyPlayer) {
-		// Make cameraY line up with where the sticky player needs to be
-		cameraY = blocks[0].GetY() - stickyPlayerY;
-		
-		blocks[0].SetFace(4); // Scared
-	}
-	
 	// Make the player face the exit
 	if (exitX > blocks[0].GetX()) {
 		blocks[0].SetDir(1);
@@ -1046,20 +1045,23 @@ bool LoadLevel(std::string levelSet, uint level, bool zing) {
 		blocks[0].SetDir(0);
 	}
 
+
+	// Position cameraY so that the level is centered on the player
+	SetCameraTargetBlock(0);
+	CenterCamera(1);
 	
 	if (zing) {
-		// Position cameraY so that the level is centered on the player
-		CenterCamera(1);
-
 		// Position cameraX so that the level is just offscreen to the right
-		cameraX = -SCREEN_W - (width / 2);
-	}
-	else {
-		// Position cameraX and cameraY so that the level is centered on the player
-		SetCameraTargetBlock(0);
-		CenterCamera(1);
+		cameraX = -SCREEN_W - (levelW / 2);
 	}
 
+	if (stickyPlayer) {
+		// Make cameraY line up with where the sticky player needs to be
+		cameraY = blocks[0].GetY() - stickyPlayerY;
+		
+		blocks[0].SetFace(4); // Scared
+	}
+	
 	return true;
 }
 
