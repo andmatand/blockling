@@ -689,6 +689,7 @@ void DrawBackground() {
 void Render (char flag) {
 	static uint torchTimer = 0;
 	static uint doorFrame, doorFramePause;
+	static uint timerPos;
 	uint i;
 	
 
@@ -804,10 +805,17 @@ void Render (char flag) {
 	
 	// Timer
 	if (levelTimeRunning) {
-		int min = static_cast<int>((levelTime / 1000) / 60);
-		int sec = (levelTime / 1000) % 60;
+		int min = static_cast<int>(levelTime / 60);
+		int sec = levelTime % 60;
 		sprintf(message, "%02d:%02d", min, sec);
-		DrawText(((levelTime < 76) ? SCREEN_W - levelTime : SCREEN_W - 76), 380, message, 220, 220, 220);
+		if (timerPos < 76) {
+			timerPos += FPS;
+			if (timerPos > 76) timerPos = 76;
+		}
+		DrawText(SCREEN_W - timerPos, 380, message, 220, 220, 220);
+	}
+	else {
+		timerPos = 0;
 	}
 
 

@@ -31,7 +31,7 @@ void CollectLevelGarbage() {
 	delete [] playerKeys; playerKeys = NULL;
 
 	if (undoBlocks != NULL) {
-		for (uint i = 0; i < maxUndo; i++) {
+		for (int i = 0; i < option_undoSize; i++) {
 			delete [] undoBlocks[i];
 			undoBlocks[i] = NULL;
 		}
@@ -44,8 +44,9 @@ void CollectLevelGarbage() {
 
 
 
-void Game() {
+int Game() {
 
+	int returnVal = 0;
 	uint i, j;
 	int x, b;
 	std::string tempPath;
@@ -151,7 +152,7 @@ void Game() {
 
 			/*** Pause Menu (when Esc is pushed) ***/
 			if (gameKeys[0].on > 0) {
-				j = SDL_GetTicks(); // To ignore the time spent in the pause menu
+				j = SDL_GetTicks() - levelTimeTick;
 				
 				if (showingReplay) {
 					i = currentLevel;
@@ -171,6 +172,7 @@ void Game() {
 							currentLevel += 1;
 							break;
 						case -2: // Close Window
+							returnVal = -2;
 						case 3:  // Quit Game
 							showingReplay = false;
 							quitGame = true;
@@ -190,6 +192,7 @@ void Game() {
 						case -1: // Esc
 							break; // Resume the game
 						case -2: // Close window
+							returnVal = -2;
 						case 2: // Quit Game
 							showingReplay = false;
 							quitGame = true;
@@ -201,7 +204,7 @@ void Game() {
 				gameKeys[0].on = 0;
 				
 				// Make the time spent in the menu undetectable to the timer incrementer
-				levelTimeTick += SDL_GetTicks() - j;
+				levelTimeTick = SDL_GetTicks() - j;
 			}
 			
 			
@@ -566,8 +569,8 @@ void Game() {
 
 			/** Timer **/
 			// Increment the timer
-			if (levelTimeRunning && wonLevel == 0) {
-				levelTime += (SDL_GetTicks() - levelTimeTick);
+			if (levelTimeRunning && wonLevel == 0 && SDL_GetTicks() >= levelTimeTick + 1000) {
+				levelTime ++;
 				levelTimeTick = SDL_GetTicks();
 			}
 			// Start the timer when the first movement is made
@@ -586,12 +589,18 @@ void Game() {
 				if (recordingReplay || showingReplay) {
 					// Show menu asking what to do next
 					switch (EndOfLevelMenu()) {
+						case -1: // Esc
 						case 0: // Next Level
 							showingReplay = false;
 							break;
 						case 1: // View Replay
 							stickyPlayer = false;
 							showingReplay = true;
+							break;
+						case -2: // Close window
+							showingReplay = false;
+							quitGame = true;
+							returnVal = -2;
 							break;
 					}
 				}
@@ -635,12 +644,14 @@ void Game() {
 		if (showingReplay == false) {
 			delete neatoReplay;
 			neatoReplay = NULL;
-			remove(replayTempFile);
+			if (remove(replayTempFile) != 0) {
+				fprintf(stderr, "File error: Could not delete %s\n", replayTempFile);
+			}
 		}
 
 	} // Back to top of while loop to load next level
 	
-
+	return returnVal;
 }
 
 
@@ -819,8 +830,8 @@ bool LoadLevel(std::string levelSet, uint level, bool zing) {
 	torches = new torch[numTorches];
 	spikes = new spike[numSpikes];
 
-	undoBlocks = new block*[maxUndo];
-	for (uint i = 0; i < maxUndo; i++) {
+	undoBlocks = new block*[option_undoSize];
+	for (int i = 0; i < option_undoSize; i++) {
  		undoBlocks[i] = new block[numBlocks];
 	}
 	Undo(-1); // Reset undo
@@ -1088,6 +1099,8 @@ void Undo(char action) {
 	static int undoStart = 0; // The slot number of the oldest state.  We cannot undo past this slot.
 	static int undoEnd = 0; // The slot number of the newest state.  If Undo(1) is called, this is the state that will be loaded.
 
+	if (option_undoSize <= 0) return;
+	
 	if (action == -1) {
 		undoSlot = 0;
 		undoStart = 0;
@@ -1099,7 +1112,7 @@ void Undo(char action) {
 			undoStart ++;
 		}
 		// Wrap around undoStart position
-		if  (undoStart == static_cast<int>(maxUndo)) undoStart = 0;
+		if  (undoStart == static_cast<int>(option_undoSize)) undoStart = 0;
 
 		#ifdef DEBUG2
 		printf("\nSaving state to undoSlot %d\n", undoSlot);
@@ -1118,7 +1131,7 @@ void Undo(char action) {
 		undoSlot ++;
 
 		// Wrap around undoSlot position
-		if (undoSlot == static_cast<int>(maxUndo)) {
+		if (undoSlot == static_cast<int>(option_undoSize)) {
 			undoSlot = 0;
 		}
 
@@ -1147,12 +1160,12 @@ void Undo(char action) {
 			if (undoEnd != undoStart) {
 				// Move undoEnd back, so it points to the now most recent undo state
 				undoEnd --;
-				if (undoEnd == -1) undoEnd = maxUndo - 1;
+				if (undoEnd == -1) undoEnd = option_undoSize - 1;
 			}
 			
 			// Move undoSlot back, so we can overwrite this state next time
 			undoSlot --;
-			if (undoSlot == -1) undoSlot = maxUndo - 1;
+			if (undoSlot == -1) undoSlot = option_undoSize - 1;
 
 			
 			justUndid = true; // Flag to tell telepads to ignore new occupants

@@ -238,6 +238,12 @@ char MenuInput() {
 					case SDLK_DOWN:
 						return 2;
 						break;
+					case SDLK_LEFT:
+						return 3;
+						break;
+					case SDLK_RIGHT:
+						return 4;
+						break;
 					case SDLK_HOME:
 						return 6;
 						break;

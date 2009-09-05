@@ -62,6 +62,85 @@ int MainMenu() {
 
 
 
+int OptionsMenu(bool inGame) {
+	int numItems = 3;
+	menu optMenu(numItems);
+	char undoText[23];
+	char tempString[10];
+	int maxUndoSize = 500;
+	
+	optMenu.SetTitle("OPTIONS");
+	optMenu.Move(inGame ? SCREEN_W / 2 : 75, 100);
+	
+	int action;
+	
+	while (true) {
+		//sprintf(undoText, "Undo Memory: %d moves", option_undoSize);
+		undoText[0] = '\0';
+		strcat(undoText, "Undo Memory: ");
+		if (option_undoSize > 0) strcat(undoText, "<"); else strcat(undoText, " ");
+		
+		sprintf(tempString, " %d moves", option_undoSize);
+		strcat(undoText, tempString);
+		
+		if (option_undoSize < maxUndoSize) strcat(undoText, " >");
+		
+		
+		optMenu.NameItem(0, undoText);
+		optMenu.NameItem(1, "Control Setup");
+		optMenu.NameItem(2, "Done");
+		optMenu.AutoArrange(static_cast<char>(inGame ? 1 : 0));
+
+		action = optMenu.Input();
+		
+		switch (action) {
+			case 1: // Enter
+				switch (optMenu.GetSel()) {
+					case 0:
+						option_undoSize += 50;
+						if (option_undoSize > maxUndoSize) option_undoSize = 0;
+						break;
+					case 1:
+						break;
+					case 2:
+						return -1;
+						break;
+				}
+				break;
+			case 3: // Left
+				option_undoSize -= 50;
+				break;
+			case 4: // Right
+				option_undoSize += 50;
+				break;
+			case -1: // Esc
+				return -1;
+				break;
+			case -2: // Close window
+				return -2;
+				break;
+		}
+
+		if (option_undoSize < 0) option_undoSize = 0;
+		if (option_undoSize > maxUndoSize) option_undoSize = maxUndoSize;
+		
+		if (inGame) {
+			Render(0);
+		}
+		else {
+			DrawBackground();
+		}
+		optMenu.Display();
+		SDL_UpdateRect(screenSurface, 0, 0, 0, 0);
+		
+		LimitFPS();
+	}
+}
+
+
+
+
+
 int PauseMenu() {
 	int numItems = 3;
 	menu pauseMenu(numItems);

@@ -195,6 +195,12 @@ int menu::Input() {
 		case 2: // Down
 			sel++;
 			break;
+		case 3: // Left
+			return 3;
+			break;
+		case 4: // Right
+			return 4;
+			break;
 		case 5: // Enter
 			return 1;
 			break;

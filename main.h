@@ -100,7 +100,7 @@ int stickyPlayerOrigX, stickyPlayerOrigY; // The player's game coordinates
 void Init();
 
 /* game.cpp */
-void Game ();
+int Game ();
 void Undo(char action);
 
 /* graphics.cpp */
@@ -461,10 +461,9 @@ spike *spikes = NULL;
 bool physicsStarted;
 
 // Undo stuff
-uint maxUndo = 50; // Maximum number of undo levels
 block **undoBlocks = NULL;
 bool justUndid;
-
+int option_undoSize = 50;
 
 
 
