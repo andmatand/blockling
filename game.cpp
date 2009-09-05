@@ -254,6 +254,7 @@ int Game() {
 				pushedKey = false; // This will forbid multiple actions from happening in the same frame
 
 				// Undo (actual input; not while showing a replay)
+				// TODO: make this check the next key in the replay, and if it's undo, do it here
 				if (gameKeys[1].on > 0 && !showingReplay) {
 					if (recordingReplay) neatoReplay->SaveKey(5); // Save the keypress in the replay
 					Undo(1);
