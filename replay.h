@@ -193,7 +193,7 @@ void replay::DumpBuffer() {
 
 void replay::FillBuffer() {
 	char line[12];
-	char n;
+	uint n;
 	char tempString[11];
 	uint i;
 	
@@ -224,7 +224,10 @@ void replay::FillBuffer() {
 				if (line[j] >= 97 && line[j] <= 122) {
 					// Get the number from the first part of the line
 					if (strlen(tempString) > 0) {
-						n = static_cast<char>(atoi(tempString));
+						n = static_cast<uint>(strtoul(tempString, NULL, 0));
+						if (n <= 0) {
+							printf("LINE READ AS <= ZERO!!\nvale = %d\n", n);
+						}
 					}
 					else {
 						n = 1;
@@ -259,7 +262,7 @@ void replay::FillBuffer() {
 							break;
 					}
 					// Set the key
-					steps[i].SetKey(n);
+					steps[i].SetKey(static_cast<char>(n));
 					
 					// Stop examining this line
 					break;

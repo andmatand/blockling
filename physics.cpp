@@ -616,6 +616,11 @@ void block::Physics() {
 			// Jesus is Lord.  Thank you Jesus for sacrificing yourself for me!
 		}
 	}
+	
+	// If the block has fallen offscreen, disable it
+	if (y > levelY + levelH + (SCREEN_H * 2)) {
+		type = -1;
+	}
 }
 
 

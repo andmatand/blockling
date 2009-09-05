@@ -69,6 +69,10 @@ void Game() {
 	// Replay object pointer
 	replay *neatoReplay = NULL;
 
+	// Get full filename for the replay temp file
+	char replayTempFile[256];
+	sprintf(replayTempFile, "%stempreplay.tmp", TEMP_PATH);
+
 
 	/*** Loop to advance to next level ***/
 	while(quitGame == false) {
@@ -124,10 +128,6 @@ void Game() {
 			recordingReplay = false;
 		}
 		else if (recordingReplay) {
-			// Get full filename for the replay temp file
-			char replayTempFile[256];
-			sprintf(replayTempFile, "%stempreplay.tmp", TEMP_PATH);
-
 			// Create the replay object
 			neatoReplay = new replay(replayTempFile, 100); // A buffer of 100 takes about 500 bytes of memory
 
@@ -147,6 +147,7 @@ void Game() {
 			#ifdef DEBUG
 			if (currentLevel != i) break;
 			#endif
+
 
 			/*** Pause Menu (when Esc is pushed) ***/
 			if (gameKeys[0].on > 0) {
@@ -171,6 +172,7 @@ void Game() {
 							break;
 						case -2: // Close Window
 						case 3:  // Quit Game
+							showingReplay = false;
 							quitGame = true;
 							break;
 					}
@@ -189,6 +191,7 @@ void Game() {
 							break; // Resume the game
 						case -2: // Close window
 						case 2: // Quit Game
+							showingReplay = false;
 							quitGame = true;
 							break;
 					}
@@ -240,18 +243,26 @@ void Game() {
 				
 				cameraX += static_cast<int>(cameraXVel);
 				cameraY += static_cast<int>(cameraYVel);
-			}			
+			}
 			
 			
 			/*** Handle Player Movement ***/
 			for (i = 0; i < numPlayers; i++) {
 				pushedKey = false; // This will forbid multiple actions from happening in the same frame
-				
+
+				// Undo (actual input; not while showing a replay)
+				if (gameKeys[1].on > 0 && !showingReplay) {
+					if (recordingReplay) neatoReplay->SaveKey(5); // Save the keypress in the replay
+					Undo(1);
+					pushedKey = true;
+				}
 
 				// If the player is not already moving
 				if (blocks[i].GetPath().length() == 0 &&blocks[i].GetXMoving() == 0 && blocks[i].GetYMoving() == 0 
 					// and is on solid ground
-					&& blocks[i].OnSolidGround())
+					&& blocks[i].OnSolidGround()
+					// and a key hasn't been pushed yet
+					&& !pushedKey)
 				{
 					
 					/*** Perform next keypress from replay file ***/
@@ -268,14 +279,13 @@ void Game() {
 							// Push the next key
 							neatoReplay->PushNextKey();
 						}
+
+						// Undo (only during a replay)
+						if (gameKeys[1].on > 0) {
+							Undo(1);
+						}
 					}
 					
-					/*** Undo ***/
-					if (gameKeys[1].on > 0) {
-						if (recordingReplay) neatoReplay->SaveKey(5); // Save the keypress in the replay
-						Undo(1);
-						break;
-					}
 					
 					// Enter (push a block)
 					if (pushedKey == false && playerBlock[i] == -1 && playerKeys[(i * NUM_PLAYER_KEYS) + 4].on > 0) {
@@ -408,7 +418,7 @@ void Game() {
 							pushedKey = true; // Now player can't push other buttons this frame
 						}
 					}
-					if (pushedKey == false && recordingReplay && levelTimeRunning) {
+					if (pushedKey == false && recordingReplay && levelTimeRunning && wonLevel < 2) {
 						neatoReplay->SaveKey(-1); // Save the non-keypress (sleep) in the replay
 					}
 				}
@@ -440,7 +450,7 @@ void Game() {
 
 				// Do Physics
 				for (i = 0; i < numBlocks; i++) {
-					if (blocks[i].GetDidPhysics() == false) {
+					if (blocks[i].GetType() >=0 && blocks[i].GetDidPhysics() == false) {
 						//printf("===Block %d Physics===\n", i);
 						blocks[i].Physics();
 						
@@ -625,6 +635,7 @@ void Game() {
 		if (showingReplay == false) {
 			delete neatoReplay;
 			neatoReplay = NULL;
+			remove(replayTempFile);
 		}
 
 	} // Back to top of while loop to load next level
