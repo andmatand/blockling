@@ -106,6 +106,7 @@ void Undo(char action);
 /* graphics.cpp */
 void ApplySurface(int x, int y, SDL_Surface* source, SDL_Surface* destination);
 void CenterCamera(char instant);
+void DrawBackground();
 SDL_Surface* FillSurface(const char *file, bool transparent);
 Uint32 GetPixel(SDL_Surface *surface, int x, int y);
 void LimitFPS();
@@ -331,22 +332,22 @@ class brick {
 
 class torch {
 	public:
-		/// Constructor ///
+		/** Constructor **/
 		torch():flame(static_cast<char>(rand() % NUM_TORCH_FLAMES)) {};
 	
-		/// Get ///
+		/** Get **/
 		int GetX() const { return x; };
 		int GetY() const { return y; };
 		
 		int GetFlame() const { return flame; };
 	
-		/// Set ///
+		/** Set **/
 		void SetX(int xPos) { x = xPos; };
 		void SetY(int yPos) { y = yPos; };
 		
 		void SetFlame(char f) { flame = f; };
 		
-		/// Other ///
+		/** Other **/
 		void FlickerFlame();
 	private:
 		int x, y;
@@ -370,11 +371,11 @@ void torch::FlickerFlame() {
 
 class spike {
 	public:
-		/// Get ///
+		/** Get **/
 		int GetX() const { return x; };
 		int GetY() const { return y; };
 	
-		/// Set ///
+		/** Set **/
 		void SetX(int xPos) { x = xPos; };
 		void SetY(int yPos) { y = yPos; };
 	private:
@@ -387,22 +388,29 @@ class spike {
 // Each telepad is actually a pair of two telepads
 class telepad {
 	public:
-		/// Get ///
+		// Constructor
+		telepad():
+			teleporting(false)
+			{};
+
+		/** Get **/
 		int GetX1() const { return x1; };
 		int GetY1() const { return y1; };
 		int GetX2() const { return x2; };
 		int GetY2() const { return y2; };
+		bool GetTeleporting() const { return teleporting; };
 
 		int GetOccupant1(); // Returns which block is currently on the first telepad
 		int GetOccupant2(); // Returns which block is currently on the second telepad
 	
-		/// Set ///
+
+		/** Set **/
 		void SetX1(int xPos) { x1 = xPos; };
 		void SetY1(int yPos) { y1 = yPos; };
 		void SetX2(int xPos) { x2 = xPos; };
 		void SetY2(int yPos) { y2 = yPos; };
 		
-		/// Other ///
+		/** Other **/
 		bool NeedsToTeleport();	// in physics.cpp
 		void Teleport(); 	// in physics.cpp
 		SDL_Surface* GetSurface(); // Returns correct surface, based on state (in graphics.cpp)
@@ -410,12 +418,14 @@ class telepad {
 	private:
 		int x1, y1;	// First telepad
 		int x2, y2;	// Second telepad
-		char state;	// 0 = off, 1 = waiting to teleport, 2 = teleporting
+		char state;	// 0 = off, 1 = waiting to teleport, 2 = teleporting (for flashing light animation)
 		int occupant1;	// Block on first telepad
 		int occupant2;	// Block on second telepad
 		bool occupant1Teleported; // Records if occupant1 teleported yet
 		bool occupant2Teleported; // Records if occupant2 teleported yet
+		bool teleporting;	// If the telepad is currently in the process of teleporting something
 };
+
 
 int telepad::GetOccupant1() {
 	return BlockNumber(x1, y1 + 11, TILE_W, 1);

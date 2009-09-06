@@ -686,6 +686,7 @@ void DrawBackground() {
 //      1 = normal
 //      2 = no CenterCamera
 //	3 = combination of 0 and 2
+//	4 = no background
 void Render (char flag) {
 	static uint torchTimer = 0;
 	static uint doorFrame, doorFramePause;
@@ -700,8 +701,9 @@ void Render (char flag) {
 	
 	
 	/*** Background ***/
-	DrawBackground();
-
+	if (flag != 4) {
+		DrawBackground();
+	}
 	
 	
 	/*** BRICKS ***/

@@ -458,7 +458,7 @@ int Game() {
 
 				// Do Physics
 				for (i = 0; i < numBlocks; i++) {
-					if (blocks[i].GetType() >=0 && blocks[i].GetDidPhysics() == false) {
+					if (blocks[i].GetDidPhysics() == false) {
 						//printf("===Block %d Physics===\n", i);
 						blocks[i].Physics();
 						
@@ -529,13 +529,6 @@ int Game() {
 			}
 			
 		
-			/*** Do Telepads ***/
-			for (i = 0; i < numTelepads; i++) {
-				if (telepads[i].NeedsToTeleport()) {
-					telepads[i].Teleport();
-				}
-			}
-
 
 			/*** Center camera on player ***/
 			//cameraX = (blocks[0].GetX() + (blocks[0].GetW() / 2)) - (SCREEN_W / 2);
@@ -584,10 +577,25 @@ int Game() {
 				levelTimeTick = SDL_GetTicks();
 				physicsStarted = true; // Also start physics if they haven't already
 			}
-			
+
+
+			/*** Draw the Background (underneath teleportation animation) ***/
+			DrawBackground();
+
+			/*** Do Telepads ***/
+			for (i = 0; i < numTelepads; i++) {
+				// If the telpad is currently in the process of teleporting something
+				// OR the telepad needs to teleport
+				if (telepads[i].GetTeleporting() == true) {
+					telepads[i].Teleport();
+				}
+				else if (telepads[i].NeedsToTeleport()) {
+					telepads[i].Teleport();
+				}
+			}
 			
 			/** Render **/
-			Render(1);
+			Render(4);
 
 			/*** Stuff for when the player reached the exit ***/
 			if (wonLevel == 3 && SDL_GetTicks() > wonLevelTimer + 1000) {

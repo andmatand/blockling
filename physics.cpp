@@ -180,6 +180,9 @@ void block::Physics() {
 	int i, hit, oldX, oldY;
 	bool doGravity;
 	
+	// Don't do any physics on disabled blocks
+	if (type < 0) return;
+	
 	// Don't do gravity more than once per frame, if we are doing physics more than once.
 	(didPhysics == false) ? doGravity = true : doGravity = false;
 	didPhysics = true;
@@ -742,113 +745,134 @@ bool telepad::NeedsToTeleport() {
 
 
 void telepad::Teleport() {
-	state = 2; // Teleporting
+	static int dX, dY; // Destination x and y
+	static int sX, sY; // Source x and y
+	static int sH; // source height
+	static uint numToMove; // How many blocks are going to get teleported
+	static int *ba; // Array to keep track of which blocks are going to get teleported
+
+	static SDL_Surface *sourceSurf = NULL;
+	static SDL_Surface *destSurf = NULL;
+	static uint col; // pixel color
+	static uint squareSize = 4; // How many pixels will make up each square that is moved
+	static bool *map; // Keeps track of which squares have been teleported (false = hasn't been moved, true = has)
 	
-	// Get bottom block number
-	int b;
-	b = (occupant1 >= 0 ? occupant1 : occupant2);
-
-	/*** Determine destination info ***/
-	int dX, dY;
-	int dB; // destination bottom
-	if (occupant1 >= 0) {
-		dX = x2;
-		dB = (y2 + TILE_H - TELEPAD_H);
-		dY = dB - blocks[b].GetH();
-	}
-	else {
-		dX = x1;
-		dB = (y1 + TILE_H - TELEPAD_H);
-		dY = dB - blocks[b].GetH();
-	}
-	
-	// Move camera to other telepad
-	cameraTargetX = dX + (blocks[b].GetW() / 2);
-	cameraTargetY = dY + (blocks[b].GetH() / 2);
-
-
-	/*** Determine the height of the source load to teleport (i.e. find blocks on top of the block) ***/
-	int sX, sY;
-	int sH; // source height
-	int ba[numBlocks]; // Array to keep track of which blocks are going to get teleported
-	uint numToMove = 1; // How many blocks are going to get teleported
-
-	ba[0] = b; // The first block in the array is the bottom block (usually the player)
-	sX = blocks[b].GetX();
-	sY = blocks[b].GetY();
-	sH = blocks[b].GetH();
-	while (true) {
-		// Find which block is on this block's head
-		b = BlockNumber(blocks[b].GetX(), blocks[b].GetY() - 1, TILE_W, 1);
+	/*** Initialization ***/
+	if (teleporting == false) {
+		teleporting = true;
 		
-		// if it's a block, and if there's room for its height at the destination
-		//if (b >= 0 && BoxContents(dX, dY - (sH + blocks[b].GetH()), TILE_W, blocks[b].GetH()) == -1) {
-		if (b >= 0 && BoxContents(dX, dY - blocks[b].GetH(), TILE_W, blocks[b].GetH()) == -1) {
-			sY = blocks[b].GetY();
-			sH += blocks[b].GetH();
-			dY -= blocks[b].GetH();
-			ba[numToMove] = b;
-			numToMove ++;
+		state = 2; // Teleporting
+		
+		// Get bottom block number
+		int b;
+		b = (occupant1 >= 0 ? occupant1 : occupant2);
+
+		/*** Determine destination info ***/
+		
+		int dB; // destination bottom
+		if (occupant1 >= 0) {
+			dX = x2;
+			dB = (y2 + TILE_H - TELEPAD_H);
+			dY = dB - blocks[b].GetH();
 		}
 		else {
-			break;
+			dX = x1;
+			dB = (y1 + TILE_H - TELEPAD_H);
+			dY = dB - blocks[b].GetH();
 		}
-	}
-	
-
-
-	/*** Animate the teleportation ***/
-	// Create source surface
-	SDL_Surface *sourceSurf = MakeSurface(TILE_W, sH);
-	
-	int yPos = sH; // Keeps track of current y Position (bottom to top)
-	for (uint i = 0; i < numToMove; i++) {
-		yPos -= blocks[ba[i]].GetH();
 		
-		// Blit images of the teleporting blocks to the source surface
-		ApplySurface(0, yPos, blocks[ba[i]].GetSurface(), sourceSurf);
-	
-		// Make all teleporting blocks invisible so they wont be rendered by their GetSurface()
-		blocks[ba[i]].SetType(static_cast<char>( -(blocks[ba[i]].GetType() + 1) ));
-	}
-	// Update the source surface
-	//SDL_UpdateRect(sourceSurf, 0, 0, 0, 0);
+		// Move camera to other telepad
+		cameraTargetX = dX + (blocks[b].GetW() / 2);
+		cameraTargetY = dY + (blocks[b].GetH() / 2);
 
-	// Create destination surface
-	SDL_Surface *destSurf = MakeSurface(TILE_W, sH);
-	
 
-	uint pX, pY; // pixel offset coordinates	
-	uint col; // pixel color
-	uint squareSize = 4; // How many pixels will make up each square that is moved
-	
-	bool map[(sH * TILE_W) / squareSize]; // Keeps track of which squares have been teleported (false = hasn't been moved, true = has)
-	
-	// Mark transparent pixels-squares as already moved, all others as not yet moved
-	for (pY = 0; pY < sH / (squareSize / 2); pY++) {
-		for (pX = 0; pX < TILE_W / (squareSize / 2); pX++) {
+		/*** Determine the height of the source load to teleport (i.e. find blocks on top of the block) ***/
+		ba = new int[numBlocks];
+		ba[0] = b; // The first block in the array is the bottom block (usually the player)
+		sX = blocks[b].GetX();
+		sY = blocks[b].GetY();
+		sH = blocks[b].GetH();
+		numToMove = 1;
+		while (true) {
+			// Find which block is on this block's head
+			b = BlockNumber(blocks[b].GetX(), blocks[b].GetY() - 1, TILE_W, 1);
 			
-			// Note: Since this check skips pixels and checks only the top left
-			// pixel of each square, this depends on block/player tiles being
-			// drawn according to a grid with each "pixel" being squareSize pixels
-			col = GetPixel(sourceSurf, pX * (squareSize / 2), pY * (squareSize / 2));
-			
-			if (col == SDL_MapRGB(sourceSurf->format, 0xff, 0x00, 0xff)) {
-				map[(pY * (TILE_W / (squareSize / 2))) + pX] = true;
+			// if it's a block, and if there's room for its height at the destination
+			//if (b >= 0 && BoxContents(dX, dY - (sH + blocks[b].GetH()), TILE_W, blocks[b].GetH()) == -1) {
+			if (b >= 0 && BoxContents(dX, dY - blocks[b].GetH(), TILE_W, blocks[b].GetH()) == -1) {
+				sY = blocks[b].GetY();
+				sH += blocks[b].GetH();
+				dY -= blocks[b].GetH();
+				ba[numToMove] = b;
+				numToMove ++;
 			}
 			else {
-				map[(pY * (TILE_W / (squareSize / 2))) + pX] = false;
+				break;
+			}
+		}
+		
+
+		/*** Prepare to animate the teleportation ***/
+		// Create source surface
+		sourceSurf = MakeSurface(TILE_W, sH);
+		
+		int yPos = sH; // Keeps track of current y Position (bottom to top)
+		int yDestPos = dB;
+		for (uint i = 0; i < numToMove; i++) {
+			yPos -= blocks[ba[i]].GetH();
+			yDestPos -= blocks[ba[i]].GetH();
+
+			// Blit images of the teleporting blocks to the source surface
+			ApplySurface(0, yPos, blocks[ba[i]].GetSurface(), sourceSurf);
+		
+			// Make all teleporting blocks disabled so they wont be Rendered or have Physics applied
+			blocks[ba[i]].SetType(static_cast<char>( -(blocks[ba[i]].GetType() + 1) ));
+
+			// Move the blocks to their new positions
+			blocks[ba[i]].SetX(dX);
+			blocks[ba[i]].SetY(yDestPos);
+		}
+
+		// Create destination surface
+		destSurf = MakeSurface(TILE_W, sH);
+		
+		map = new bool[(sH * TILE_W) / squareSize];
+		uint pX, pY; // pixel offset coordinates
+		
+		// Mark transparent pixels-squares as already moved, all others as not yet moved
+		for (pY = 0; pY < sH / (squareSize / 2); pY++) {
+			for (pX = 0; pX < TILE_W / (squareSize / 2); pX++) {
+				
+				// Note: Since this check skips pixels and checks only the top left
+				// pixel of each square, this depends on block/player tiles being
+				// drawn according to a grid with each "pixel" being squareSize pixels
+				col = GetPixel(sourceSurf, pX * (squareSize / 2), pY * (squareSize / 2));
+				
+				if (col == SDL_MapRGB(sourceSurf->format, 0xff, 0x00, 0xff)) {
+					map[(pY * (TILE_W / (squareSize / 2))) + pX] = true;
+				}
+				else {
+					map[(pY * (TILE_W / (squareSize / 2))) + pX] = false;
+				}
 			}
 		}
 	}
-	uint numPixels; // Will count how many pixels are finished
 	
 	
-	// "Teleport" each pixel from the source to the destination
-	while (true) {
+	
+	
+	
+	/*** Animation ***/
+	if (teleporting == true) {
+		uint pX, pY; // pixel offset coordinates	
+		uint numPixels; // Will count how many pixels are finished
+		
 		// Lock source and dest surfaces
-		if (LockSurface(sourceSurf) == false) continue;
-		if (LockSurface(destSurf) == false) continue;
+		//if (LockSurface(sourceSurf) == false) return;
+		//if (LockSurface(destSurf) == false) return;
+		LockSurface(sourceSurf);
+		LockSurface(destSurf);
+
 		
 		// Move multiple squares at a time, and always proportionate to the
 		// load size (so it will always appear to be the same speed)
@@ -899,49 +923,47 @@ void telepad::Teleport() {
 		SDL_UpdateRect(sourceSurf, 0, 0, 0, 0);
 		SDL_UpdateRect(destSurf, 0, 0, 0, 0);
 		
-		// Draw background, other objects
-		Render(0);
-		
 		// Blit source & dest surfaces to screenSurface
 		ApplySurface(sX - cameraX, sY - cameraY, sourceSurf, screenSurface);
 		ApplySurface(dX - cameraX, dY - cameraY, destSurf, screenSurface);
 		
-		// Update the whole screenSurface
-		SDL_UpdateRect(screenSurface, 0, 0, 0, 0);
+		// Check if the teleportation is done
+		bool doneTeleporting = false;
+		if (numPixels == (sH * TILE_W) / squareSize) doneTeleporting = true;
 		
-		if (numPixels == (sH * TILE_W) / squareSize) break;
-	}
-	
-	// Free the surfaces
-	SDL_FreeSurface(sourceSurf);
-	sourceSurf = NULL;
-	SDL_FreeSurface(destSurf);
-	destSurf = NULL;
+		/*** De-Initializtion ***/
+		if (doneTeleporting) {
+			teleporting = false;
+			
+			// Make all teleporting blocks visible again (e.g. convert -1 back to 0, -2 back to 1)
+			for (uint i = 0; i < numToMove; i++) {
+				blocks[ba[i]].SetType(static_cast<char>( -(blocks[ba[i]].GetType() + 1) ));
+			}
 
-	
-	
-	/*** Actually move all the blocks found earlier ***/
-	yPos = dB; // Keeps track of current y Position (bottom to top)
-	for (uint i = 0; i < numToMove; i++) {
-		yPos -= blocks[ba[i]].GetH();
-		blocks[ba[i]].SetX(dX);
-		blocks[ba[i]].SetY(yPos);
+			// Free pointer-referenced memory
+			delete [] map;
+			map = NULL;
+			delete [] ba;
+			ba = NULL;
 
-		// Make all teleporting blocks visible again (convert -1 back to 0, -2 back to 1)
-		blocks[ba[i]].SetType(static_cast<char>( -(blocks[ba[i]].GetType() + 1) ));
-	}
+			// Free the surfaces
+			SDL_FreeSurface(sourceSurf);
+			sourceSurf = NULL;
+			SDL_FreeSurface(destSurf);
+			destSurf = NULL;
 
-
-	if (occupant1 >= 0) {
-		occupant2 = occupant1;
-		occupant2Teleported = true;
-		occupant1 = -1;
+			if (occupant1 >= 0) {
+				occupant2 = occupant1;
+				occupant2Teleported = true;
+				occupant1 = -1;
+			}
+			else {
+				occupant1 = occupant2;
+				occupant1Teleported = true;
+				occupant2 = -1;
+			}
+			
+			state = 0; // Off
+		}
 	}
-	else {
-		occupant1 = occupant2;
-		occupant1Teleported = true;
-		occupant2 = -1;
-	}
-	
-	state = 0; // Off
 }
