@@ -67,7 +67,7 @@ int OptionsMenu(bool inGame) {
 	menu optMenu(numItems);
 	char undoText[23];
 	char tempString[10];
-	int maxUndoSize = 500;
+	uint maxUndoSize = 500;
 	
 	optMenu.SetTitle("OPTIONS");
 	optMenu.Move(inGame ? SCREEN_W / 2 : 75, 100);
@@ -108,7 +108,7 @@ int OptionsMenu(bool inGame) {
 				}
 				break;
 			case 3: // Left
-				option_undoSize -= 50;
+				if (option_undoSize >= 50) option_undoSize -= 50;
 				break;
 			case 4: // Right
 				option_undoSize += 50;
@@ -121,7 +121,6 @@ int OptionsMenu(bool inGame) {
 				break;
 		}
 
-		if (option_undoSize < 0) option_undoSize = 0;
 		if (option_undoSize > maxUndoSize) option_undoSize = maxUndoSize;
 		
 		if (inGame) {

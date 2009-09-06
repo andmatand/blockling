@@ -232,7 +232,10 @@ class block {
 		char dir;	// Direction the player is facing:
 				// 0 left, 1 right, 2 at camera, 3 dead
 		
-		char type;	// 0 regular block, >= 10 player
+		char type;	// 0 regular block
+				// >= 10 player
+				//  < 0  temporarily disabled (for teleportation animation)
+				//  -100 permanently disabled for rest of level
 		
 		char face;	/* Players */           /* Blocks */	
 				// 0 = normal		0 = normal
@@ -390,8 +393,18 @@ class telepad {
 	public:
 		// Constructor
 		telepad():
-			teleporting(false)
+			teleporting(false),
+			ba(NULL),
+			sourceSurf(NULL),
+			destSurf(NULL),
+			map(NULL)
 			{};
+
+		// Destructor
+		~telepad()
+			{
+				DeInitTeleport(true);
+			};
 
 		/** Get **/
 		int GetX1() const { return x1; };
@@ -413,6 +426,7 @@ class telepad {
 		/** Other **/
 		bool NeedsToTeleport();	// in physics.cpp
 		void Teleport(); 	// in physics.cpp
+		void DeInitTeleport(bool freePointers);	// in physics.cpp
 		SDL_Surface* GetSurface(); // Returns correct surface, based on state (in graphics.cpp)
 
 	private:
@@ -423,7 +437,13 @@ class telepad {
 		int occupant2;	// Block on second telepad
 		bool occupant1Teleported; // Records if occupant1 teleported yet
 		bool occupant2Teleported; // Records if occupant2 teleported yet
+	
+		/*** Variables used for teleportation animation ***/
 		bool teleporting;	// If the telepad is currently in the process of teleporting something
+		int *ba; // Array to keep track of which blocks are going to get teleported
+		SDL_Surface *sourceSurf;
+		SDL_Surface *destSurf;
+		bool *map; // Keeps track of which squares have been teleported (false = hasn't been moved, true = has)
 };
 
 
@@ -473,8 +493,9 @@ bool physicsStarted;
 
 // Undo stuff
 block **undoBlocks = NULL;
-bool justUndid;
-int option_undoSize = 50;
+telepad **undoTelepads = NULL;
+//bool justUndid;
+uint option_undoSize = 50;
 
 
 

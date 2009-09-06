@@ -622,7 +622,7 @@ void block::Physics() {
 	
 	// If the block has fallen offscreen, disable it
 	if (y > levelY + levelH + (SCREEN_H * 2)) {
-		type = -1;
+		type = -100;
 	}
 }
 
@@ -670,13 +670,13 @@ bool telepad::NeedsToTeleport() {
 		if (occupant1 >= 0) doIt = true; // Try to teleport
 		
 		// Don't teleport if it was only a new passenger because of Undo-ing
-		if (justUndid == true) {
-			occupant1Teleported = true;
-			doIt = false;
-		}
-		else {
+		//if (justUndid == true) {
+		//	occupant1Teleported = true;
+		//	doIt = false;
+		//}
+		//else {
 			occupant1Teleported = false;
-		}
+		//}
 	}
 
 	// Check if occupant2 is new
@@ -686,13 +686,13 @@ bool telepad::NeedsToTeleport() {
 		if (occupant2 >= 0) doIt = true; // Try to teleport
 
 		// Don't teleport if it was only a new passenger because of Undo-ing
-		if (justUndid == true) {
-			occupant2Teleported = true;
-			doIt = false;
-		}
-		else {
+		//if (justUndid == true) {
+		//	occupant2Teleported = true;
+		//	doIt = false;
+		//}
+		//else {
 			occupant2Teleported = false;
-		}
+		//}
 	}
 
 	// Check if there is an occupant that hasn't teleported yet
@@ -745,17 +745,12 @@ bool telepad::NeedsToTeleport() {
 
 
 void telepad::Teleport() {
+	uint squareSize = 4; // How many pixels will make up each square that is moved
+
 	static int dX, dY; // Destination x and y
 	static int sX, sY; // Source x and y
 	static int sH; // source height
 	static uint numToMove; // How many blocks are going to get teleported
-	static int *ba; // Array to keep track of which blocks are going to get teleported
-
-	static SDL_Surface *sourceSurf = NULL;
-	static SDL_Surface *destSurf = NULL;
-	static uint col; // pixel color
-	static uint squareSize = 4; // How many pixels will make up each square that is moved
-	static bool *map; // Keeps track of which squares have been teleported (false = hasn't been moved, true = has)
 	
 	/*** Initialization ***/
 	if (teleporting == false) {
@@ -785,9 +780,10 @@ void telepad::Teleport() {
 		cameraTargetX = dX + (blocks[b].GetW() / 2);
 		cameraTargetY = dY + (blocks[b].GetH() / 2);
 
+		// Make block array (for teleportation animation)
+		ba = new int[numBlocks];
 
 		/*** Determine the height of the source load to teleport (i.e. find blocks on top of the block) ***/
-		ba = new int[numBlocks];
 		ba[0] = b; // The first block in the array is the bottom block (usually the player)
 		sX = blocks[b].GetX();
 		sY = blocks[b].GetY();
@@ -833,11 +829,24 @@ void telepad::Teleport() {
 			blocks[ba[i]].SetY(yDestPos);
 		}
 
+		// Update occupant information
+		if (occupant1 >= 0) {
+			occupant2 = occupant1;
+			occupant2Teleported = true;
+			occupant1 = -1;
+		}
+		else {
+			occupant1 = occupant2;
+			occupant1Teleported = true;
+			occupant2 = -1;
+		}
+
 		// Create destination surface
 		destSurf = MakeSurface(TILE_W, sH);
 		
 		map = new bool[(sH * TILE_W) / squareSize];
 		uint pX, pY; // pixel offset coordinates
+		uint col; // pixel color
 		
 		// Mark transparent pixels-squares as already moved, all others as not yet moved
 		for (pY = 0; pY < sH / (squareSize / 2); pY++) {
@@ -866,6 +875,7 @@ void telepad::Teleport() {
 	if (teleporting == true) {
 		uint pX, pY; // pixel offset coordinates	
 		uint numPixels; // Will count how many pixels are finished
+		uint col; // pixel color
 		
 		// Lock source and dest surfaces
 		//if (LockSurface(sourceSurf) == false) return;
@@ -933,37 +943,45 @@ void telepad::Teleport() {
 		
 		/*** De-Initializtion ***/
 		if (doneTeleporting) {
-			teleporting = false;
-			
 			// Make all teleporting blocks visible again (e.g. convert -1 back to 0, -2 back to 1)
 			for (uint i = 0; i < numToMove; i++) {
 				blocks[ba[i]].SetType(static_cast<char>( -(blocks[ba[i]].GetType() + 1) ));
 			}
 
-			// Free pointer-referenced memory
-			delete [] map;
-			map = NULL;
-			delete [] ba;
-			ba = NULL;
-
-			// Free the surfaces
-			SDL_FreeSurface(sourceSurf);
-			sourceSurf = NULL;
-			SDL_FreeSurface(destSurf);
-			destSurf = NULL;
-
-			if (occupant1 >= 0) {
-				occupant2 = occupant1;
-				occupant2Teleported = true;
-				occupant1 = -1;
-			}
-			else {
-				occupant1 = occupant2;
-				occupant1Teleported = true;
-				occupant2 = -1;
-			}
-			
-			state = 0; // Off
+			DeInitTeleport(true);
 		}
+	}
+}
+
+
+
+
+// Fix telepads/blocks that were in the process of teleporting
+// when their undo-state was saved; Restart the teleportation process.
+void telepad::DeInitTeleport(bool freePointers) {
+	teleporting = false;
+	state = 0; // Off
+
+	// Delete block array
+	if (ba != NULL) {
+		if (freePointers) delete [] ba;
+		ba = NULL;
+	}
+
+	// Delete pixel map array
+	if (map != NULL) {
+		if (freePointers) delete [] map;
+		map = NULL;
+	}
+
+	// Free the surfaces
+	if (sourceSurf != NULL) {
+		if (freePointers) SDL_FreeSurface(sourceSurf);
+		sourceSurf = NULL;
+	}
+	
+	if (destSurf != NULL) {
+		if (freePointers) SDL_FreeSurface(destSurf);
+		destSurf = NULL;
 	}
 }

@@ -31,12 +31,32 @@ void CollectLevelGarbage() {
 	delete [] playerKeys; playerKeys = NULL;
 
 	if (undoBlocks != NULL) {
-		for (int i = 0; i < option_undoSize; i++) {
+		for (uint i = 0; i < option_undoSize; i++) {
 			delete [] undoBlocks[i];
 			undoBlocks[i] = NULL;
 		}
 		delete [] undoBlocks;
 		undoBlocks = NULL;
+	}
+	
+	if (undoTelepads != NULL) {
+		for (uint i = 0; i < option_undoSize; i++) {
+			printf("deleting [] undoTelepads[%d]\n", i);
+			
+			// Set old undoTelepad pointers to NULL before
+			// destructor tries to free memory which is
+			// already freed
+			for (uint j = 0; j < numTelepads; j++) {
+				undoTelepads[i][j].DeInitTeleport(false);
+			}
+			
+			delete [] undoTelepads[i];
+			undoTelepads[i] = NULL;
+		}
+		printf("deleting [] undoTelepads\n");
+
+		delete [] undoTelepads;
+		undoTelepads = NULL;
 	}
 }
 
@@ -142,7 +162,7 @@ int Game() {
 			i = currentLevel;
 			#endif
 			
-			justUndid = false;
+			//justUndid = false;
 			GameInput();
 						
 			#ifdef DEBUG
@@ -275,7 +295,9 @@ int Game() {
 					// and is on solid ground
 					&& blocks[i].OnSolidGround()
 					// and a key hasn't been pushed yet
-					&& !pushedKey)
+					&& !pushedKey
+					// and the block is not disabled
+					&& blocks[i].GetType() >= 0)
 				{
 					
 					/*** Perform next keypress from replay file ***/
@@ -428,6 +450,12 @@ int Game() {
 					}
 					if (pushedKey == false && recordingReplay && levelTimeRunning && wonLevel < 2) {
 						neatoReplay->SaveKey(-1); // Save the non-keypress (sleep) in the replay
+					}
+					
+					// Prevent bug where player moves in very first frame before player's
+					// face is set back to normal in Render() (from zing/stickyPlayer)
+					if (physicsStarted == false && pushedKey == true) {
+						blocks[0].SetFace(0); // normal face
 					}
 				}
 
@@ -844,9 +872,15 @@ bool LoadLevel(std::string levelSet, uint level, bool zing) {
 	spikes = new spike[numSpikes];
 
 	undoBlocks = new block*[option_undoSize];
-	for (int i = 0; i < option_undoSize; i++) {
+	for (uint i = 0; i < option_undoSize; i++) {
  		undoBlocks[i] = new block[numBlocks];
 	}
+	
+	undoTelepads = new telepad*[option_undoSize];
+	for (uint i = 0; i < option_undoSize; i++) {
+ 		undoTelepads[i] = new telepad[numTelepads];
+	}
+	
 	Undo(-1); // Reset undo
 
 	
@@ -1127,7 +1161,7 @@ void Undo(char action) {
 		// Wrap around undoStart position
 		if  (undoStart == static_cast<int>(option_undoSize)) undoStart = 0;
 
-		#ifdef DEBUG2
+		#ifdef DEBUG_UNDO
 		printf("\nSaving state to undoSlot %d\n", undoSlot);
 		#endif
 		
@@ -1136,6 +1170,10 @@ void Undo(char action) {
 			undoBlocks[undoSlot][i] = blocks[i];
 		}
 
+		// Save the state of all the telepads
+		for (uint i = 0; i < numTelepads; i++) {
+			undoTelepads[undoSlot][i] = telepads[i];
+		}
 
 		// Make undoEnd point to the most recent state
 		undoEnd = undoSlot;
@@ -1150,7 +1188,7 @@ void Undo(char action) {
 
 		
 	
-		#ifdef DEBUG2
+		#ifdef DEBUG_UNDO
 		printf("UndoStart = %d\n", undoStart);
 		printf("UndoEnd = %d\n", undoEnd);
 		printf("UndoSlot = %d\n", undoSlot);
@@ -1170,6 +1208,29 @@ void Undo(char action) {
 				blocks[i] = undoBlocks[undoEnd][i];
 			}
 
+			// Restore the state of all the telepads
+			for (uint i = 0; i < numTelepads; i++) {
+				// Free memory being dereferenced by *current*
+				// telepads which were in the process of
+				// teleporting when the Undo button was pushed.
+				telepads[i].DeInitTeleport(true);
+
+				// Restore old telepad
+				telepads[i] = undoTelepads[undoEnd][i];
+				
+				// Set old telepad state to non-teleporting state
+				telepads[i].DeInitTeleport(false);
+			}
+
+			// Restore temporarily disabled block types (for teleportation animation)
+			// to normal (positive) values
+			for (uint i = 0; i < numBlocks; i++) {
+				if (blocks[i].GetType() >= -99 && blocks[i].GetType() <= -1) {
+					blocks[i].SetType(static_cast<char>( -(blocks[i].GetType() + 1) ));
+				}
+			}
+
+
 			if (undoEnd != undoStart) {
 				// Move undoEnd back, so it points to the now most recent undo state
 				undoEnd --;
@@ -1181,9 +1242,9 @@ void Undo(char action) {
 			if (undoSlot == -1) undoSlot = option_undoSize - 1;
 
 			
-			justUndid = true; // Flag to tell telepads to ignore new occupants
+			//justUndid = true; // Flag to tell telepads to ignore new occupants
 			
-			#ifdef DEBUG2
+			#ifdef DEBUG_UNDO
 			printf("UndoEnd = %d\n", undoEnd);
 			printf("UndoSlot = %d\n", undoSlot);
 			#endif
