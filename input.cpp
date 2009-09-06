@@ -168,6 +168,11 @@ void GameInput() {
 							blockYGravity = blockYSpeed;
 						}
 						break;
+					case SDLK_2:
+						blockXSpeed = TILE_W;
+						blockYSpeed = TILE_H;
+						blockYGravity = blockYSpeed;
+						break;
 					case SDLK_KP_PLUS:
 					case SDLK_PLUS:
 					case SDLK_EQUALS:

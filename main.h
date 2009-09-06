@@ -431,8 +431,9 @@ int telepad::GetOccupant2() {
 // Items are "power-ups" that have no physics.  They disappear when
 // a player touches them, and they cause something to happen.
 class item : public brick {
-	// Types
-	// 0 spinach
+	private:
+		char type;	// Types
+				// 0 spinach
 };
 
 
@@ -471,9 +472,6 @@ int option_undoSize = 50;
 /******* INCLUDES (part 2) ********/
 #include "input.h"
 #include "replay.h"
-
-
-/******* INCLUDES (part 3) *******/
 
 #include "font.cpp"
 #include "game.cpp"
