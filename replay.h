@@ -97,6 +97,7 @@ class replay {
 		/*** Read ***/
 		void FillBuffer(); // Parses the replay file and loads a chunk of data into the replayStep array
 		//char * GetFilename() const { return filename; };
+		char GetNextKey();
 		void PushNextKey();
 		
 		/*** Other ***/
@@ -279,7 +280,7 @@ void replay::FillBuffer() {
 	// If the whole buffer was not filled (i.e. EOF was reached)
 	if (i < bufferSize) {
 		// Raise a flag for PushNextKey to know when to stop
-		steps[i].SetNum(0);
+		steps[i].SetKey(100);
 	}
 	
 	// Reset position
@@ -341,27 +342,12 @@ void replay::SaveKey(char key) {
 
 
 
-// Press the next key in the replay file
-void replay::PushNextKey() {
-	// Check for the flag set by FillBuffer to signal EOF
-	if (steps[pos].GetNum() == 0) {
-		return;
-	}
 
-	int k = steps[pos].GetKey();
-	
-	/*** Turn the correct key on ***/
-	// Undo
-	if (k == 5) {
-		gameKeys[1].on = 1;
+char replay::GetNextKey() {
+	// Check for the flag set by FillBuffer to signal EOF
+	if (steps[pos].GetKey() == 100) {
+		return 100;
 	}
-	// Regular Key
-	else if (k >= 0 && k <= 4) {
-		playerKeys[k].on = 1;
-	}
-	
-	// Decrement the number of times we must push the key
-	steps[pos].SetNum(steps[pos].GetNum() - 1);
 	
 	// If we've finished pushing the key the required number of times
 	if (steps[pos].GetNum() == 0) {
@@ -376,4 +362,32 @@ void replay::PushNextKey() {
 		}
 		
 	}
+	
+	return steps[pos].GetKey();
+}
+
+
+
+
+// Press the next key in the replay file
+void replay::PushNextKey() {
+	// Check for the flag set by FillBuffer to signal EOF
+	if (steps[pos].GetKey() == 100) {
+		return;
+	}
+
+	int k = GetNextKey();
+	
+	/*** Turn the correct key on ***/
+	// Undo
+	if (k == 5) {
+		gameKeys[1].on = 1;
+	}
+	// Regular Key
+	else if (k >= 0 && k <= 4) {
+		playerKeys[k].on = 1;
+	}
+	
+	// Decrement the number of times we must push the key
+	steps[pos].SetNum(steps[pos].GetNum() - 1);
 }

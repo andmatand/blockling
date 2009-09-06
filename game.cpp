@@ -253,9 +253,18 @@ int Game() {
 			for (i = 0; i < numPlayers; i++) {
 				pushedKey = false; // This will forbid multiple actions from happening in the same frame
 
-				// Undo (actual input; not while showing a replay)
-				// TODO: make this check the next key in the replay, and if it's undo, do it here
-				if (gameKeys[1].on > 0 && !showingReplay) {
+				
+				if (showingReplay) {
+					// If the next key in the replay is Undo, press that
+					// here (not inside the normal keypressing scope which
+					// requires that the player be on solid ground)
+					if (neatoReplay->GetNextKey() == 5) {
+						neatoReplay->PushNextKey();
+					}
+				}
+				
+				// Undo
+				if (gameKeys[1].on > 0) {
 					if (recordingReplay) neatoReplay->SaveKey(5); // Save the keypress in the replay
 					Undo(1);
 					pushedKey = true;
@@ -282,11 +291,6 @@ int Game() {
 						if (physicsStarted) {
 							// Push the next key
 							neatoReplay->PushNextKey();
-						}
-
-						// Undo (only during a replay)
-						if (gameKeys[1].on > 0) {
-							Undo(1);
 						}
 					}
 					
