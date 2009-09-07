@@ -19,11 +19,11 @@
  *   along with Blockman.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #include "main.h"
 
 
 int main(int argc, char** argv) {
+	
 	// Initialize SDL's subsystems
 	if (SDL_Init(SDL_INIT_VIDEO) < 0) {
 		fprintf(stderr, "Unable to init SDL: %s\n", SDL_GetError());
@@ -69,6 +69,9 @@ int main(int argc, char** argv) {
 		}
 		if (quitProgram) break;	
 	}
+	
+	
+	DeInit();
 	
 	return 0;
 }
@@ -117,4 +120,14 @@ void Init() {
 	
 	
 	
+}
+
+
+
+
+void DeInit() {
+	UnloadTileset();
+	UnloadFont();
+	
+	SDL_FreeSurface(screenSurface);
 }

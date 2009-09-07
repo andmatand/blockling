@@ -113,12 +113,24 @@ void LoadFont(const char *file) {
 		font[i].surf = MakeSurface(chrW, chrH);
 		SDL_UnlockSurface(fontSurf);
 		ApplySurface(-leftSide, sourceOffset, fontSurf, font[i].surf);
+		
 		i++;
+		if (i > fontArraySize - 1) break;
+		
 		sourceOffset -= chrH; // Move the big tall bmp up
 	}
 	
 	SDL_FreeSurface(fontSurf);
 }
+
+
+
+void UnloadFont() {
+	for (uint i = 0; i < fontArraySize; i++) {
+		SDL_FreeSurface(font[i].surf);
+	}
+}
+
 
 
 

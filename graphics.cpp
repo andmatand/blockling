@@ -500,29 +500,7 @@ SDL_Surface* telepad::GetSurface() {
 void LoadTileset(std::string tilesetDir) {
 	
 	/*** Free all old surfaces ***/
-	SDL_FreeSurface(bgSurface);
-	SDL_FreeSurface(blockSurface);
-	SDL_FreeSurface(spikeSurface);
-	for (uint i = 0; i < NUM_PLAYER_SURFACES; i++) {
-		SDL_FreeSurface(playerSurface[i]);
-	}
-	for (uint i = 0; i < NUM_BRICK_SURFACES; i++) {
-		SDL_FreeSurface(brickSurface[i]);
-	}	
-	for (uint i = 0; i < NUM_TORCH_FLAMES; i++) {
-		SDL_FreeSurface(torchSurface[i]);
-	}
-	for (uint i = 0; i < NUM_TELEPAD_STATES; i++) {
-		SDL_FreeSurface(telepadSurface[i]);
-	}
-	for (uint i = 0; i < NUM_EXIT_FRAMES; i++) {
-		SDL_FreeSurface(exitSurface[i]);
-	}
-	for (uint i = 0; i < NUM_ITEM_TYPES; i++) {
-		SDL_FreeSurface(itemSurface[i]);
-	}
-
-
+	UnloadTileset();
 
 	/*** Load new tile bmps into surfaces ***/
 	// Set the path
@@ -620,6 +598,31 @@ bool LockSurface(SDL_Surface *surf) {
 	}
 	
 	return true;
+}
+
+
+void UnloadTileset() {
+	SDL_FreeSurface(bgSurface);
+	SDL_FreeSurface(blockSurface);
+	SDL_FreeSurface(spikeSurface);
+	for (uint i = 0; i < NUM_PLAYER_SURFACES; i++) {
+		SDL_FreeSurface(playerSurface[i]);
+	}
+	for (uint i = 0; i < NUM_BRICK_SURFACES; i++) {
+		SDL_FreeSurface(brickSurface[i]);
+	}	
+	for (uint i = 0; i < NUM_TORCH_FLAMES; i++) {
+		SDL_FreeSurface(torchSurface[i]);
+	}
+	for (uint i = 0; i < NUM_TELEPAD_STATES; i++) {
+		SDL_FreeSurface(telepadSurface[i]);
+	}
+	for (uint i = 0; i < NUM_EXIT_FRAMES; i++) {
+		SDL_FreeSurface(exitSurface[i]);
+	}
+	for (uint i = 0; i < NUM_ITEM_TYPES; i++) {
+		SDL_FreeSurface(itemSurface[i]);
+	}
 }
 
 

@@ -98,6 +98,7 @@ int stickyPlayerOrigX, stickyPlayerOrigY; // The player's game coordinates
 /******* FUNCTION PROTOTYPES (Not exhaustive) *******/
 /* main.cpp */
 void Init();
+void DeInit();
 
 /* game.cpp */
 int Game ();
@@ -111,6 +112,7 @@ SDL_Surface* FillSurface(const char *file, bool transparent);
 Uint32 GetPixel(SDL_Surface *surface, int x, int y);
 void LimitFPS();
 void LoadTileset(std::string tilesetDir);
+void UnloadTileset();
 SDL_Surface* MakeSurface(int width, int height);
 void Render(char flag);
 void SetCameraTargetBlock(uint b);

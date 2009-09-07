@@ -19,12 +19,12 @@
  *   along with Blockman.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+const uint fontArraySize = (122 - 33) + 1;
 
 typedef struct {
 	uint w;
-	//int yOffset;
 	SDL_Surface * surf;
 } letter;
 
 // Global struct which holds all available letters in the font
-letter font[(122 - 33) + 1];
+letter font[fontArraySize];
