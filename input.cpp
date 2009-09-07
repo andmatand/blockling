@@ -152,10 +152,33 @@ void GameInput() {
 						break;
 				}
 
-
 				
-				#ifdef DEBUG
 				switch (event.key.keysym.sym) {
+					case SDLK_F2:
+						if (Mix_PausedMusic()) {
+							Mix_ResumeMusic();
+						}
+						else {
+							Mix_PauseMusic();
+						}
+						break;
+					case SDLK_KP_PLUS:
+					case SDLK_PLUS:
+					case SDLK_EQUALS:
+						currentLevel ++;
+						break;
+					case SDLK_KP_MINUS:
+					case SDLK_MINUS:
+						currentLevel --;
+						break;
+					case SDLK_PAGEUP:
+						LoadTileset("default");
+						break;
+					case SDLK_PAGEDOWN:
+						LoadTileset("scifi");
+						break;
+						
+					#ifdef DEBUG
 					case SDLK_1:
 						if (blockXSpeed == 8) {
 							blockXSpeed = 1;
@@ -173,30 +196,15 @@ void GameInput() {
 						blockYSpeed = TILE_H;
 						blockYGravity = blockYSpeed;
 						break;
-					case SDLK_KP_PLUS:
-					case SDLK_PLUS:
-					case SDLK_EQUALS:
-						currentLevel ++;
-						break;
-					case SDLK_KP_MINUS:
-					case SDLK_MINUS:
-						currentLevel --;
-						break;
 					case SDLK_x:
 						blocks[0].SetWon(3);
 						wonLevel = 3;
 						break;
-					case SDLK_PAGEUP:
-						LoadTileset("default");
-						break;
-					case SDLK_PAGEDOWN:
-						LoadTileset("scifi");
-						break;
+					#endif
+					
 					default:
 						break;
 				}
-				#endif
-
 
 
 				break;

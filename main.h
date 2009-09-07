@@ -25,11 +25,12 @@
 typedef unsigned int uint;
 
 /******* INCLUDES (part 1) *******/
-#include "SDL/SDL.h"
 #include <iostream>
 #include <string>
 #include <sstream>
 #include <ctime>
+#include <SDL/SDL.h>
+#include <SDL/SDL_mixer.h>
 
 
 
@@ -54,6 +55,8 @@ const std::string DEFAULT_TILESET_DIR = "default";
 const std::string LEVEL_BASE_DIR = "data/levels/";
 const std::string DEFAULT_LEVELSET_DIR = "default";
 const char TEMP_PATH[] = "./";
+const char DATA_PATH[] = "data/";
+const char MUSIC_PATH[] = "music/";
 
 
 /******* GLOBAL VARIABLES (part 1) ********/
@@ -91,6 +94,9 @@ int levelX, levelY, levelW, levelH; // Used to provide info for camera to know h
 bool stickyPlayer;
 int stickyPlayerX, stickyPlayerY; // The screen coordinates
 int stickyPlayerOrigX, stickyPlayerOrigY; // The player's game coordinates
+
+// Background music pointer
+Mix_Music *bgMusic = NULL;
 
 
 
@@ -497,7 +503,7 @@ bool physicsStarted;
 block **undoBlocks = NULL;
 telepad **undoTelepads = NULL;
 //bool justUndid;
-uint option_undoSize = 50;
+uint option_undoSize = 300;
 
 
 

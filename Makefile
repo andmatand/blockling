@@ -1,2 +1,2 @@
 all:
-	g++ -Wall -Wextra -lSDL -o blockman main.cpp
+	g++ -Wall -Wextra -lSDL -lSDL_mixer -o blockman main.cpp

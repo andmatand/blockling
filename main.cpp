@@ -24,8 +24,8 @@
 
 int main(int argc, char** argv) {
 	
-	// Initialize SDL's subsystems
-	if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+	// Initialize SDL
+	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {
 		fprintf(stderr, "Unable to init SDL: %s\n", SDL_GetError());
 		exit(1);
 	}
@@ -33,6 +33,30 @@ int main(int argc, char** argv) {
 	// Register SDL_Quit to be called at exit; makes sure things are
 	// cleaned up when we quit.
 	atexit(SDL_Quit);
+
+
+	// Initialize SDL_mixer
+	if (Mix_OpenAudio(22050, AUDIO_S16SYS, 2, 1024) < 0) {
+    		printf("Error initializing SDL_mixer: %s\n", Mix_GetError());
+    		exit(1);
+	}
+
+	char musicFile[256];
+	sprintf(musicFile, "%s%slizard_-_too_funky.mod", DATA_PATH, MUSIC_PATH);
+	bgMusic = Mix_LoadMUS(musicFile);
+	if (bgMusic == NULL) {
+		fprintf(stderr, "Unable to load audio file: %s\n", Mix_GetError());
+	}
+
+	// Fade-in the music
+	if (Mix_FadeInMusic(bgMusic, -1, 500) == -1) {
+		fprintf(stderr, "Unable to play WAV file: %s\n", Mix_GetError());
+	}
+
+
+
+
+
 	
 	screenSurface = SDL_SetVideoMode(SCREEN_W, SCREEN_H, SCREEN_BPP, SDL_SWSURFACE);
 	
@@ -72,7 +96,15 @@ int main(int argc, char** argv) {
 	
 	
 	DeInit();
-	
+
+	// Wait for sound to finish playing
+	//while(Mix_Playing() != 0) {}
+ 
+	// Clean up SDl_mixer
+	Mix_FreeMusic(bgMusic);
+ 	Mix_CloseAudio();
+
+
 	return 0;
 }
 

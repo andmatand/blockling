@@ -41,8 +41,6 @@ void CollectLevelGarbage() {
 	
 	if (undoTelepads != NULL) {
 		for (uint i = 0; i < option_undoSize; i++) {
-			printf("deleting [] undoTelepads[%d]\n", i);
-			
 			// Set old undoTelepad pointers to NULL before
 			// destructor tries to free memory which is
 			// already freed
@@ -53,7 +51,6 @@ void CollectLevelGarbage() {
 			delete [] undoTelepads[i];
 			undoTelepads[i] = NULL;
 		}
-		printf("deleting [] undoTelepads\n");
 
 		delete [] undoTelepads;
 		undoTelepads = NULL;
@@ -275,6 +272,9 @@ int Game() {
 
 				
 				if (showingReplay) {
+					// Turn undo key off
+					gameKeys[1].on = 0;
+
 					// If the next key in the replay is Undo, press that
 					// here (not inside the normal keypressing scope which
 					// requires that the player be on solid ground)
@@ -306,9 +306,6 @@ int Game() {
 						for (uint i = 0; i < NUM_PLAYER_KEYS; i++) {
 							playerKeys[i].on = 0;
 						}
-						
-						// Turn undo key off
-						gameKeys[1].on = 0;
 						
 						if (physicsStarted) {
 							// Push the next key

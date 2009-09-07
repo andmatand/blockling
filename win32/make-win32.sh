@@ -4,6 +4,6 @@ if [ -f blockman.exe ]; then
 	/usr/i586-mingw32msvc/bin/strip blockman.exe
 	
 	rm blockman-win32.zip
-	zip -r blockman-win32 blockman.exe data/ README-SDL.txt SDL.dll -x \*svn
+	zip -r blockman-win32 blockman.exe COPYING data/ README-SDL.txt SDL.dll -x \*svn
 	rm blockman.exe
 fi
