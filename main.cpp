@@ -42,7 +42,7 @@ int main(int argc, char** argv) {
 	}
 
 	char musicFile[256];
-	sprintf(musicFile, "%s%slizard_-_too_funky.mod", DATA_PATH, MUSIC_PATH);
+	sprintf(musicFile, "%s%slizard_-_hip_chip.mod", DATA_PATH, MUSIC_PATH);
 	bgMusic = Mix_LoadMUS(musicFile);
 	if (bgMusic == NULL) {
 		fprintf(stderr, "Unable to load audio file: %s\n", Mix_GetError());
