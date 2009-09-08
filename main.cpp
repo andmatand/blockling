@@ -120,7 +120,11 @@ void Init() {
 	LoadSound("setdown.wav", 1);
 	LoadSound("push.wav", 2);
 	LoadSound("teleport.wav", 3);
-	
+	LoadSound("undo.wav", 4);
+	LoadSound("menu_sel.wav", 5);
+	LoadSound("menu_enter.wav", 6);
+	LoadSound("menu_back.wav", 7);
+	LoadSound("win.wav", 8);
 	
 	/*** Keyboard ***/
 

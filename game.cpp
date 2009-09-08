@@ -172,6 +172,8 @@ int Game() {
 
 			/*** Pause Menu (when Esc is pushed) ***/
 			if (gameKeys[0].on > 0) {
+				PlaySound(6); // Menu ENTER sound
+				
 				j = SDL_GetTicks() - levelTimeTick;
 				
 				if (showingReplay) {
@@ -545,6 +547,8 @@ int Game() {
 				if (blocks[i].GetWon() == 2 && blocks[i].GetX() == exitX && blocks[i].GetY() - blocks[i].GetYOffset() == exitY) {
 					blocks[i].SetWon(3);
 					if (i == 0) {
+						PlaySound(8);
+						
 						blocks[i].SetFace(3); // happy mouth
 						blocks[i].SetDir(2); // Face the camera
 
@@ -1203,6 +1207,8 @@ void Undo(char action) {
 
 	if (action == 1) {
 		if (! (undoStart == undoEnd && undoSlot == undoEnd)) {
+			PlaySound(4);
+			
 			#ifdef DEBUG2
 			printf("\nUndoing from slot %d\n", undoEnd);
 			#endif

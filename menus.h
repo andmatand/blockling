@@ -187,9 +187,11 @@ void menu::Display() {
 
 int menu::Input() {
 	int key = MenuInput(); // In input.cpp
+	int oldSel = sel;
 	
 	switch (key) {
 		case 1: // Up
+			
 			sel--;
 			break;
 		case 2: // Down
@@ -202,6 +204,7 @@ int menu::Input() {
 			return 4;
 			break;
 		case 5: // Enter
+			PlaySound(6);
 			return 1;
 			break;
 		case 6: // Home
@@ -217,6 +220,7 @@ int menu::Input() {
 			sel += 7;
 			break;
 		case 8: // Esc
+			PlaySound(7);
 			return -1;
 			break;
 		case 9: // Close window
@@ -226,6 +230,8 @@ int menu::Input() {
 	
 	if (sel < 0) sel = 0;
 	if (sel > static_cast<int>(numItems - 1)) sel = static_cast<int>(numItems - 1);
+	
+	if (sel != oldSel) PlaySound(5);
 	
 	return 0;
 }

@@ -20,7 +20,7 @@
  */
 
 
-const char NUM_SOUNDS = 2;
+const char NUM_SOUNDS = 9;
 
 
 // Background music pointer
