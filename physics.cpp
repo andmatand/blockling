@@ -758,6 +758,8 @@ void telepad::Teleport() {
 		
 		state = 2; // Teleporting
 		
+		PlaySound(3); // Play sound
+		
 		// Get bottom block number
 		int b;
 		b = (occupant1 >= 0 ? occupant1 : occupant2);

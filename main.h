@@ -56,7 +56,12 @@ const std::string LEVEL_BASE_DIR = "data/levels/";
 const std::string DEFAULT_LEVELSET_DIR = "default";
 const char TEMP_PATH[] = "./";
 const char DATA_PATH[] = "data/";
+const char FONT_PATH[] = "font/";
 const char MUSIC_PATH[] = "music/";
+const char SOUND_PATH[] = "sound/";
+
+
+
 
 
 /******* GLOBAL VARIABLES (part 1) ********/
@@ -94,10 +99,6 @@ int levelX, levelY, levelW, levelH; // Used to provide info for camera to know h
 bool stickyPlayer;
 int stickyPlayerX, stickyPlayerY; // The screen coordinates
 int stickyPlayerOrigX, stickyPlayerOrigY; // The player's game coordinates
-
-// Background music pointer
-Mix_Music *bgMusic = NULL;
-
 
 
 
@@ -143,6 +144,8 @@ int BoxContents(int x, int y, int w, int h);
 bool BoxOverlap (int x1, int y1, int w1, int h1, int x2, int y2, int w2, int h2);
 bool OnSolidGround(int b);
 
+/* sound.cpp */
+void PlaySound(int n);
 
 
 
@@ -518,4 +521,4 @@ uint option_undoSize = 300;
 #include "input.cpp"
 #include "menus.cpp"
 #include "physics.cpp"
-
+#include "sound.cpp"

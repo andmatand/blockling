@@ -163,7 +163,10 @@ int Game() {
 			GameInput();
 						
 			#ifdef DEBUG
-			if (currentLevel != i) break;
+			if (currentLevel != i) {
+				showingReplay = false;
+				break;
+			}
 			#endif
 
 
@@ -327,6 +330,7 @@ int Game() {
 						if (b < 0) b = BlockNumber(x, blocks[i].GetY(), TILE_W, 1); // If that didn't work, push from top
 						
 						if (b >= 0 && blocks[b].OnSolidGround()) {
+							PlaySound(2); // Play sound
 							if (recordingReplay) neatoReplay->SaveKey(4); // Save the keypress in the replay
 							Undo(0); // Save Undo state
 							
@@ -391,6 +395,7 @@ int Game() {
 						
 						// If it's a block, make it climb up onto the player =)
 						if (b >= 0) {
+							PlaySound(0); // Play sound
 							if (recordingReplay) neatoReplay->SaveKey(2); // Save the keypress in the replay
 							Undo(0); // Save Undo state
 							
@@ -417,8 +422,10 @@ int Game() {
 
 						// If it's a block, set its path to be set down.
 						if (b >= 0 && blocks[b].GetXMoving() == 0 && blocks[b].GetYMoving() == 0) {
+							PlaySound(1); // Play sound
 							if (recordingReplay) neatoReplay->SaveKey(3); // Save the keypress in the replay
 							Undo(0); // Save Undo state
+							
 							
 							tempPath = "";
 							if (blocks[i].GetDir() == 0) { // player facing left

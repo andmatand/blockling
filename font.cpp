@@ -48,11 +48,15 @@ int GetTextW(char *text) {
 
 
 void LoadFont(const char *file) {
+	char fullPath[256];
+	sprintf(fullPath, "%s%s%s", DATA_PATH, FONT_PATH, file);
+	printf("fullPath = %s\n", fullPath);
+	
 	int chrW = 16; // character width in BMP file
 	int chrH = 16; // character height in BMP file
 	
 	// The surface holding the big long list of characters
-	SDL_Surface *fontSurf = FillSurface(file, 0);
+	SDL_Surface *fontSurf = FillSurface(fullPath, 0);
 	
 	// For finding the left and right side of each character (to determine width)
 	int leftSide;

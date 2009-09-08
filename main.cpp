@@ -50,14 +50,11 @@ int main(int argc, char** argv) {
 
 	// Fade-in the music
 	if (Mix_FadeInMusic(bgMusic, -1, 500) == -1) {
-		fprintf(stderr, "Unable to play WAV file: %s\n", Mix_GetError());
+		fprintf(stderr, "Unable to play music file: %s\n", Mix_GetError());
 	}
 
 
-
-
-
-	
+	// Initialize Video
 	screenSurface = SDL_SetVideoMode(SCREEN_W, SCREEN_H, SCREEN_BPP, SDL_SWSURFACE);
 	
 	if (screenSurface == NULL) {
@@ -100,9 +97,6 @@ int main(int argc, char** argv) {
 	// Wait for sound to finish playing
 	//while(Mix_Playing() != 0) {}
  
-	// Clean up SDl_mixer
-	Mix_FreeMusic(bgMusic);
- 	Mix_CloseAudio();
 
 
 	return 0;
@@ -116,8 +110,16 @@ int main(int argc, char** argv) {
 
 void Init() {
 	
+	/*** Graphics ***/
 	LoadTileset("default");
-	LoadFont("data/font/font.bmp");
+	LoadFont("font.bmp");
+	
+	
+	/*** Sound ***/
+	LoadSound("pickup.wav", 0);
+	LoadSound("setdown.wav", 1);
+	LoadSound("push.wav", 2);
+	LoadSound("teleport.wav", 3);
 	
 	
 	/*** Keyboard ***/
@@ -158,8 +160,18 @@ void Init() {
 
 
 void DeInit() {
+	/*** Clean up surfaces ***/
 	UnloadTileset();
 	UnloadFont();
-	
 	SDL_FreeSurface(screenSurface);
+	
+
+
+	/*** Clean up SDL_mixer **/
+	for (int i = 0; i < NUM_SOUNDS; i++) {
+		Mix_FreeChunk(sounds[i]);
+	}
+	
+	Mix_FreeMusic(bgMusic);
+ 	Mix_CloseAudio();
 }
