@@ -1,5 +1,5 @@
 /*
- *   graphics.h
+ *   graphics.cpp
  *	  
  *   Copyright 2009 Andrew Anderson <billamonster.com>
  *	  
@@ -20,7 +20,7 @@
  */
 
 
-void PutPixel(SDL_Surface *surface, int x, int y, Uint32 pixel);
+
 
 
 void ApplySurface(int x, int y, SDL_Surface* source, SDL_Surface* destination) {
@@ -459,38 +459,7 @@ SDL_Surface* brick::GetSurface() {
 
 
 
-SDL_Surface* telepad::GetSurface() {
-	static uint t = 0;
-	
-	switch (state) {
-		case 0:
-			return telepadSurface[0];
-			break;
-		case 1:
-			if (SDL_GetTicks() < t + 500) {
-				return telepadSurface[1];
-			}
-			else {
-				if (SDL_GetTicks() >= t + 600) t = SDL_GetTicks();
-				return telepadSurface[0];
-			}
-			
-			break;
-		case 2:
-			if (SDL_GetTicks() < t + 100) {
-				return telepadSurface[2];
-			}
-			else {
-				if (SDL_GetTicks() >= t + 200) t = SDL_GetTicks();
-				return telepadSurface[0];
-			}
 
-			break;
-		default:
-			return NULL;
-			break;
-	}
-}
 
 
 

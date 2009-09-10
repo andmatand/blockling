@@ -1,8 +1,8 @@
 /*
- *   sound.cpp
- *	  
+ *   physics.h
+ *      
  *   Copyright 2009 Andrew Anderson <billamonster.com>
- *	  
+ *      
  *   This file is part of Blockman.
  *
  *   Blockman is free software: you can redistribute it and/or modify
@@ -19,39 +19,9 @@
  *   along with Blockman.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-void LoadSound(char *file, int n) {
-	char fullPath[256];
-	sprintf(fullPath, "%s%s%s", DATA_PATH, SOUND_PATH, file);
-	
-	sounds[n] = Mix_LoadWAV(fullPath);
-	if (sounds[n] == NULL) {
-		fprintf(stderr, "Unable to load audio file: %s\n", Mix_GetError());
-	}
-
-	Mix_VolumeChunk(sounds[n], MIX_MAX_VOLUME / 8);
-}
-
-void LoadSound(const char *file, int n) {
-	char *fn = new char[strlen(file) + 1];
-	strcpy(fn, file);
-	
-	LoadSound(fn, n);
-	
-	delete [] fn;
-}
-
-
-
-void PlaySound(int n) {
-	if (option_soundOn == false) return;
-	
-	int channel;
-	channel = Mix_PlayChannel(-1, sounds[n], 0);
-	if(channel == -1) {
-		fprintf(stderr, "Unable to play WAV file: %s\n", Mix_GetError());
-	}
-
-}
-
-
+/*** Function Prototypes ***/
+int BlockNumber(int x, int y, int w, int h);
+int BrickNumber(int x, int y, int w, int h);
+int BoxContents(int x, int y, int w, int h);
+bool BoxOverlap (int x1, int y1, int w1, int h1, int x2, int y2, int w2, int h2);
+bool OnSolidGround(int b);

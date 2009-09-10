@@ -20,9 +20,6 @@
  */
 
 
-bool LoadLevel(std::string levelSet, uint level, bool zing);
-
-
 void CollectLevelGarbage() {
 	delete [] bricks; bricks = NULL;
 	delete [] blocks; blocks = NULL;
@@ -302,7 +299,9 @@ int Game() {
 					// and a key hasn't been pushed yet
 					&& !pushedKey
 					// and the block is not disabled
-					&& blocks[i].GetType() >= 0)
+					&& blocks[i].GetType() >= 0
+					// and the player is still playing (hasn't won)
+					&& blocks[i].GetWon() == 0)
 				{
 					
 					/*** Perform next keypress from replay file ***/
@@ -567,9 +566,6 @@ int Game() {
 		
 
 			/*** Center camera on player ***/
-			//cameraX = (blocks[0].GetX() + (blocks[0].GetW() / 2)) - (SCREEN_W / 2);
-			//cameraY = (blocks[0].GetY() + (blocks[0].GetH() / 2)) - (SCREEN_H / 2);
-			
 			// Position cameraY so that the level is lined up with the next level's Y position of the player
 			if (stickyPlayer) {
 				//cameraX = -blocks[0].GetX() - stickyPlayerX

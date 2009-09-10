@@ -19,7 +19,18 @@
  *   along with Blockman.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/***** MENUITEM CLASS *****/
+
+/*** Function Prototypes ***/
+int MainMenu();
+int ReplayPauseMenu();
+int EndOfLevelMenu();
+int PauseMenu();
+uint NextFreeReplayNumber(uint level);
+
+
+
+
+/*** menuItem class ***/
 class menuItem {
 	public:
 		// Constructor
@@ -53,7 +64,7 @@ void menuItem::SetText(char *txt) {
 
 
 
-/***** MENU CLASS *****/
+/*** menu class ***/
 class menu {
 	public:
 		// Constructor protoype
@@ -198,9 +209,11 @@ int menu::Input() {
 			sel++;
 			break;
 		case 3: // Left
+			PlaySound(5);
 			return 3;
 			break;
 		case 4: // Right
+			PlaySound(5);
 			return 4;
 			break;
 		case 5: // Enter

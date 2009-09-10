@@ -19,7 +19,14 @@
  *   along with Blockman.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/*** Function Prototypes ***/
+void GameInput();
+char MenuInput();
+void TurnOffAllKeys();
 
+
+
+/*** Varibale/Struct Declarations ***/
 struct keyBinding {
 	SDLKey sym;	// Key name (e.g. SDLK_LEFT)
 	SDLMod mod;	// Modifier (e.g. KMOD_LSHIFT) - must be pushed along with 'sym' for key to be 'on'
@@ -29,6 +36,5 @@ struct keyBinding {
 
 keyBinding gameKeys[NUM_GAME_KEYS];	// Game's keymap (for Quit, Undo, etc.)
 keyBinding *playerKeys; 		// Players' keymap (for moving players).  Initialized in LoadLevel()
-
 
 SDL_Event event;

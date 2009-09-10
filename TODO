@@ -1,9 +1,8 @@
+-Make options menu available in-game (need to figure out how not to break undoSize if it is changed in-game)
 -Maybe: Holding down shift with arrows makes player walk as far as possible
--Spinach
+-Spinach/other items?
 -Add linebreak support to DrawText
 -Speech
 
 ==Bugs==
-
-
-
+-Undo memory of 1 does not work

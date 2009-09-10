@@ -19,6 +19,15 @@
  *   along with Blockman.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+
+/*** Function Prototypes ***/
+void DrawText(int x, int y, char *text, uint r, uint g, uint b);
+int GetTextW(char *text);
+
+
+
+
+/*** Variable Declarations ***/
 const uint fontArraySize = (122 - 33) + 1;
 
 typedef struct {

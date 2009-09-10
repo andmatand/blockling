@@ -19,7 +19,13 @@
  *   along with Blockman.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/*** Function Prototypes ***/
+void PlaySound(int n);
 
+
+
+
+/*** Variable Declarations ***/
 const char NUM_SOUNDS = 9;
 
 

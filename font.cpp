@@ -20,8 +20,6 @@
  */
 
 
-#include "font.h"
-
 int GetTextW(char *text) {
 	int w = 0;
 	int c;

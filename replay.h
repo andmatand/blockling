@@ -20,9 +20,10 @@
  */
 
 
-/********replayStep*********/
-// A replayStep is one or more repititions of the same "action" (i.e. keypress)
-// Physically, it takes up one line when written to a replay file
+/******** replayStep *********/
+// A replayStep is one or more repititions of the same "action" (i.e.
+// keypress).  Physically, it takes up one line when written to a replay
+// file.
 class replayStep {
 	public:
 		/*** Read ***/
@@ -48,6 +49,7 @@ class replayStep {
 		
 		uint num;	// How many times it is successively pushed.
 };
+
 
 
 // Get the correct letter (to print) based on the key number
@@ -84,7 +86,8 @@ char replayStep::GetSymbol() {
 
 
 
-/**********replay************/
+
+/********** replay ************/
 class replay {
 	public:
 		/*** Constructor ***/
@@ -119,6 +122,8 @@ class replay {
 		uint pos;		// The current step (whether recording or playing)
 };
 
+
+
 // Constructor
 replay::replay(char *file, uint buffSize):
 pos(0) {
@@ -134,7 +139,6 @@ pos(0) {
 
 
 
-
 void replay::InitRead() {
 	pos = 0;
 	fp = fopen(filename, "r");
@@ -146,6 +150,9 @@ void replay::InitRead() {
 	FillBuffer();
 }
 
+
+
+
 void replay::DeInitRead() {
 	if (fclose(fp) != 0) {
 		fprintf(stderr, "File error: Could not close replay file \"%s\"", filename);
@@ -153,6 +160,8 @@ void replay::DeInitRead() {
 	
 	fp = NULL;
 }
+
+
 
 
 void replay::InitWrite() {
@@ -164,6 +173,9 @@ void replay::InitWrite() {
 	}
 }
 
+
+
+
 void replay::DeInitWrite() {
 	DumpBuffer(); // Make sure to finish writing anything still in the buffer
 	
@@ -174,6 +186,7 @@ void replay::DeInitWrite() {
 	//delete fp;
 	fp = NULL;
 }
+
 
 
 
@@ -189,6 +202,7 @@ void replay::DumpBuffer() {
 	// Reset position
 	pos = 0;
 }
+
 
 
 
@@ -286,6 +300,8 @@ void replay::FillBuffer() {
 	// Reset position
 	pos = 0;
 }
+
+
 
 
 void replay::SaveKey(char key) {

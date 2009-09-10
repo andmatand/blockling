@@ -19,8 +19,6 @@
  *   along with Blockman.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "menus.h"
-
 
 int MainMenu() {
 	int numItems = 3;
@@ -63,66 +61,48 @@ int MainMenu() {
 
 
 int OptionsMenu(bool inGame) {
-	int numItems = 3;
-	menu optMenu(numItems);
-	char undoText[23];
-	char tempString[10];
-	uint maxUndoSize = 500;
+	int numItems = 4;
+	menu optMenu(numItems); // Create the menu object
+	char text[50]; // For temporarily holding menu items' text as it is formed
+	char tempString[11];
 	
-	optMenu.SetTitle("OPTIONS");
-	optMenu.Move(inGame ? SCREEN_W / 2 : 75, 100);
+	uint maxUndoSize = 500;
+	char change_undoSize;
 	
 	int action;
 	
+	/** Set static menu items **/
+	optMenu.Move(inGame ? SCREEN_W / 2 : 75, 100);
+	optMenu.SetTitle("OPTIONS");
+	optMenu.NameItem(2, "Control Setup");
+	optMenu.NameItem(3, "Done");
+	optMenu.AutoArrange(static_cast<char>(inGame ? 1 : 0));
+
 	while (true) {
-		//sprintf(undoText, "Undo Memory: %d moves", option_undoSize);
-		undoText[0] = '\0';
-		strcat(undoText, "Undo Memory: ");
-		if (option_undoSize > 0) strcat(undoText, "<"); else strcat(undoText, " ");
+		/** Set dynamic menu items' text *****************/
+		// Determine Undo text
+		sprintf(text, "Undo Memory: ");
+		if (option_undoSize > 0) strcat(text, "<"); else strcat(text, " ");
 		
-		sprintf(tempString, " %d moves", option_undoSize);
-		strcat(undoText, tempString);
+		sprintf(tempString, " %d move", option_undoSize);
+		if (option_undoSize != 1) strcat(tempString, "s");
+		strcat(text, tempString);
 		
-		if (option_undoSize < maxUndoSize) strcat(undoText, " >");
+		if (option_undoSize < maxUndoSize) strcat(text, " >");
+		
+		// Set it
+		optMenu.NameItem(0, text);
 		
 		
-		optMenu.NameItem(0, undoText);
-		optMenu.NameItem(1, "Control Setup");
-		optMenu.NameItem(2, "Done");
-		optMenu.AutoArrange(static_cast<char>(inGame ? 1 : 0));
+		// Determine Sound text
+		sprintf(text, "Sound: ");
+		strcat(text, (option_soundOn ? "ON" : "OFF"));
+		
+		// Set it
+		optMenu.NameItem(1, text);
 
-		action = optMenu.Input();
-		
-		switch (action) {
-			case 1: // Enter
-				switch (optMenu.GetSel()) {
-					case 0:
-						option_undoSize += 50;
-						if (option_undoSize > maxUndoSize) option_undoSize = 0;
-						break;
-					case 1:
-						break;
-					case 2:
-						return -1;
-						break;
-				}
-				break;
-			case 3: // Left
-				if (option_undoSize >= 50) option_undoSize -= 50;
-				break;
-			case 4: // Right
-				option_undoSize += 50;
-				break;
-			case -1: // Esc
-				return -1;
-				break;
-			case -2: // Close window
-				return -2;
-				break;
-		}
 
-		if (option_undoSize > maxUndoSize) option_undoSize = maxUndoSize;
-		
+		/** Render *****************/
 		if (inGame) {
 			Render(0);
 		}
@@ -133,6 +113,84 @@ int OptionsMenu(bool inGame) {
 		SDL_UpdateRect(screenSurface, 0, 0, 0, 0);
 		
 		LimitFPS();
+
+		
+		
+		/** Input ******************/
+		action = optMenu.Input();
+		change_undoSize = 0;
+		
+		switch (action) {
+			case 1: // Enter
+				switch (optMenu.GetSel()) {
+					case 0:
+						change_undoSize = 1;
+						if (option_undoSize == maxUndoSize) option_undoSize = 0;
+						break;
+					case 1:
+						(option_soundOn) ? option_soundOn = false : option_soundOn = true;
+					case 2:
+						break;
+					case 3:
+						return -1;
+						break;
+				}
+				break;
+			case 3: // Left
+				switch (optMenu.GetSel()) {
+					case 0:
+						change_undoSize = -1;						
+						break;
+					case 1:
+						(option_soundOn) ? option_soundOn = false : option_soundOn = true;
+				}
+				break;
+			case 4: // Right
+				switch (optMenu.GetSel()) {
+					case 0:
+						change_undoSize = 1;
+						break;
+					case 1:
+						(option_soundOn) ? option_soundOn = false : option_soundOn = true;
+				}
+				break;
+			case -1: // Esc
+				return -1;
+				break;
+			case -2: // Close window
+				return -2;
+				break;
+		}
+
+		// Adjust undoSize according to which key was pushed,
+		// handling irregular sequence of 0, 1, 50, 100, etc.
+		if (change_undoSize == 1) { // Increase
+			if (option_undoSize == 0) {
+				option_undoSize = 1;
+			}
+			else if (option_undoSize == 1) {
+				option_undoSize = 50;
+			}
+			else {
+				option_undoSize += 50;
+			}
+		}
+		if (change_undoSize == -1) { // Decrease
+			if (option_undoSize == 50) {
+				option_undoSize = 1;
+			}
+			else if (option_undoSize == 1) {
+				option_undoSize = 0;
+			}
+			else if (option_undoSize > 50) {
+				option_undoSize -= 50;
+			}
+		}
+		
+		// Limit undoSize
+		if (option_undoSize > maxUndoSize) option_undoSize = maxUndoSize;
+		
+		
 	}
 }
 

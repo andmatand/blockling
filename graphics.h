@@ -1,5 +1,5 @@
 /*
- *   sound.cpp
+ *   graphics.h
  *	  
  *   Copyright 2009 Andrew Anderson <billamonster.com>
  *	  
@@ -20,38 +20,18 @@
  */
 
 
-void LoadSound(char *file, int n) {
-	char fullPath[256];
-	sprintf(fullPath, "%s%s%s", DATA_PATH, SOUND_PATH, file);
-	
-	sounds[n] = Mix_LoadWAV(fullPath);
-	if (sounds[n] == NULL) {
-		fprintf(stderr, "Unable to load audio file: %s\n", Mix_GetError());
-	}
-
-	Mix_VolumeChunk(sounds[n], MIX_MAX_VOLUME / 8);
-}
-
-void LoadSound(const char *file, int n) {
-	char *fn = new char[strlen(file) + 1];
-	strcpy(fn, file);
-	
-	LoadSound(fn, n);
-	
-	delete [] fn;
-}
-
-
-
-void PlaySound(int n) {
-	if (option_soundOn == false) return;
-	
-	int channel;
-	channel = Mix_PlayChannel(-1, sounds[n], 0);
-	if(channel == -1) {
-		fprintf(stderr, "Unable to play WAV file: %s\n", Mix_GetError());
-	}
-
-}
-
-
+void ApplySurface(int x, int y, SDL_Surface* source, SDL_Surface* destination);
+void CenterCamera(char instant);
+void DrawBackground();
+SDL_Surface* FillSurface(const char *file, bool transparent);
+Uint32 GetPixel(SDL_Surface *surface, int x, int y);
+void PutPixel(SDL_Surface *surface, int x, int y, Uint32 pixel);
+void LimitFPS();
+void LoadTileset(std::string tilesetDir);
+bool LockSurface(SDL_Surface *surf);
+void UnlockSurface(SDL_Surface *surf);
+void UnloadTileset();
+SDL_Surface* MakeSurface(int width, int height);
+void Render(char flag);
+void SetCameraTargetBlock(uint b);
+SDL_Surface* TileSurface(std::string path, const char *file, bool transparent);
