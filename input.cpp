@@ -20,8 +20,33 @@
  */
 
 
+// Keys that can be pushed at any time
+void GlobalInput(SDL_Event event) {
+	switch (event.type) {
+		case SDL_KEYDOWN:
+			switch (event.key.keysym.sym) {
+				case SDLK_F2:
+					if (Mix_PausedMusic()) {
+						Mix_ResumeMusic();
+					}
+					else {
+						Mix_PauseMusic();
+					}
+					break;
+				case SDLK_f:
+					printf("FullScreen toggle: %d\n", SDL_WM_ToggleFullScreen(screenSurface));
+					break;
+				default:
+					break;
+			}
+		break;
+	}
+}
+
+
+
+
 void GameInput() {
-	
 	// Reset all Players's keys to 0 and let SDL_EnableKeyRepeat handle repeat rate
 	/*
 	for (uint i = 0; i < NUM_PLAYER_KEYS; i++) {
@@ -89,6 +114,8 @@ void GameInput() {
 
 
 	while (SDL_PollEvent(&event)) {
+		GlobalInput(event);
+		
 		switch (event.type) {
 			case SDL_KEYDOWN:
 				/** Turn on Game Keys **/
@@ -144,24 +171,8 @@ void GameInput() {
 					}
 				}
 
-				switch (event.key.keysym.sym) {
-					case SDLK_f:
-						printf("FullScreen toggle: %d\n", SDL_WM_ToggleFullScreen(screenSurface));
-						break;
-					default:
-						break;
-				}
-
 				
 				switch (event.key.keysym.sym) {
-					case SDLK_F2:
-						if (Mix_PausedMusic()) {
-							Mix_ResumeMusic();
-						}
-						else {
-							Mix_PauseMusic();
-						}
-						break;
 					case SDLK_KP_PLUS:
 					case SDLK_PLUS:
 					case SDLK_EQUALS:
@@ -223,6 +234,9 @@ void GameInput() {
 
 
 
+
+
+
 // Return values:
 //	0 No key
 //	1 Up
@@ -237,8 +251,8 @@ void GameInput() {
 //	10 Page Up
 //	11 Page Down
 char MenuInput() {
-
 	while (SDL_PollEvent(&event)) {
+		GlobalInput(event);
 		switch (event.type) {
 			case SDL_KEYDOWN:
 				switch (event.key.keysym.sym) {
