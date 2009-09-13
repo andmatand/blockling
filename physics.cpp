@@ -195,8 +195,9 @@ void block::Physics() {
 			for (i = 0; i < static_cast<int>(path.length()); i++) {
 				s = path[i];
 				if (s == 'x' || s == 'y') {
+					// n = atoi(tempString)
 					std::stringstream ss(path.substr(0, i));
-					int n; // Number of tiles to move/milliseconds to sleep
+					int n; // Number of pixels to move
 					ss >> n;
 					
 					switch (s) {
@@ -615,6 +616,7 @@ void block::Physics() {
 		int b = BlockNumber(oldX, y - 1, w, 1);
 		if (b >= 0 && blocks[b].GetX() == oldX && blocks[b].GetMoved() == false && blocks[b].GetXMoving() == 0 && blocks[b].GetYMoving() == 0) {
 			blocks[b].SetXMoving(x - oldX);
+			blocks[b].SetDidPhysics(true); // Pretend like we did physics on this block already, so gravity won't be applied to it.
 			blocks[b].Physics();
 			// Jesus is Lord.  Thank you Jesus for sacrificing yourself for me!
 		}

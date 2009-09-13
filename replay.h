@@ -100,8 +100,10 @@ class replay {
 		/*** Read ***/
 		void FillBuffer(); // Parses the replay file and loads a chunk of data into the replayStep array
 		//char * GetFilename() const { return filename; };
-		char GetNextKey();
-		void PushNextKey();
+		char GetNextKey(bool skipSleep);
+		void PushKey(int k);
+		void PushNextKey(bool skipSleep);
+		void DecrementKey();
 		
 		/*** Other ***/
 		void InitRead();
@@ -359,42 +361,47 @@ void replay::SaveKey(char key) {
 
 
 
-char replay::GetNextKey() {
+char replay::GetNextKey(bool skipSleep) {
+	while (true) {
+		// Check for the flag set by FillBuffer to signal EOF
+		if (steps[pos].GetKey() == 100) {
+			return 100;
+		}
+		
+		// If we've finished pushing the key the required number of times
+		if (steps[pos].GetNum() == 0) {
+			// If this is the last step in the buffer
+			if (pos == bufferSize - 1) {
+				// Read more steps from the file
+				FillBuffer();
+			}
+			else {
+				// Otherwise, Go to the next step
+				pos++;
+			}
+			
+		}
+		
+		if (skipSleep && steps[pos].GetKey() == -1) {
+			steps[pos].SetNum(0);
+		}
+		else {
+			break;
+		}
+	}
+	
 	// Check for the flag set by FillBuffer to signal EOF
 	if (steps[pos].GetKey() == 100) {
 		return 100;
 	}
-	
-	// If we've finished pushing the key the required number of times
-	if (steps[pos].GetNum() == 0) {
-		// If this is the last step in the buffer
-		if (pos == bufferSize - 1) {
-			// Read more steps from the file
-			FillBuffer();
-		}
-		else {
-			// Otherwise, Go to the next step
-			pos++;
-		}
-		
-	}
-	
+
 	return steps[pos].GetKey();
 }
 
 
 
+void replay::PushKey(int k) {
 
-// Press the next key in the replay file
-void replay::PushNextKey() {
-	// Check for the flag set by FillBuffer to signal EOF
-	if (steps[pos].GetKey() == 100) {
-		return;
-	}
-
-	int k = GetNextKey();
-	
-	/*** Turn the correct key on ***/
 	// Undo
 	if (k == 5) {
 		gameKeys[1].on = 1;
@@ -403,7 +410,33 @@ void replay::PushNextKey() {
 	else if (k >= 0 && k <= 4) {
 		playerKeys[k].on = 1;
 	}
+}
+
+
+
+// Press the next key in the replay file
+void replay::PushNextKey(bool skipSleep) {
+	// Check for the flag set by FillBuffer to signal EOF
+	if (steps[pos].GetKey() == 100) {
+		return;
+	}
+
+	int k = GetNextKey(skipSleep);
 	
+	/*** Turn the correct key on ***/
+	PushKey(k);
+	
+	// Decrement the number of times we must push the key
+	steps[pos].SetNum(steps[pos].GetNum() - 1);
+}
+
+// Press the next key in the replay file
+void replay::DecrementKey() {
+	// Check for the flag set by FillBuffer to signal EOF
+	if (steps[pos].GetKey() == 100) {
+		return;
+	}
+
 	// Decrement the number of times we must push the key
 	steps[pos].SetNum(steps[pos].GetNum() - 1);
 }

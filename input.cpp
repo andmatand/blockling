@@ -25,6 +25,7 @@ void GlobalInput(SDL_Event event) {
 	switch (event.type) {
 		case SDL_KEYDOWN:
 			switch (event.key.keysym.sym) {
+				// Toggle music
 				case SDLK_F2:
 					if (Mix_PausedMusic()) {
 						Mix_ResumeMusic();
@@ -33,9 +34,17 @@ void GlobalInput(SDL_Event event) {
 						Mix_PauseMusic();
 					}
 					break;
+				
+				// Toggle sound
+				case SDLK_F3:
+					option_soundOn = (option_soundOn ? false : true);
+					break;
+					
+				// Toggle fullscreen
 				case SDLK_f:
 					printf("FullScreen toggle: %d\n", SDL_WM_ToggleFullScreen(screenSurface));
 					break;
+				
 				default:
 					break;
 			}
