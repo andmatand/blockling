@@ -241,6 +241,7 @@ int OptionsMenu(bool inGame) {
 						break;
 					case 1:
 						(option_soundOn) ? option_soundOn = false : option_soundOn = true;
+						break;
 					case 2:
 						if (ControlSetupMenu(inGame) == -2) return -2;
 						break;
