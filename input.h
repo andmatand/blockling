@@ -22,7 +22,15 @@
 /*** Function Prototypes ***/
 void GameInput();
 char MenuInput();
+void RefreshPlayerKeys();
+void ResetDefaultKeys();
 void TurnOffAllKeys();
+
+
+
+/*** Constants ***/
+const uint NUM_GAME_KEYS = 6;
+const uint NUM_PLAYER_KEYS = 5;
 
 
 
@@ -35,6 +43,8 @@ struct keyBinding {
 };
 
 keyBinding gameKeys[NUM_GAME_KEYS];	// Game's keymap (for Quit, Undo, etc.)
-keyBinding *playerKeys; 		// Players' keymap (for moving players).  Initialized in LoadLevel()
+keyBinding option_playerKeys[NUM_PLAYER_KEYS];	// Settings for the player's keymap
+keyBinding *playerKeys; 	// Actual in-game keymap for all players (including NPCs)
+				// Initialized in LoadLevel() depending on numPlayers
 
 SDL_Event event;

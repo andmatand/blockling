@@ -124,7 +124,7 @@ int Game() {
 		// Reset keys
 		for (i = 0; i < NUM_GAME_KEYS; i++) {
 			gameKeys[i].on = 0;
-		}	
+		}
 		for (i = 0; i < numPlayers; i++) {
 			for (uint j = 0; j < NUM_PLAYER_KEYS; j++) {
 				playerKeys[(i * NUM_PLAYER_KEYS) + j].on = 0;
@@ -214,6 +214,10 @@ int Game() {
 								break;
 							case 1: // Options
 								OptionsMenu(true);
+								
+								// Sync the in-game player keymap with the preferences,
+								// in case they changed.
+								RefreshPlayerKeys();
 								break;
 							case 2: // Help
 								// Help();
@@ -428,41 +432,7 @@ int Game() {
 							pushedKey = true; // Now player can't push other buttons this frame
 						}
 					}
-					
-					// Up (pick up block)
-					if (pushedKey == false && playerBlock[i] == -1 && playerKeys[(i * NUM_PLAYER_KEYS) + 2].on > 0) {
-						// Determine which tile the player is looking at.
-						if (blocks[i].GetDir() == 0) {	// Facing left
-							x = blocks[i].GetX() - 1;
-						}
-						else { 				// Facing right
-							x = blocks[i].GetX() + blocks[i].GetW();
-						}
-						b = BlockNumber(x, blocks[i].GetY(), 1, 1);
-						
-						// If it's a block, make it climb up onto the player =)
-						if (b >= 0) {
-							PlaySound(0); // Play sound
-							if (recordingReplay) neatoReplay->SaveKey(2); // Save the keypress in the replay
-							if (showingReplay) replayKeyWorked = true;
-							Undo(0); // Save Undo state
-							
-							// If player is strong, make this block strong for now
-							if (blocks[i].GetStrong() == 1) blocks[b].SetStrong(1);
-							
-							// Climb
-							blocks[b].Climb(static_cast<char>(
-										(blocks[i].GetDir() == 0)
-										? 1
-										: 0
-									));
-							
-							playerBlock[i] = b; // Player can't move until this block stops moving
-							pushedKey = true; // Now player can't push other buttons this frame
-						}
-					}
-					
-					
+		
 					// Down (set down block)
 					if (pushedKey == false && playerBlock[i] == -1 && playerKeys[(i * NUM_PLAYER_KEYS) + 3].on > 0) {
 						// What's on top of player's head?
@@ -497,6 +467,40 @@ int Game() {
 							pushedKey = true; // Now player can't push other buttons this frame
 						}
 					}
+								
+					// Up (pick up block)
+					if (pushedKey == false && playerBlock[i] == -1 && playerKeys[(i * NUM_PLAYER_KEYS) + 2].on > 0) {
+						// Determine which tile the player is looking at.
+						if (blocks[i].GetDir() == 0) {	// Facing left
+							x = blocks[i].GetX() - 1;
+						}
+						else { 				// Facing right
+							x = blocks[i].GetX() + blocks[i].GetW();
+						}
+						b = BlockNumber(x, blocks[i].GetY(), 1, 1);
+						
+						// If it's a block, make it climb up onto the player =)
+						if (b >= 0) {
+							PlaySound(0); // Play sound
+							if (recordingReplay) neatoReplay->SaveKey(2); // Save the keypress in the replay
+							if (showingReplay) replayKeyWorked = true;
+							Undo(0); // Save Undo state
+							
+							// If player is strong, make this block strong for now
+							if (blocks[i].GetStrong() == 1) blocks[b].SetStrong(1);
+							
+							// Climb
+							blocks[b].Climb(static_cast<char>(
+										(blocks[i].GetDir() == 0)
+										? 1
+										: 0
+									));
+							
+							playerBlock[i] = b; // Player can't move until this block stops moving
+							pushedKey = true; // Now player can't push other buttons this frame
+						}
+					}
+					
 					if (pushedKey == false && recordingReplay && levelTimeRunning && wonLevel < 2) {
 						neatoReplay->SaveKey(-1); // Save the non-keypress (sleep) in the replay
 					}
@@ -911,13 +915,9 @@ bool LoadLevel(std::string levelSet, uint level, bool zing) {
 	#endif
 
 	playerKeys = new keyBinding[NUM_PLAYER_KEYS * numPlayers];
-	// Default Player keyboard layout
-	playerKeys[0].sym = SDLK_LEFT;		// Move player left
-	playerKeys[1].sym = SDLK_RIGHT;		// Move player right
-	playerKeys[2].sym = SDLK_UP;		// Pick up block
-	playerKeys[3].sym = SDLK_DOWN;		// Set down block
-	playerKeys[4].sym = SDLK_RETURN;	// Push block
-
+	RefreshPlayerKeys(); // Assign option_playerKeys values to playerKeys
+	
+	
 	bricks = new brick[numBricks];
 	blocks = new block[numBlocks];
 	telepads = new telepad[numTelepads];

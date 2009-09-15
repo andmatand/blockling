@@ -20,6 +20,113 @@
  */
 
 
+int ControlSetupMenu(bool inGame) {
+	int numItems = NUM_PLAYER_KEYS + 2;
+	menu csMenu(numItems); // Create the menu object
+	char text[256]; // For temporarily holding menu items' text as it is formed
+	char tempString[14];
+	
+	uint i;
+	int action;
+	bool gettingKey = false;
+	
+	/** Set static menu items **/
+	csMenu.Move(inGame ? SCREEN_W / 2 : 75, 100);
+	csMenu.SetTitle("Control Setup");
+	csMenu.NameItem(numItems - 2, "Reset To Defaults");
+	csMenu.NameItem(numItems - 1, "Done");
+
+	while (true) {
+		/** Set dynamic menu items' text *****************/
+		for (i = 0; i < NUM_PLAYER_KEYS; i++) {
+			// Determine text
+			switch (i) {
+				case 0:
+					sprintf(tempString, "Move Left");
+					break;
+				case 1:
+					sprintf(tempString, "Move Right");
+					break;
+				case 2:
+					sprintf(tempString, "Pick Up Block");
+					break;
+				case 3:
+					sprintf(tempString, "Drop Block");
+					break;
+				case 4:
+					sprintf(tempString, "Push Block");
+					break;
+			}
+			sprintf(text, "%s: %s",
+				tempString,
+				(gettingKey && csMenu.GetSel() == static_cast<int>(i)) ? "Press a key..." : KeyName(option_playerKeys[i].sym)
+				);
+
+			// Set it
+			csMenu.NameItem(i, text);
+		}
+
+
+		/** Render *****************/
+		do {
+			if (inGame) {
+				Render(0);
+			}
+			else {
+				DrawBackground();
+			}
+			csMenu.AutoArrange(static_cast<char>(inGame ? 1 : 0));
+			csMenu.MoveItem(numItems - 2, csMenu.GetItemX(numItems - 2), csMenu.GetItemY(numItems - 2) + FONT_H);
+			csMenu.MoveItem(numItems - 1, csMenu.GetItemX(numItems - 1), csMenu.GetItemY(numItems - 1) + FONT_H);
+			csMenu.Display();
+			SDL_UpdateRect(screenSurface, 0, 0, 0, 0);
+			
+			if (inGame == false) LimitFPS();
+
+			if (gettingKey) {
+				while (SDL_PollEvent(&event)) {
+					if (event.type == SDL_KEYDOWN) {
+						if (event.key.keysym.sym != SDLK_ESCAPE) {
+							option_playerKeys[csMenu.GetSel()].sym = event.key.keysym.sym;
+						}
+						gettingKey = false;
+						break;
+					}
+				}
+			}
+		} while (gettingKey);
+
+		
+		
+		/** Input ******************/
+		action = csMenu.Input();
+		
+		switch (action) {
+			case 1: // Enter
+				// Reset to defaults
+				if (csMenu.GetSel() == numItems - 2) {
+					ResetDefaultKeys();
+					break;
+				}
+				
+				// Done
+				if (csMenu.GetSel() == numItems - 1) return -1;
+
+				// Change a key
+				gettingKey = true;
+				break;
+			case -1: // Esc
+				return -1;
+				break;
+			case -2: // Close window
+				return -2;
+				break;
+		}
+	}
+}
+
+
+
 int MainMenu() {
 	int numItems = 3;
 	menu mainMenu(numItems);
@@ -135,6 +242,7 @@ int OptionsMenu(bool inGame) {
 					case 1:
 						(option_soundOn) ? option_soundOn = false : option_soundOn = true;
 					case 2:
+						if (ControlSetupMenu(inGame) == -2) return -2;
 						break;
 					case 3:
 						return -1;

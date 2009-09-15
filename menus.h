@@ -72,10 +72,13 @@ class menu {
 		menu(uint numberOfItems);
 		
 		/*** Get ***/
+		int GetItemX(uint item) { return items[item].GetX(); };
+		int GetItemY(uint item) { return items[item].GetY(); };
 		int GetSel() const { return sel; };
 		
 		/*** Set ***/
 		void Move(int xPos, int yPos) { x = xPos; y = yPos; };
+		void MoveItem(uint item, int xPos, int yPos);
 		void NameItem(uint item, const char *name);
 		void NameItem(uint item, char *name);
 		
@@ -171,6 +174,15 @@ void menu::AutoArrange(char type) {
 		}
 	}
 }
+
+
+
+void menu::MoveItem(uint item, int xPos, int yPos) {
+	items[item].SetX(xPos);
+	items[item].SetY(yPos);
+}
+
+
 
 
 void menu::Display() {

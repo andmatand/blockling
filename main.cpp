@@ -156,9 +156,7 @@ void Init() {
 	gameKeys[5].sym = SDLK_s;	// Move camera down
 	gameKeys[5].mod = KMOD_NONE;	// modifier
 
-	
-	
-	
+	ResetDefaultKeys();
 }
 
 

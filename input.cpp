@@ -314,6 +314,24 @@ char MenuInput() {
 
 
 
+void RefreshPlayerKeys() {
+	for (uint i = 0; i < NUM_PLAYER_KEYS; i++) {
+	 	playerKeys[i].sym = option_playerKeys[i].sym;
+	}
+}
+
+
+
+void ResetDefaultKeys() {
+	// Default Player keyboard layout
+	option_playerKeys[0].sym = SDLK_LEFT;		// Move player left
+	option_playerKeys[1].sym = SDLK_RIGHT;		// Move player right
+	option_playerKeys[2].sym = SDLK_UP;		// Pick up block
+	option_playerKeys[3].sym = SDLK_DOWN;		// Set down block
+	option_playerKeys[4].sym = SDLK_RETURN;		// Push block
+}
+
+
 
 void TurnOffAllKeys() {
 	uint i;
@@ -323,4 +341,33 @@ void TurnOffAllKeys() {
 	for (i = 0; i < NUM_GAME_KEYS; i++) {
 		gameKeys[i].on = 0;
 	}
+}
+
+
+
+const char* KeyName(SDLKey sym) {
+	switch (sym) {
+		case SDLK_LEFT:
+			return "LEFT";
+			break;
+		case SDLK_RIGHT:
+			return "RIGHT";
+			break;
+		case SDLK_UP:
+			return "UP";
+			break;
+		case SDLK_DOWN:
+			return "DOWN";
+			break;
+		case SDLK_RETURN:
+			return "ENTER";
+			break;
+		case SDLK_SPACE:
+			return "SPACE";
+			break;
+		default:
+			break;
+	}
+	
+	return "[name unknown]";
 }
