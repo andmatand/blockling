@@ -6,3 +6,7 @@
 
 ==Bugs==
 -Undo memory of 1 does not work
+-On the level with two telepads side-by-side, the following causes a lock-up:
+	1. Drop a block onto the right telepad
+	2. Step onto the (now empty) right telepad
+	3. Pick up the block
