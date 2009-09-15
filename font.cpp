@@ -22,23 +22,36 @@
 
 int GetTextW(char *text) {
 	int w = 0;
+	int lW = 0; // The current line's width
 	int c;
 	
 	for (uint i = 0; i < static_cast<unsigned int>(strlen(text)); i++) {
+		c = text[i];
+		
+		// Line break
+		if (c == '\n') {
+			lW = 0;
+			
+			// Go to next character
+			continue;
+		}
+		
 		// Get index number (so that '!' starts at 0)
-		c = text[i] - 33;
+		c -= 33;
 
 		switch (c) {
 			case -1: // Space (32)
-				w += (font[9].w / 2); // character 9 ('*') has maximum width
+				lW += (font[9].w / 2); // character 9 ('*') has maximum width
 			default:
-				w += font[c].w;
+				lW += font[c].w;
 				
 				// If this is not the last character, add a bit of space
 				if (i != static_cast<unsigned int>(strlen(text))) w += 2;
 				
 				break;
 		}
+		
+		if (lW > w) w = lW;
 	}
 	
 	return w;
@@ -50,9 +63,6 @@ void LoadFont(const char *file) {
 	sprintf(fullPath, "%s%s%s", DATA_PATH, FONT_PATH, file);
 	printf("fullPath = %s\n", fullPath);
 	
-	int chrW = 16; // character width in BMP file
-	int chrH = 16; // character height in BMP file
-	
 	// The surface holding the big long list of characters
 	SDL_Surface *fontSurf = FillSurface(fullPath, 0);
 	
@@ -63,7 +73,7 @@ void LoadFont(const char *file) {
 	uint i = 0;
 	uint transColor = SDL_MapRGB(fontSurf->format, 0xff, 0x00, 0xff);
 	int sourceOffset = 0;
-	for (int y = 0; y < fontSurf->h; y += chrH) {
+	for (int y = 0; y < fontSurf->h; y += FONT_H) {
 		// Lock the surface (for subsequent GetPixel calls)
 		SDL_LockSurface(fontSurf);
 		
@@ -71,8 +81,8 @@ void LoadFont(const char *file) {
 		/*** Determine the letter's width ***/
 		// Find left side
 		leftSide = -1;
-		for (int x2 = 0; x2 < chrW; x2++) {
-			for (int y2 = y; y2 < y + chrH; y2++) {
+		for (int x2 = 0; x2 < FONT_W; x2++) {
+			for (int y2 = y; y2 < y + FONT_H; y2++) {
 				if (GetPixel(fontSurf, x2, y2) != transColor) {
 					leftSide = x2;
 					break;
@@ -83,8 +93,8 @@ void LoadFont(const char *file) {
 		
 		// Find right side
 		rightSide = -1;
-		for (int x2 = chrW - 1; x2 > 0; x2--) {
-			for (int y2 = y; y2 < y + chrH; y2++) {
+		for (int x2 = FONT_W - 1; x2 > 0; x2--) {
+			for (int y2 = y; y2 < y + FONT_H; y2++) {
 				if (GetPixel(fontSurf, x2, y2) != transColor) {
 					rightSide = x2;
 					break;
@@ -101,7 +111,7 @@ void LoadFont(const char *file) {
 		/*
 		// Determine the letter's yOffset
 		font[i].yOffset = -1; // Serves as a flag that yOffset hasn't been set yet.
-		for (int y2 = y; y2 < y + chrH; y2++) {
+		for (int y2 = y; y2 < y + FONT_H; y2++) {
 			for (int x2 = 0; x2 < chrW; x2++) {
 				if (GetPixel(fontSurf, x2, y2) != transColor) {
 					font[i].yOffset = y2 - y;
@@ -112,14 +122,14 @@ void LoadFont(const char *file) {
 		}
 		*/
 		
-		font[i].surf = MakeSurface(chrW, chrH);
+		font[i].surf = MakeSurface(FONT_W, FONT_H);
 		SDL_UnlockSurface(fontSurf);
 		ApplySurface(-leftSide, sourceOffset, fontSurf, font[i].surf);
 		
 		i++;
-		if (i > fontArraySize - 1) break;
+		if (i > FONT_ARRAY_SIZE - 1) break;
 		
-		sourceOffset -= chrH; // Move the big tall bmp up
+		sourceOffset -= FONT_H; // Move the big tall bmp up
 	}
 	
 	SDL_FreeSurface(fontSurf);
@@ -128,7 +138,7 @@ void LoadFont(const char *file) {
 
 
 void UnloadFont() {
-	for (uint i = 0; i < fontArraySize; i++) {
+	for (uint i = 0; i < FONT_ARRAY_SIZE; i++) {
 		SDL_FreeSurface(font[i].surf);
 	}
 }
@@ -137,6 +147,7 @@ void UnloadFont() {
 
 
 void DrawText(int x, int y, char *text, uint r, uint g, uint b) {
+	int x2 = x;
 
 	// Set shadow palette
 	SDL_Color shadowPalette[256];
@@ -157,22 +168,33 @@ void DrawText(int x, int y, char *text, uint r, uint g, uint b) {
 
 	int c;
 	for (uint i = 0; i < static_cast<uint>(strlen(text)); i++) {
-		// Get index number (so that '!' starts at 0)
-		c = text[i] - 33;
+		c = text[i];
+		
+		// Line break
+		if (c == '\n') {
+			y += FONT_H + 2;
+			x2 = x;
+			
+			// Go to next character
+			continue;
+		}
+	
+		// Get font index number (so that '!' starts at 0)
+		c -= 33;
 
 		switch (c) {
 			case -1: // Space (32)
-				x += (font[9].w / 2); // character 9 ('*') has maximum width
+				x2 += (font[9].w / 2); // character 9 ('*') has maximum width
 			default:
 				// Draw "shadow"
 				SDL_SetPalette(font[c].surf, SDL_LOGPAL, shadowPalette, 0, 256);
-				ApplySurface(x + 2, y + 2, font[c].surf, screenSurface);
+				ApplySurface(x2 + 2, y + 2, font[c].surf, screenSurface);
 				
 				// Draw text
 				SDL_SetPalette(font[c].surf, SDL_LOGPAL, palette, 0, 256);
-				ApplySurface(x, y, font[c].surf, screenSurface);
+				ApplySurface(x2, y, font[c].surf, screenSurface);
 				
-				x += (font[c].w + 2);
+				x2 += (font[c].w + 2);
 				break;
 		}
 	}

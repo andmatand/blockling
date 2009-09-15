@@ -63,7 +63,7 @@ int MainMenu() {
 int OptionsMenu(bool inGame) {
 	int numItems = 4;
 	menu optMenu(numItems); // Create the menu object
-	char text[50]; // For temporarily holding menu items' text as it is formed
+	char text[256]; // For temporarily holding menu items' text as it is formed
 	char tempString[11];
 	
 	uint maxUndoSize = 500;
@@ -76,7 +76,6 @@ int OptionsMenu(bool inGame) {
 	optMenu.SetTitle("OPTIONS");
 	optMenu.NameItem(2, "Control Setup");
 	optMenu.NameItem(3, "Done");
-	optMenu.AutoArrange(static_cast<char>(inGame ? 1 : 0));
 
 	while (true) {
 		/** Set dynamic menu items' text *****************/
@@ -109,10 +108,16 @@ int OptionsMenu(bool inGame) {
 		else {
 			DrawBackground();
 		}
+		optMenu.AutoArrange(static_cast<char>(inGame ? 1 : 0));
 		optMenu.Display();
+		// If the undo option is selected
+		if (inGame && optMenu.GetSel() == 0) {
+			sprintf(text, "This setting will not take effect\nuntil a new level is loaded");
+			DrawText((SCREEN_W / 2) - (GetTextW(text) / 2), 300, text, 200, 200, 200);
+		}
 		SDL_UpdateRect(screenSurface, 0, 0, 0, 0);
 		
-		LimitFPS();
+		if (inGame == false) LimitFPS();
 
 		
 		
@@ -189,8 +194,6 @@ int OptionsMenu(bool inGame) {
 		
 		// Limit undoSize
 		if (option_undoSize > maxUndoSize) option_undoSize = maxUndoSize;
-		
-		
 	}
 }
 
@@ -199,13 +202,14 @@ int OptionsMenu(bool inGame) {
 
 
 int PauseMenu() {
-	int numItems = 3;
+	int numItems = 4;
 	menu pauseMenu(numItems);
 	
 	pauseMenu.SetTitle("PAUSED");
 	pauseMenu.NameItem(0, "Resume");
-	pauseMenu.NameItem(1, "Help");
-	pauseMenu.NameItem(2, "Quit Game");
+	pauseMenu.NameItem(1, "Options");
+	pauseMenu.NameItem(2, "Help");
+	pauseMenu.NameItem(3, "Quit Game");
 	
 	pauseMenu.Move(SCREEN_W / 2, 100);
 	pauseMenu.AutoArrange(1);

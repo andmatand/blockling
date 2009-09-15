@@ -34,7 +34,7 @@ class block {
 			face(0),
 			strong(0),
 			won(0),
-			path("")
+			path(NULL)
 			{};
 	
 		/// Get ////
@@ -57,7 +57,8 @@ class block {
 		char GetWon() const { return won; };
 		bool GetDidPhysics() const { return didPhysics; };
 		bool GetMoved() const { return moved; };
-		std::string GetPath() const { return path; };
+		char* GetPath() const { return path; };
+		int GetPathLength();
 		
 		/// Set ///
 		void SetX(int xPos) { x = xPos; };
@@ -79,7 +80,8 @@ class block {
 		void SetWon(char w) { won = w; };
 		void SetDidPhysics(bool d) { didPhysics = d; };
 		void SetMoved(bool m) { moved = m; };
-		void SetPath(std::string p) { path = p; };
+		void SetPath(const char *p);
+		void SetPath(char *p);
 		
 		/// Others ///
 		void Animate();		// Change block/player face (blinking, etc.)
@@ -145,15 +147,43 @@ class block {
 					// Blocks are only allowed to move once per frame
 					// (no diagonals, etc.)
 		
-		std::string path;	// Stores a path that the block will
-					// follow, e.g. "-16y16x" would be used
-					// for picking up a block if the player
-					// were facing left.  The block will
-					// move up 16px, then right 16px.
-					//
-					// "100s" would make the block sleep for
-					// 100 milliseconds (useful for NPCs)
+		char *path;	// Stores a path that the block will
+				// follow, e.g. "-16y16x" would be used
+				// for picking up a block if the player
+				// were facing left.  The block will
+				// move up 16px, then right 16px.
+				//
+				// "100s" would make the block sleep for
+				// 100 milliseconds (useful for NPCs)
 };
+
+
+
+void block::SetPath(const char *p) {
+	// Clean up old text data
+	delete [] path;
+	path = NULL;
+
+	// Store the const char * in a char *
+	char tempPath[strlen(p) + 1];
+	strcpy(tempPath, p);
+	
+	// Hand off the char * to SetPath()
+	SetPath(tempPath);
+}
+
+
+
+void block::SetPath(char *p) {
+	path = new char[strlen(p) + 1];
+
+	strcpy(path, p);
+}
+
+int block::GetPathLength() {
+	if (path == NULL) return 0;
+	return static_cast<int>(strlen(path));
+}
 
 
 

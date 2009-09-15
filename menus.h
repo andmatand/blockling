@@ -24,6 +24,7 @@
 int MainMenu();
 int ReplayPauseMenu();
 int EndOfLevelMenu();
+int OptionsMenu(bool inGame);
 int PauseMenu();
 uint NextFreeReplayNumber(uint level);
 
@@ -153,13 +154,13 @@ void menu::AutoArrange(char type) {
 	titleX = x;
 	titleY = y;
 	// Position first item right below title, and to the right a little
-	items[0].SetX(x + TILE_W);
-	items[0].SetY(y + TILE_H + (TILE_H / 4));
+	items[0].SetX(x + FONT_W);
+	items[0].SetY(y + FONT_H + (FONT_H / 4));
 	
-	// Type 0
+	// Type 0 (left-aligned)
 	for (uint i = 1; i < numItems; i++) {
 		items[i].SetX(items[i - 1].GetX());
-		items[i].SetY(items[i - 1].GetY() + TILE_H + (TILE_H / 4));
+		items[i].SetY(items[i - 1].GetY() + FONT_H + (FONT_H / 4));
 	}
 
 	// Type 1 uses type 0's y-positioning, but changes the x to be centered

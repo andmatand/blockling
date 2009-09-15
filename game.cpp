@@ -28,7 +28,7 @@ void CollectLevelGarbage() {
 	delete [] playerKeys; playerKeys = NULL;
 
 	if (undoBlocks != NULL) {
-		for (uint i = 0; i < option_undoSize; i++) {
+		for (uint i = 0; i < maxUndo; i++) {
 			delete [] undoBlocks[i];
 			undoBlocks[i] = NULL;
 		}
@@ -37,7 +37,7 @@ void CollectLevelGarbage() {
 	}
 	
 	if (undoTelepads != NULL) {
-		for (uint i = 0; i < option_undoSize; i++) {
+		for (uint i = 0; i < maxUndo; i++) {
 			// Set old undoTelepad pointers to NULL before
 			// destructor tries to free memory which is
 			// already freed
@@ -68,7 +68,7 @@ int Game() {
 	bool pushedKey;
 	bool quitGame = false;
 	float cameraXVel, cameraYVel;
-	uint wonLevelTimer;
+	uint wonLevelTimer = 0;
 
 	int *playerBlock = NULL; 	// Stores which block the player is currently picking
 					// up and waiting on until he can move again.
@@ -206,20 +206,30 @@ int Game() {
 					if (currentLevel != i) break;
 				}
 				else { // Normal pause menu
-					switch (PauseMenu()) {
-						case 0: // Resume Game
-							break;
-						case 1: // Help
-							// Help();
-							break;
-						case -1: // Esc
-							break; // Resume the game
-						case -2: // Close window
-							returnVal = -2;
-						case 2: // Quit Game
-							showingReplay = false;
-							quitGame = true;
-							break;
+					b = 0;
+					while (b == 0) {
+						switch (PauseMenu()) {
+							case 0: // Resume Game
+								b = 1;
+								break;
+							case 1: // Options
+								OptionsMenu(true);
+								break;
+							case 2: // Help
+								// Help();
+								break;
+							case -1: // Esc
+								b = 1;
+								break; // Resume the game
+							case -2: // Close window
+								b = 1;
+								returnVal = -2;
+							case 3: // Quit Game
+								b = 1;
+								showingReplay = false;
+								quitGame = true;
+								break;
+						}
 					}
 				}
 				
@@ -299,7 +309,7 @@ int Game() {
 				}
 
 				// If the player is not already moving
-				if (blocks[i].GetPath().length() == 0 &&blocks[i].GetXMoving() == 0 && blocks[i].GetYMoving() == 0 
+				if (blocks[i].GetPathLength() == 0 &&blocks[i].GetXMoving() == 0 && blocks[i].GetYMoving() == 0 
 					// and is on solid ground
 					&& blocks[i].OnSolidGround()
 					// and a key hasn't been pushed yet
@@ -370,13 +380,12 @@ int Game() {
 						if (blocks[i].GetDir() == 0) {
 							// Player musn't be waiting for a block he's acted upon
 							if (playerBlock[i] == -1) {
-								Undo(0); // Save Undo state
-								
 								// Try to set block's path to climb/walk left
 								blocks[i].Climb(0);
 								
 								// If the player is actually going to move
-								if (blocks[i].GetPath().length() > 0 || blocks[i].GetXMoving() != 0) {
+								if (blocks[i].GetPathLength() > 0 || blocks[i].GetXMoving() != 0) {
+									Undo(0); // Save Undo state
 									if (recordingReplay) neatoReplay->SaveKey(0); // Save the keypress in the replay
 									if (showingReplay) replayKeyWorked = true;
 									pushedKey = true; // Now player can't push other buttons this frame
@@ -398,13 +407,12 @@ int Game() {
 						if (blocks[i].GetDir() == 1) {
 							// Player musn't be waiting for a block he's acted upon
 							if (playerBlock[i] == -1) {								
-								Undo(0); // Save Undo state
-								
-								// Try to set block's path to climb/walk left
+								// Try to set block's path to climb/walk right
 								blocks[i].Climb(1);
 
 								// If the player is actually going to move
-								if (blocks[i].GetPath().length() > 0 || blocks[i].GetXMoving() != 0) {
+								if (blocks[i].GetPathLength() > 0 || blocks[i].GetXMoving() != 0) {
+									Undo(0); // Save Undo state
 									if (recordingReplay) neatoReplay->SaveKey(1); // Save the keypress in the replay	
 									if (showingReplay) replayKeyWorked = true;
 									pushedKey = true; // Now player can't push other buttons this frame
@@ -467,17 +475,13 @@ int Game() {
 							if (showingReplay) replayKeyWorked = true;
 							Undo(0); // Save Undo state
 							
-							
-							tempPath = "";
 							if (blocks[i].GetDir() == 0) { // player facing left
 								sprintf(s, "-%dy-%dx", TILE_H - blocks[i].GetH(), TILE_W);
-								tempPath = s;
 							}
 							if (blocks[i].GetDir() == 1) { // player facing right
 								sprintf(s, "-%dy%dx", TILE_H - blocks[i].GetH(), TILE_W);
-								tempPath = s;
 							}
-							blocks[b].SetPath(tempPath);
+							blocks[b].SetPath(s);
 							
 							// If player is strong, make this block strong for now
 							if (blocks[i].GetStrong() == 1) blocks[b].SetStrong(1);
@@ -513,7 +517,7 @@ int Game() {
 				// Check if player is waiting for a block he's acted upon to finish moving
 				if (playerBlock[i] != -1) {
 					// If it's not moving (along a path) anymore
-					if (blocks[playerBlock[i]].GetPath().length() == 0 && blocks[playerBlock[i]].GetXMoving() == 0 && blocks[playerBlock[i]].GetYMoving() == 0) {
+					if (blocks[playerBlock[i]].GetPathLength() == 0 && blocks[playerBlock[i]].GetXMoving() == 0 && blocks[playerBlock[i]].GetYMoving() == 0) {
 						// Not strong anymore
 						blocks[playerBlock[i]].SetStrong(0);
 						
@@ -920,13 +924,15 @@ bool LoadLevel(std::string levelSet, uint level, bool zing) {
 	torches = new torch[numTorches];
 	spikes = new spike[numSpikes];
 
-	undoBlocks = new block*[option_undoSize];
-	for (uint i = 0; i < option_undoSize; i++) {
+	maxUndo = option_undoSize;
+	
+	undoBlocks = new block*[maxUndo];
+	for (uint i = 0; i < maxUndo; i++) {
  		undoBlocks[i] = new block[numBlocks];
 	}
 	
-	undoTelepads = new telepad*[option_undoSize];
-	for (uint i = 0; i < option_undoSize; i++) {
+	undoTelepads = new telepad*[maxUndo];
+	for (uint i = 0; i < maxUndo; i++) {
  		undoTelepads[i] = new telepad[numTelepads];
 	}
 	
@@ -1195,7 +1201,7 @@ void Undo(char action) {
 	static int undoStart = 0; // The slot number of the oldest state.  We cannot undo past this slot.
 	static int undoEnd = 0; // The slot number of the newest state.  If Undo(1) is called, this is the state that will be loaded.
 
-	if (option_undoSize <= 0) return;
+	if (maxUndo <= 0) return;
 	
 	if (action == -1) {
 		undoSlot = 0;
@@ -1203,12 +1209,33 @@ void Undo(char action) {
 		undoEnd = 0;
 	}
 	
+	// Save state
 	if (action == 0) {
+		/*** Hide player's movement information ***/
+		int player_xMoving;
+		int player_yMoving;
+		char *player_path = NULL;
+		
+		if (blocks[0].GetPathLength() > 0) {
+			player_path = new char[blocks[0].GetPathLength()];
+	
+			strcpy(player_path, blocks[0].GetPath());
+			blocks[0].SetPath("");
+		}
+		
+		player_xMoving = blocks[0].GetXMoving();
+		blocks[0].SetXMoving(0);
+
+		player_yMoving = blocks[0].GetYMoving();
+		blocks[0].SetYMoving(0);
+		/***/
+
+		
 		if (undoEnd != undoStart && undoSlot == undoStart) {
 			undoStart ++;
 		}
 		// Wrap around undoStart position
-		if  (undoStart == static_cast<int>(option_undoSize)) undoStart = 0;
+		if  (undoStart == static_cast<int>(maxUndo)) undoStart = 0;
 
 		#ifdef DEBUG_UNDO
 		printf("\nSaving state to undoSlot %d\n", undoSlot);
@@ -1231,7 +1258,7 @@ void Undo(char action) {
 		undoSlot ++;
 
 		// Wrap around undoSlot position
-		if (undoSlot == static_cast<int>(option_undoSize)) {
+		if (undoSlot == static_cast<int>(maxUndo)) {
 			undoSlot = 0;
 		}
 
@@ -1243,9 +1270,18 @@ void Undo(char action) {
 		printf("UndoSlot = %d\n", undoSlot);
 		#endif
 
+		/*** Restore player's movement information ***/
+		if (player_path != NULL) {
+			blocks[0].SetPath(player_path);
+			delete player_path;
+			player_path = NULL;
+		}
+		blocks[0].SetXMoving(player_xMoving);
+		blocks[0].SetYMoving(player_yMoving);
+		/***/
 	}
 	
-
+	// Load state
 	if (action == 1) {
 		if (! (undoStart == undoEnd && undoSlot == undoEnd)) {
 			PlaySound(4);
@@ -1285,12 +1321,12 @@ void Undo(char action) {
 			if (undoEnd != undoStart) {
 				// Move undoEnd back, so it points to the now most recent undo state
 				undoEnd --;
-				if (undoEnd == -1) undoEnd = option_undoSize - 1;
+				if (undoEnd == -1) undoEnd = maxUndo - 1;
 			}
 			
 			// Move undoSlot back, so we can overwrite this state next time
 			undoSlot --;
-			if (undoSlot == -1) undoSlot = option_undoSize - 1;
+			if (undoSlot == -1) undoSlot = maxUndo - 1;
 
 			
 			//justUndid = true; // Flag to tell telepads to ignore new occupants

@@ -28,7 +28,9 @@ int GetTextW(char *text);
 
 
 /*** Variable Declarations ***/
-const uint fontArraySize = (122 - 33) + 1;
+const uint FONT_ARRAY_SIZE = (122 - 33) + 1;
+const int FONT_H = 16;
+const int FONT_W = 16;
 
 typedef struct {
 	uint w;
@@ -36,4 +38,4 @@ typedef struct {
 } letter;
 
 // Global struct which holds all available letters in the font
-letter font[fontArraySize];
+letter font[FONT_ARRAY_SIZE];

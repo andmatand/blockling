@@ -164,10 +164,8 @@ void block::Climb(char direction) {
 			// If the diagonal tile (up & to the left/right) is clear
 			if (BoxContents(x1, y1, w, h) == -1) {
 				//Climb up block/brick
-				path = "";
-				//sprintf(s, "-%dy%dx", (y - y1) + (TILE_H - h), x1 - x);
 				sprintf(s, "-%dy%dx", (y - y1), x1 - x);
-				path = s;
+				SetPath(s);
 			}
 		}
 	}
@@ -189,18 +187,16 @@ void block::Physics() {
 	
 	
 	/*** Process paths ***/
-	if (path.length() > 0 && xMoving == 0 && yMoving == 0) {
-		char s;
+	if (GetPathLength() > 0 && xMoving == 0 && yMoving == 0) {
+		char s[4];
+		s[0] = '\0'; // Temporary string to hold numbers
+		int k, n;
 		do {
-			for (i = 0; i < static_cast<int>(path.length()); i++) {
-				s = path[i];
-				if (s == 'x' || s == 'y') {
-					// n = atoi(tempString)
-					std::stringstream ss(path.substr(0, i));
-					int n; // Number of pixels to move
-					ss >> n;
+			for (i = 0; i < static_cast<int>(strlen(path)); i++) {
+				if (path[i] == 'x' || path[i] == 'y') {
+					n = static_cast<int>(strtol(s, NULL, 0));
 					
-					switch (s) {
+					switch (path[i]) {
 						case 'x':
 							xMoving = n;
 							doGravity = false; // Cancel out gravity for the first frame,
@@ -213,12 +209,30 @@ void block::Physics() {
 					}
 					
 					// Remove the part of the path string we just processed
-					path = path.erase(0, i + 1);
+					if (i + 1 < static_cast<int>(strlen(path))) {
+						k = 0;
+						for (uint j = i + 1; j < strlen(path); j++) {
+							path[k++] = path[j];
+						}
+						path[k] = '\0';
+						SetPath(path);
+					}
+					else {
+						SetPath("");
+						//delete [] path;
+						//path = NULL;
+					}
 					
 					break;
 				}
+				else {
+					// Append this character to the temporary string
+					s[i] = path[i];
+					s[i + 1] = 0;
+
+				}
 			}
-		} while ( !(xMoving != 0 || yMoving != 0 || path.length() == 0) );
+		} while ( !(xMoving != 0 || yMoving != 0 || GetPathLength() == 0) );
 	}
 	
 	
@@ -278,7 +292,7 @@ void block::Physics() {
 							// Try pushing the block out of the way
 							// if it's not already moving
 							// and if it's not a player exiting the level
-							if (blocks[hit].GetPath().length() == 0 && blocks[hit].GetXMoving() == 0 && blocks[hit].GetYMoving() == 0 && blocks[hit].GetWon() == 0) {
+							if (blocks[hit].GetPathLength() == 0 && blocks[hit].GetXMoving() == 0 && blocks[hit].GetYMoving() == 0 && blocks[hit].GetWon() == 0) {
 								oldY = blocks[hit].GetY(); // Save old position of this block we're trying to push
 								blocks[hit].SetYMoving(newY - y);
 								if (type == 0) blocks[hit].SetStrong(2); // If this is a block pushing on this block, temporarily make this block strong
@@ -297,7 +311,7 @@ void block::Physics() {
 						
 						// Abort the path
 						yMoving = 0;
-						path = "";
+						SetPath("");
 						
 						//std::cout << "y hit " << hit << " at " << newY << " (going up)\n";
 						
@@ -358,7 +372,7 @@ void block::Physics() {
 							// Try pushing the block out of the way
 							// if it's not already moving,
 							// and if it's not a player exiting the level
-							if (blocks[hit].GetPath().length() == 0 && blocks[hit].GetXMoving() == 0 && blocks[hit].GetYMoving() == 0 && blocks[hit].GetWon() == 0) {
+							if (blocks[hit].GetPathLength() == 0 && blocks[hit].GetXMoving() == 0 && blocks[hit].GetYMoving() == 0 && blocks[hit].GetWon() == 0) {
 								oldY = blocks[hit].GetY(); // Save old position of this block we're trying to push
 								
 								// If this is a player, decrease his height so he will sink
@@ -386,7 +400,7 @@ void block::Physics() {
 
 						// Abort the path
 						yMoving = 0;
-						path = "";
+						SetPath("");
 
 						//std::cout << "y hit " << hit << " at " << newY << " (going down)\n";
 						
@@ -476,7 +490,7 @@ void block::Physics() {
 						if (strong > 0 && blocks[hit].GetMoved() == false) {				
 							// Try pushing the block out of the way
 							// if it's not already moving
-							if (blocks[hit].GetPath().length() == 0 && blocks[hit].GetXMoving() == 0 && blocks[hit].GetYMoving() == 0 
+							if (blocks[hit].GetPathLength() == 0 && blocks[hit].GetXMoving() == 0 && blocks[hit].GetYMoving() == 0 
 								// and if it's on solid ground
 								&& blocks[hit].OnSolidGround()
 								// and if it's not a player exiting the level
@@ -500,7 +514,7 @@ void block::Physics() {
 
 						// Abort the path
 						xMoving = 0;
-						path = "";
+						SetPath("");
 
 						//std::cout << "x hit " << hit << " at " <<  newX << "(going left)\n";
 						
@@ -559,7 +573,7 @@ void block::Physics() {
 						if (strong > 0 && blocks[hit].GetMoved() == false) {							
 							// Try pushing the block out of the way
 							// if it's not already moving
-							if (blocks[hit].GetPath().length() == 0 && blocks[hit].GetXMoving() == 0 && blocks[hit].GetYMoving() == 0 
+							if (blocks[hit].GetPathLength() == 0 && blocks[hit].GetXMoving() == 0 && blocks[hit].GetYMoving() == 0 
 								// and if it's on solid ground
 								&& blocks[hit].OnSolidGround()
 								// and if it's not a player exiting the level
@@ -583,7 +597,7 @@ void block::Physics() {
 
 						// Abort the path
 						xMoving = 0;
-						path = "";
+						SetPath("");
 
 						//std::cout << "x hit " << hit << " at " <<  (w - 1) + newX << " (going right)\n";
 						

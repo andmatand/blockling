@@ -267,6 +267,7 @@ telepad *telepads = NULL;
 
 /*** GLOBAL VARIABLES THAT REFERENCE STUFF ABOVE ***/
 // Undo stuff
+uint maxUndo;
 block **undoBlocks = NULL;
 telepad **undoTelepads = NULL;	// Needs telepad class
 
