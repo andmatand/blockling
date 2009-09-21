@@ -26,6 +26,7 @@ void CollectLevelGarbage() {
 	delete [] telepads; telepads = NULL;
 	delete [] torches; torches = NULL;
 	delete [] playerKeys; playerKeys = NULL;
+	delete [] playerBlock; playerBlock = NULL;
 
 	if (undoBlocks != NULL) {
 		for (uint i = 0; i < maxUndo; i++) {
@@ -69,10 +70,6 @@ int Game() {
 	bool quitGame = false;
 	float cameraXVel, cameraYVel;
 	uint wonLevelTimer = 0;
-
-	int *playerBlock = NULL; 	// Stores which block the player is currently picking
-					// up and waiting on until he can move again.
-
 
 	currentLevel = 0;
 	stickyPlayer = false;
@@ -480,7 +477,7 @@ int Game() {
 						b = BlockNumber(x, blocks[i].GetY(), 1, 1);
 						
 						// If it's a block, make it climb up onto the player =)
-						if (b >= 0) {
+						if (b >= 0 && blocks[b].GetType() >= 0) {
 							PlaySound(0); // Play sound
 							if (recordingReplay) neatoReplay->SaveKey(2); // Save the keypress in the replay
 							if (showingReplay) replayKeyWorked = true;
@@ -731,10 +728,6 @@ int Game() {
 		// Collect garbage for global object pointers
 		CollectLevelGarbage();
 
-		// Collect garbage for playBlock
-		delete [] playerBlock;
-		playerBlock = NULL;
-		
 		// Collect garbage for replay
 		if (recordingReplay) {
 			neatoReplay->DeInitWrite();
@@ -1217,7 +1210,7 @@ void Undo(char action) {
 		char *player_path = NULL;
 		
 		if (blocks[0].GetPathLength() > 0) {
-			player_path = new char[blocks[0].GetPathLength()];
+			player_path = new char[blocks[0].GetPathLength() + 1];
 	
 			strcpy(player_path, blocks[0].GetPath());
 			blocks[0].SetPath("");
@@ -1273,7 +1266,7 @@ void Undo(char action) {
 		/*** Restore player's movement information ***/
 		if (player_path != NULL) {
 			blocks[0].SetPath(player_path);
-			delete player_path;
+			delete [] player_path;
 			player_path = NULL;
 		}
 		blocks[0].SetXMoving(player_xMoving);

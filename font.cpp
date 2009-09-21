@@ -46,7 +46,7 @@ int GetTextW(char *text) {
 				lW += font[c].w;
 				
 				// If this is not the last character, add a bit of space
-				if (i != static_cast<unsigned int>(strlen(text))) w += 2;
+				if (i != static_cast<unsigned int>(strlen(text))) lW += 2;
 				
 				break;
 		}

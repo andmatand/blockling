@@ -30,9 +30,12 @@ typedef unsigned int uint;
 #include <sstream>
 #include <ctime>
 #include <SDL/SDL.h>
-#include <SDL/SDL_mixer.h>
 
-
+#ifdef WIN32_no
+	#include <SDL/SDL_audio.h>
+#else
+	#include <SDL/SDL_mixer.h>
+#endif
 
 
 /******* GLOBAL CONSTANTS *******/

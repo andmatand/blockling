@@ -178,20 +178,19 @@ void block::Physics() {
 	int i, hit, oldX, oldY;
 	bool doGravity;
 	
-	// Don't do any physics on disabled blocks
-	if (type < 0) return;
-	
 	// Don't do gravity more than once per frame, if we are doing physics more than once.
 	(didPhysics == false) ? doGravity = true : doGravity = false;
 	didPhysics = true;
-	
+
+	// Don't do any physics on disabled blocks
+	if (type < 0) return;
 	
 	/*** Process paths ***/
 	if (GetPathLength() > 0 && xMoving == 0 && yMoving == 0) {
 		char s[4];
 		s[0] = '\0'; // Temporary string to hold numbers
 		int k, n;
-		do {
+		while (true) {
 			for (i = 0; i < static_cast<int>(strlen(path)); i++) {
 				if (path[i] == 'x' || path[i] == 'y') {
 					n = static_cast<int>(strtol(s, NULL, 0));
@@ -215,12 +214,9 @@ void block::Physics() {
 							path[k++] = path[j];
 						}
 						path[k] = '\0';
-						SetPath(path);
 					}
 					else {
 						SetPath("");
-						//delete [] path;
-						//path = NULL;
 					}
 					
 					break;
@@ -232,7 +228,9 @@ void block::Physics() {
 
 				}
 			}
-		} while ( !(xMoving != 0 || yMoving != 0 || GetPathLength() == 0) );
+			
+			if ((xMoving != 0 || yMoving != 0 || GetPathLength() == 0)) break;
+		}
 	}
 	
 	

@@ -140,15 +140,8 @@ bool telepad::NeedsToTeleport() {
 	if (b != occupant1) {
 		occupant1 = b;
 		if (occupant1 >= 0) doIt = true; // Try to teleport
-		
-		// Don't teleport if it was only a new passenger because of Undo-ing
-		//if (justUndid == true) {
-		//	occupant1Teleported = true;
-		//	doIt = false;
-		//}
-		//else {
-			occupant1Teleported = false;
-		//}
+	
+		occupant1Teleported = false;
 	}
 
 	// Check if occupant2 is new
@@ -157,14 +150,7 @@ bool telepad::NeedsToTeleport() {
 		occupant2 = b;
 		if (occupant2 >= 0) doIt = true; // Try to teleport
 
-		// Don't teleport if it was only a new passenger because of Undo-ing
-		//if (justUndid == true) {
-		//	occupant2Teleported = true;
-		//	doIt = false;
-		//}
-		//else {
-			occupant2Teleported = false;
-		//}
+		occupant2Teleported = false;
 	}
 
 	// Check if there is an occupant that hasn't teleported yet
@@ -192,9 +178,9 @@ bool telepad::NeedsToTeleport() {
 		doIt = false;
 	}
 
-	// The "free" telepad must be clear of any blocks that may be in the way even
-	// if they are not directly on the telepad (e.g. a falling block)
 	if (doIt == true) {
+		// The "free" telepad must be clear of any blocks that may be in the way even
+		// if they are not directly on the telepad (e.g. a falling block)
 		if (occupant1 == -1) {
 			if (BlockNumber(x1, y1 - TELEPAD_H, TILE_W, TILE_H) != -1) {
 				doIt = false;
@@ -204,6 +190,14 @@ bool telepad::NeedsToTeleport() {
 			if (BlockNumber(x2, y2 - TELEPAD_H, TILE_W, TILE_H) != -1) {
 				doIt = false;
 			}
+		}
+		
+		// Don't let a player teleport if he's picking up a block
+		if (occupant1 >= 0 && blocks[occupant1].GetType() >= 10) {
+			if (playerBlock[occupant1] != -1) doIt = false;
+		}
+		if (occupant2 >= 0 && blocks[occupant2].GetType() >= 10) {
+			if (playerBlock[occupant2] != -1) doIt = false;
 		}
 	}
 
@@ -223,27 +217,27 @@ void telepad::DeInitTeleport(bool freePointers) {
 	state = 0; // Off
 
 	// Delete block array
-	if (ba != NULL) {
+	//if (ba != NULL) {
 		if (freePointers) delete [] ba;
 		ba = NULL;
-	}
+	//}
 
 	// Delete pixel map array
-	if (map != NULL) {
+	//if (map != NULL) {
 		if (freePointers) delete [] map;
 		map = NULL;
-	}
+	//}
 
 	// Free the surfaces
-	if (sourceSurf != NULL) {
+	//if (sourceSurf != NULL) {
 		if (freePointers) SDL_FreeSurface(sourceSurf);
 		sourceSurf = NULL;
-	}
+	//}
 	
-	if (destSurf != NULL) {
+	//if (destSurf != NULL) {
 		if (freePointers) SDL_FreeSurface(destSurf);
 		destSurf = NULL;
-	}
+	//}
 }
 
 

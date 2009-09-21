@@ -1,4 +1,4 @@
-i586-mingw32msvc-g++ -o blockman.exe ../main.cpp -lmingw32 -lSDLmain -lSDL -I/usr/i586-mingw32msvc/include/SDL
+i586-mingw32msvc-g++ -o blockman.exe ../main.cpp -lmingw32 -lSDLmain -lSDL -I/usr/i586-mingw32msvc/include/SDL -DWIN32
 
 if [ -f blockman.exe ]; then
 	/usr/i586-mingw32msvc/bin/strip blockman.exe

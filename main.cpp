@@ -43,7 +43,8 @@ int main(int argc, char** argv) {
 	}
 
 	char musicFile[256];
-	sprintf(musicFile, "%s%slizard_-_hip_chip.mod", DATA_PATH, MUSIC_PATH);
+	//sprintf(musicFile, "%s%s%s", DATA_PATH, MUSIC_PATH, "lizard_-_hip_chip.mod");
+	sprintf(musicFile, "%s%s%s", DATA_PATH, MUSIC_PATH, "test.xm");
 	bgMusic = Mix_LoadMUS(musicFile);
 	if (bgMusic == NULL) {
 		fprintf(stderr, "Unable to load audio file: %s\n", Mix_GetError());

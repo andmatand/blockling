@@ -20,10 +20,15 @@
  */
 
 
+int *playerBlock = NULL; 	// Stores which block the player is currently picking
+				// up and waiting on until he can move again.
+				// Not a member variable so as to save memory, since
+				// in most levels only one block is a player.
+
 // Blocks move [via Physics()].  Players are just a special type of block.
 class block {
 	public:
-		/// Constructor ///
+		/** Constructor **/
 		block():
 			xMoving(0),
 			yMoving(0),
@@ -36,8 +41,14 @@ class block {
 			won(0),
 			path(NULL)
 			{};
+
+		/** Copy Assignment Operator **/
+		block& operator = (const block& other);
+		
+		/** Destructor **/
+		~block();
 	
-		/// Get ////
+		/** Get **/
 		int GetX() const { return x; };
 		int GetY() const { return y; };
 		
@@ -50,7 +61,7 @@ class block {
 		int GetW() const { return w; };
 		int GetH() const { return h; };
 		
-		int GetDir() const { return dir; };
+		char GetDir() const { return dir; };
 		char GetType() const { return type; };
 		char GetFace() const { return face; };
 		char GetStrong() const { return strong; };
@@ -58,9 +69,9 @@ class block {
 		bool GetDidPhysics() const { return didPhysics; };
 		bool GetMoved() const { return moved; };
 		char* GetPath() const { return path; };
-		int GetPathLength();
+		int GetPathLength() const;
 		
-		/// Set ///
+		/** Set **/
 		void SetX(int xPos) { x = xPos; };
 		void SetY(int yPos) { y = yPos; };
 	
@@ -83,7 +94,7 @@ class block {
 		void SetPath(const char *p);
 		void SetPath(char *p);
 		
-		/// Others ///
+		/** Others **/
 		void Animate();		// Change block/player face (blinking, etc.)
 		
 		void Climb(char direction);  // Makes the player climb over the obstacle in the
@@ -158,6 +169,38 @@ class block {
 };
 
 
+// Copy Assignment Operator
+block& block::operator = (const block& other) {
+	x = other.GetX();
+	y = other.GetY();
+	xMoving = other.GetXMoving();
+	yMoving = other.GetYMoving();
+	w = other.GetW();
+	h = other.GetH();
+	dir = other.GetDir();
+	type = other.GetType();
+	face = other.GetFace();
+	strong = other.GetStrong();
+	won = other.GetWon();
+	didPhysics = other.GetDidPhysics();
+	moved = other.GetMoved();
+	
+	delete [] path;
+	path = NULL;
+	if (other.GetPathLength() > 0) {
+		path = new char[other.GetPathLength() + 1];
+		strcpy(path, other.GetPath());
+	}
+	
+	return *this;
+}
+
+// Destructor
+block::~block() {
+	delete [] path;
+	path = NULL;
+}
+
 
 void block::SetPath(const char *p) {
 	// Clean up old text data
@@ -175,12 +218,16 @@ void block::SetPath(const char *p) {
 
 
 void block::SetPath(char *p) {
+	// Clean up old text data
+	delete [] path;
+	path = NULL;
+
 	path = new char[strlen(p) + 1];
 
 	strcpy(path, p);
 }
 
-int block::GetPathLength() {
+int block::GetPathLength() const {
 	if (path == NULL) return 0;
 	return static_cast<int>(strlen(path));
 }

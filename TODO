@@ -1,7 +1,7 @@
--Make options menu available in-game (need to figure out how not to break undoSize if it is changed in-game)
+-Add tab support to DrawText
+-Add Music on/off menuItem
 -Maybe: Holding down shift with arrows makes player walk as far as possible
 -Spinach/other items?
--Add linebreak support to DrawText
 -Speech
 
 ==Bugs==
