@@ -37,6 +37,9 @@ class menuItem {
 		// Constructor
 		menuItem():text(NULL) {}
 	
+		// Destructor Prototype
+		~menuItem();
+	
 		/*** Get ***/
 		int GetX() const { return x; };
 		int GetY() const { return y; };
@@ -56,7 +59,16 @@ class menuItem {
 		char *text;
 };
 
+// Destructor
+menuItem::~menuItem() {
+	delete [] text;
+	text = NULL;
+}
+
+
 void menuItem::SetText(char *txt) {
+	DelText();
+	
 	text = new char[strlen(txt) + 1];
 	strcpy(text, txt);
 }
@@ -70,6 +82,9 @@ class menu {
 	public:
 		// Constructor protoype
 		menu(uint numberOfItems);
+		
+		// Destructor prototype
+		~menu();
 		
 		/*** Get ***/
 		int GetItemX(uint item) { return items[item].GetX(); };
@@ -107,6 +122,17 @@ menu::menu(uint numberOfItems):
 	items = new menuItem[numItems];
 }
 
+// Destructor
+menu::~menu() {
+	delete [] title;
+	title = NULL;
+	
+	delete [] items;
+	items = NULL;
+}
+
+
+
 // Overloaded for both <const char *> and <char *>
 void menu::SetTitle(const char *aTitle) {
 	// Clean up old text data
@@ -139,9 +165,6 @@ void menu::NameItem(uint item, const char *name) {
 	items[item].SetText(tempName);
 }
 void menu::NameItem(uint item, char *name) {
-	// Clean up old text data
-	items[item].DelText();
-	
 	items[item].SetText(name);
 }
 

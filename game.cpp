@@ -732,9 +732,11 @@ int Game() {
 		if (recordingReplay) {
 			neatoReplay->DeInitWrite();
 		}
+
+		delete neatoReplay;
+		neatoReplay = NULL;
+
 		if (showingReplay == false) {
-			delete neatoReplay;
-			neatoReplay = NULL;
 			if (remove(replayTempFile) != 0) {
 				fprintf(stderr, "File error: Could not delete %s\n", replayTempFile);
 			}

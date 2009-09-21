@@ -90,8 +90,12 @@ char replayStep::GetSymbol() {
 /********** replay ************/
 class replay {
 	public:
-		/*** Constructor ***/
+		// Constructor prototype
 		replay(char *file, uint buffSize);
+
+		// Destructor prototype
+		~replay();
+
 		
 		/*** Write ***/
 		void SaveKey(char key);
@@ -124,8 +128,6 @@ class replay {
 		uint pos;		// The current step (whether recording or playing)
 };
 
-
-
 // Constructor
 replay::replay(char *file, uint buffSize):
 pos(0) {
@@ -138,6 +140,11 @@ pos(0) {
 	}
 }
 
+// Destructor
+replay::~replay() {
+	delete [] filename; filename = NULL;
+	delete [] steps; steps = NULL;
+}
 
 
 
