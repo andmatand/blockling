@@ -218,6 +218,7 @@ void replay::DumpBuffer() {
 void replay::FillBuffer() {
 	char line[12];
 	uint n;
+	char k;
 	char tempString[11];
 	uint i;
 	
@@ -261,32 +262,32 @@ void replay::FillBuffer() {
 					
 					
 					// Determine the key number from the action symbol
-					n = -1; // Recycling our used variable.  It's good for the environment or something.
+					k = -1;
 					switch (line[j]) {
 						case 's': // Sleep
-							n = -1;
+							k = -1;
 							break;
 						case 'l': // Left
-							n = 0;
+							k = 0;
 							break;
 						case 'r': // Right
-							n = 1;
+							k = 1;
 							break;
 						case 'u': // Up
-							n = 2;
+							k = 2;
 							break;
 						case 'd': // Down
-							n = 3;
+							k = 3;
 							break;
 						case 'p': // Push
-							n = 4;
+							k = 4;
 							break;
 						case 'n': // Undo
-							n = 5;
+							k = 5;
 							break;
 					}
 					// Set the key
-					steps[i].SetKey(static_cast<char>(n));
+					steps[i].SetKey(k);
 					
 					// Stop examining this line
 					break;

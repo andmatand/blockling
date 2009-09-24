@@ -1,12 +1,9 @@
 -Add tab support to DrawText
--Add Music on/off menuItem
+-Add Music on/off option
+-Add background scrolling on/off option
 -Maybe: Holding down shift with arrows makes player walk as far as possible
 -Spinach/other items?
 -Speech
 
 ==Bugs==
 -Undo memory of 1 does not work
--On the level with two telepads side-by-side, the following causes a lock-up:
-	1. Drop a block onto the right telepad
-	2. Step onto the (now empty) right telepad
-	3. Pick up the block
