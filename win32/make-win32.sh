@@ -9,6 +9,6 @@ if [ -f blockman.exe ]; then
 	/opt/mingw/usr/bin/i386-mingw32msvc-strip blockman.exe
 	
 	rm blockman-win32.zip
-	zip -r blockman-win32 blockman.exe COPYING data/ README-SDL.txt SDL.dll SDL_mixer.dll -x \*svn
+	zip -r blockman-win32 blockman.exe COPYING data/ README-SDL.txt SDL.dll SDL_mixer.dll -x "*/.svn/*" -x "*~"
 	rm blockman.exe
 fi
