@@ -168,7 +168,7 @@ int MainMenu() {
 
 
 int OptionsMenu(bool inGame) {
-	int numItems = 4;
+	int numItems = 5;
 	menu optMenu(numItems); // Create the menu object
 	char text[256]; // For temporarily holding menu items' text as it is formed
 	char tempString[11];
@@ -181,8 +181,8 @@ int OptionsMenu(bool inGame) {
 	/** Set static menu items **/
 	optMenu.Move(inGame ? SCREEN_W / 2 : 75, 100);
 	optMenu.SetTitle("OPTIONS");
-	optMenu.NameItem(2, "Control Setup");
-	optMenu.NameItem(3, "Done");
+	optMenu.NameItem(3, "Control Setup");
+	optMenu.NameItem(4, "Done");
 
 	while (true) {
 		/** Set dynamic menu items' text *****************/
@@ -203,10 +203,15 @@ int OptionsMenu(bool inGame) {
 		// Determine Sound text
 		sprintf(text, "Sound: ");
 		strcat(text, (option_soundOn ? "ON" : "OFF"));
-		
 		// Set it
 		optMenu.NameItem(1, text);
 
+		
+		// Determine Sound text
+		sprintf(text, "Music: ");
+		strcat(text, (option_musicOn ? "ON" : "OFF"));
+		// Set it
+		optMenu.NameItem(2, text);
 
 		/** Render *****************/
 		if (inGame) {
@@ -243,9 +248,12 @@ int OptionsMenu(bool inGame) {
 						(option_soundOn) ? option_soundOn = false : option_soundOn = true;
 						break;
 					case 2:
-						if (ControlSetupMenu(inGame) == -2) return -2;
+						(option_musicOn) ? option_musicOn = false : option_musicOn = true;
 						break;
 					case 3:
+						if (ControlSetupMenu(inGame) == -2) return -2;
+						break;
+					case 4:
 						return -1;
 						break;
 				}
@@ -257,6 +265,10 @@ int OptionsMenu(bool inGame) {
 						break;
 					case 1:
 						(option_soundOn) ? option_soundOn = false : option_soundOn = true;
+						break;
+					case 2:
+						(option_musicOn) ? option_musicOn = false : option_musicOn = true;
+						break;
 				}
 				break;
 			case 4: // Right
@@ -266,6 +278,10 @@ int OptionsMenu(bool inGame) {
 						break;
 					case 1:
 						(option_soundOn) ? option_soundOn = false : option_soundOn = true;
+						break;
+					case 2:
+						(option_musicOn) ? option_musicOn = false : option_musicOn = true;
+						break;
 				}
 				break;
 			case -1: // Esc

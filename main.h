@@ -111,7 +111,7 @@ int stickyPlayerOrigX, stickyPlayerOrigY; // The player's game coordinates
 // Options
 uint option_undoSize = 300;
 bool option_soundOn = true;
-
+bool option_musicOn = true;
 
 
 
