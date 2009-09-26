@@ -55,3 +55,26 @@ void PlaySound(int n) {
 }
 
 
+void ToggleSound() {
+	if (option_soundOn == true) {
+		option_soundOn = false;
+		Mix_Volume(-1, 0);
+	}
+	else {
+		option_soundOn = true;
+		Mix_Volume(-1, 128);
+	}
+}
+
+
+
+void ToggleMusic() {
+	if (option_musicOn == true) {
+		option_musicOn = false;
+		Mix_PauseMusic();
+	}
+	else {
+		option_musicOn = true;
+		Mix_ResumeMusic();
+	}
+}

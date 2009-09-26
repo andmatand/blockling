@@ -42,9 +42,10 @@ int main(int argc, char** argv) {
     		exit(1);
 	}
 
+/*
 	char musicFile[256];
 	//sprintf(musicFile, "%s%s%s", DATA_PATH, MUSIC_PATH, "lizard_-_hip_chip.mod");
-	sprintf(musicFile, "%s%s%s", DATA_PATH, MUSIC_PATH, "test_disabled.xm");
+	sprintf(musicFile, "%s%s%s", DATA_PATH, MUSIC_PATH, "test.xm");
 	bgMusic = Mix_LoadMUS(musicFile);
 	if (bgMusic == NULL) {
 		fprintf(stderr, "Unable to load audio file: %s\n", Mix_GetError());
@@ -54,6 +55,7 @@ int main(int argc, char** argv) {
 	if (Mix_FadeInMusic(bgMusic, -1, 500) == -1) {
 		fprintf(stderr, "Unable to play music file: %s\n", Mix_GetError());
 	}
+*/
 
 
 	// Initialize Video
@@ -176,6 +178,6 @@ void DeInit() {
 		Mix_FreeChunk(sounds[i]);
 	}
 	
-	Mix_FreeMusic(bgMusic);
+	//Mix_FreeMusic(bgMusic);
  	Mix_CloseAudio();
 }

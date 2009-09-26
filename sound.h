@@ -21,7 +21,8 @@
 
 /*** Function Prototypes ***/
 void PlaySound(int n);
-
+void ToggleMusic();
+void ToggleSound();
 
 
 

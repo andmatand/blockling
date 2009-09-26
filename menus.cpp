@@ -70,7 +70,7 @@ int ControlSetupMenu(bool inGame) {
 		/** Render *****************/
 		do {
 			if (inGame) {
-				Render(0);
+				Render(3);
 			}
 			else {
 				DrawBackground();
@@ -215,7 +215,7 @@ int OptionsMenu(bool inGame) {
 
 		/** Render *****************/
 		if (inGame) {
-			Render(0);
+			Render(3);
 		}
 		else {
 			DrawBackground();
@@ -245,7 +245,7 @@ int OptionsMenu(bool inGame) {
 						if (option_undoSize == maxUndoSize) option_undoSize = 0;
 						break;
 					case 1:
-						(option_soundOn) ? option_soundOn = false : option_soundOn = true;
+						ToggleSound();
 						break;
 					case 2:
 						(option_musicOn) ? option_musicOn = false : option_musicOn = true;
@@ -264,7 +264,7 @@ int OptionsMenu(bool inGame) {
 						change_undoSize = -1;						
 						break;
 					case 1:
-						(option_soundOn) ? option_soundOn = false : option_soundOn = true;
+						ToggleSound();
 						break;
 					case 2:
 						(option_musicOn) ? option_musicOn = false : option_musicOn = true;
@@ -277,7 +277,7 @@ int OptionsMenu(bool inGame) {
 						change_undoSize = 1;
 						break;
 					case 1:
-						(option_soundOn) ? option_soundOn = false : option_soundOn = true;
+						ToggleSound();
 						break;
 					case 2:
 						(option_musicOn) ? option_musicOn = false : option_musicOn = true;
@@ -356,7 +356,7 @@ int PauseMenu() {
 				break;
 		}
 		
-		Render(0);
+		Render(3);
 		pauseMenu.Display();
 		SDL_UpdateRect(screenSurface, 0, 0, 0, 0);
 		

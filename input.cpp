@@ -27,17 +27,12 @@ void GlobalInput(SDL_Event event) {
 			switch (event.key.keysym.sym) {
 				// Toggle music
 				case SDLK_F2:
-					if (Mix_PausedMusic()) {
-						Mix_ResumeMusic();
-					}
-					else {
-						Mix_PauseMusic();
-					}
+					ToggleMusic();
 					break;
 				
 				// Toggle sound
 				case SDLK_F3:
-					option_soundOn = (option_soundOn ? false : true);
+					ToggleSound();
 					break;
 					
 				// Toggle fullscreen

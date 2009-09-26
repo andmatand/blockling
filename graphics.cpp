@@ -657,7 +657,7 @@ void DrawBackground() {
 // flag	0 = No screen update (drawing only)
 //      1 = normal
 //      2 = no CenterCamera
-//	3 = combination of 0 and 2
+//	3 = combination of 0 and 2, + no ambient animations
 //	4 = no background
 void Render (char flag) {
 	static uint torchTimer = 0;
@@ -712,7 +712,7 @@ void Render (char flag) {
 	
 	/*** TORCHES ***/
 	// Change flames
-	if (SDL_GetTicks() > torchTimer + 5) {
+	if (flag != 3 && SDL_GetTicks() > torchTimer + 5) {
 		for (i = 0; i < numTorches; i++) {
 			torches[i].FlickerFlame();
 	    	}
@@ -745,7 +745,7 @@ void Render (char flag) {
 
 	for (i = 0; i < numBlocks; i++) {
 		if (blocks[i].GetType() >= 0) {
-			blocks[i].Animate();
+			if (flag != 3) blocks[i].Animate();
 			
 			if (i != 0 || !stickyPlayer) {
 				ApplySurface(blocks[i].GetX() - cameraX, blocks[i].GetY() - cameraY, blocks[i].GetSurface(), screenSurface);
