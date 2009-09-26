@@ -12,3 +12,12 @@ if [ -f blockman.exe ]; then
 	zip -r blockman-win32 blockman.exe COPYING data/ README-SDL.txt SDL.dll SDL_mixer.dll -x "*/.svn/*" -x "*~"
 	rm blockman.exe
 fi
+
+# Upload the zip to billamonster.com/temp/
+ftp -n hush.lunarbreeze.com <<END_SCRIPT
+quote USER bman-build@billamonster.com
+quote PASS bl0ckm4n4win32?get1inuXd00d
+put blockman-win32.zip
+quit
+END_SCRIPT
+
