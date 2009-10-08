@@ -49,14 +49,13 @@ const unsigned char TELEPAD_H = 4;
 const std::string GAME_TITLE = "Blockman";
 const std::string TILE_BASE_DIR = "data/tiles/";
 const std::string DEFAULT_TILESET_DIR = "default";
-const std::string LEVEL_BASE_DIR = "data/levels/";
 const std::string DEFAULT_LEVELSET_DIR = "default";
 const char TEMP_PATH[] = "./";
 const char DATA_PATH[] = "data/";
 const char FONT_PATH[] = "font/";
 const char MUSIC_PATH[] = "music/";
 const char SOUND_PATH[] = "sound/";
-
+const char LEVEL_PATH[] = "levels/";
 
 
 
@@ -112,6 +111,8 @@ int stickyPlayerOrigX, stickyPlayerOrigY; // The player's game coordinates
 uint option_undoSize = 300;
 bool option_soundOn = true;
 bool option_musicOn = true;
+uint option_levelSet = 0;
+char *levelSetName = NULL;
 
 
 

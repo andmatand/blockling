@@ -53,6 +53,9 @@ void CollectLevelGarbage() {
 		delete [] undoTelepads;
 		undoTelepads = NULL;
 	}
+	
+	delete [] levelSetName;
+	levelSetName = NULL;
 }
 
 
@@ -88,12 +91,22 @@ int Game() {
 	char replayTempFile[256];
 	sprintf(replayTempFile, "%stempreplay.tmp", TEMP_PATH);
 
-
 	/*** Loop to advance to next level ***/
 	while(quitGame == false) {
+		// Find the name of the levelset directory
+		switch (option_levelSet) {
+			case 0:
+				levelSetName = new char[8];
+				strncpy(levelSetName, "default", sizeof(levelSetName));
+				break;
+			case 1:
+				levelSetName = new char[6];
+				strncpy(levelSetName, "bman1", sizeof(levelSetName));
+				break;
+		}
+
 		// Load Level
-		//if (LoadLevel("bman1", currentLevel) == false) {
-		if (LoadLevel("default", currentLevel, (stickyPlayer ? true : false)) == false) {
+		if (LoadLevel(levelSetName, currentLevel, (stickyPlayer ? true : false)) == false) {
 			fprintf(stderr, "Error: Loading level %d failed.\n", currentLevel);
 
 			currentLevel = 0;
@@ -752,16 +765,18 @@ int Game() {
 
 
 
-bool LoadLevel(std::string levelSet, uint level, bool zing) {
+bool LoadLevel(char *levelSet, uint level, bool zing) {
 	bool syntaxError = false;
 	
-	char levelFile[256];
+	char levelFile[4];
 	sprintf(levelFile, "%03d", level);
-	const char *filename = (LEVEL_BASE_DIR + levelSet + "/" + levelFile).c_str();
+	char filename[256];
+	sprintf(filename, "%s%s%s/%s", DATA_PATH, LEVEL_PATH, levelSet, levelFile);
 	
 	FILE * f;
 
 	printf("\nLoading level %d...\n", level);
+	printf("filename: \"%s\"\n", filename);
 	f = fopen(filename, "rb");
 	if (f == NULL) {
 		return false;

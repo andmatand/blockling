@@ -190,7 +190,7 @@ void GameInput() {
 						LoadTileset("default");
 						break;
 					case SDLK_PAGEDOWN:
-						LoadTileset("scifi");
+						LoadTileset("sci-fi");
 						break;
 						
 					#ifdef DEBUG
@@ -367,6 +367,29 @@ const char* KeyName(SDLKey sym) {
 			return "END";
 			break;
 
+		case SDLK_LSHIFT:
+			return "LEFT SHIFT";
+			break;
+		case SDLK_RSHIFT:
+			return "RIGHT SHIFT";
+			break;
+		case SDLK_LCTRL:
+			return "LEFT CTRL";
+			break;
+		case SDLK_RCTRL:
+			return "RIGHT CTRL";
+			break;
+		case SDLK_LALT:
+			return "LEFT ALT";
+			break;
+		case SDLK_RALT:
+			return "RIGHT ALT";
+			break;
+		case SDLK_TAB:
+			return "TAB";
+			break;
+
+
 		case SDLK_1:
 			return "1";
 			break;
@@ -398,6 +421,12 @@ const char* KeyName(SDLKey sym) {
 			return "0";
 			break;
 
+		case SDLK_LEFTBRACKET:
+			return "[";
+			break;
+		case SDLK_RIGHTBRACKET:
+			return "]";
+			break;
 		case SDLK_SEMICOLON:
 			return ";";
 			break;
@@ -413,7 +442,6 @@ const char* KeyName(SDLKey sym) {
 		case SDLK_SLASH:
 			return "/";
 			break;
-
 
 		case SDLK_a:
 			return "a";
