@@ -32,7 +32,7 @@ int ControlSetupMenu(bool inGame) {
 	
 	/** Set static menu items **/
 	csMenu.Move(inGame ? SCREEN_W / 2 : 75, 100);
-	csMenu.SetTitle("Control Setup");
+	csMenu.SetTitle("CONTROL SETUP");
 	csMenu.NameItem(numItems - 2, "Reset To Defaults");
 	csMenu.NameItem(numItems - 1, "Done");
 
@@ -225,7 +225,7 @@ int OptionsMenu(bool inGame) {
 		// If the undo option is selected
 		if (inGame && optMenu.GetSel() == 0) {
 			sprintf(text, "This setting will not take effect\nuntil a new level is loaded");
-			DrawText((SCREEN_W / 2) - (GetTextW(text) / 2), 300, text, 200, 200, 200);
+			DrawText((SCREEN_W / 2) - (GetTextW(text, 0) / 2), 300, text, 0, 200, 200, 200);
 		}
 		SDL_UpdateRect(screenSurface, 0, 0, 0, 0);
 		

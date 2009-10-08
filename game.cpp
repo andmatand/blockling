@@ -343,12 +343,12 @@ int Game() {
 						
 						if (physicsStarted) {
 							currentReplayKey = neatoReplay->GetNextKey(replayFastFwd);
-							printf("currentReplayKey = %d\n", currentReplayKey);
+							//printf("currentReplayKey = %d\n", currentReplayKey);
 						
 							// Push the next key if it's okay
 							if (currentReplayKey != 100) {
-								if (replayKeyWorked == false) printf("Key didn't do anything.  Trying again.\n");
-								printf("pushing key %d\n", currentReplayKey);
+								//if (replayKeyWorked == false) printf("Key didn't do anything.  Trying again.\n");
+								//printf("pushing key %d\n", currentReplayKey);
 								
 								neatoReplay->PushKey(currentReplayKey);
 								replayKeyWorked = false;

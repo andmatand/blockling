@@ -21,8 +21,8 @@
 
 
 /*** Function Prototypes ***/
-void DrawText(int x, int y, char *text, uint r, uint g, uint b);
-int GetTextW(char *text);
+void DrawText(int x, int y, char *text, int spacing, uint r, uint g, uint b);
+int GetTextW(char *text, int spacing);
 
 
 

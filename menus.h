@@ -43,7 +43,7 @@ class menuItem {
 		/*** Get ***/
 		int GetX() const { return x; };
 		int GetY() const { return y; };
-		int GetW() const { return GetTextW(text); }; // GetTextW is in font.cpp
+		int GetW(int letterSpacing) const { return GetTextW(text, letterSpacing); }; // GetTextW is in font.cpp
 		char* GetText() const { return text; };
 	
 		/*** Set ***/
@@ -106,6 +106,7 @@ class menu {
 		int Input();
 	private:
 		char *title;		// Title of the menu.
+		int titleLetterSpacing;	// Letter spacing increase for title text.
 		uint numItems;		// How many menuItems there are
 		menuItem *items;	// Pointer to hold array of menuItems
 		int sel;		// Currently selected item
@@ -116,6 +117,7 @@ class menu {
 // Constructor
 menu::menu(uint numberOfItems):
 	title(NULL),
+	titleLetterSpacing(4),
 	sel(0)
 {
 	numItems = numberOfItems;
@@ -189,11 +191,12 @@ void menu::AutoArrange(char type) {
 		items[i].SetY(items[i - 1].GetY() + FONT_H + (FONT_H / 4));
 	}
 
-	// Type 1 uses type 0's y-positioning, but changes the x to be centered
+	// Type 1 uses type 0's Y-positionings, but changes the Xs to be centered
 	if (type == 1) {
-		titleX = x - (GetTextW(title) / 2);
+		titleX = x - (GetTextW(title, titleLetterSpacing) / 2);
+		printf("title width: %d\n", GetTextW(title, titleLetterSpacing));
 		for (uint i = 0; i < numItems; i++) {
-			items[i].SetX(x - (items[i].GetW() / 2));
+			items[i].SetX(x - (items[i].GetW(0) / 2));
 		}
 	}
 }
@@ -212,7 +215,7 @@ void menu::Display() {
 	uint r, g, b;
 	
 	if (title != NULL) {
-		DrawText(titleX, titleY, title, 255, 255, 255);
+		DrawText(titleX, titleY, title, titleLetterSpacing, 255, 255, 255);
 	}
 	for (uint i = 0; i < numItems; i++) {
 		if (i == static_cast<uint>(sel)) {
@@ -227,7 +230,7 @@ void menu::Display() {
 			//b = 33;
 			r = g = b = 220;
 		}
-		DrawText(items[i].GetX(), items[i].GetY(), items[i].GetText(), r, g, b);
+		DrawText(items[i].GetX(), items[i].GetY(), items[i].GetText(), 0, r, g, b);
 	}
 }
 

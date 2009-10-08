@@ -775,7 +775,7 @@ void Render (char flag) {
 	char message[128];
 	// Level #
 	sprintf(message, "Level %d", currentLevel);
-	DrawText(10, 380, message, 220, 220, 220);
+	DrawText(10, 380, message, 0, 220, 220, 220);
 	
 	// Timer
 	if (levelTimeRunning) {
@@ -786,7 +786,7 @@ void Render (char flag) {
 			timerPos += FPS;
 			if (timerPos > 76) timerPos = 76;
 		}
-		DrawText(SCREEN_W - timerPos, 380, message, 220, 220, 220);
+		DrawText(SCREEN_W - timerPos, 380, message, 0, 220, 220, 220);
 	}
 	else {
 		timerPos = 0;

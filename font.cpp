@@ -20,7 +20,7 @@
  */
 
 
-int GetTextW(char *text) {
+int GetTextW(char *text, int spacing) {
 	int w = 0;
 	int lW = 0; // The current line's width
 	int c;
@@ -41,12 +41,12 @@ int GetTextW(char *text) {
 
 		switch (c) {
 			case -1: // Space (32)
-				lW += (font[9].w / 2); // character 9 ('*') has maximum width
+				lW += (font[9].w / 2) + spacing; // character 9 ('*') has maximum width
 			default:
 				lW += font[c].w;
 				
 				// If this is not the last character, add a bit of space
-				if (i != static_cast<unsigned int>(strlen(text))) lW += 2;
+				if ((i + 1) != static_cast<unsigned int>(strlen(text))) lW += 2 + spacing;
 				
 				break;
 		}
@@ -146,7 +146,7 @@ void UnloadFont() {
 
 
 
-void DrawText(int x, int y, char *text, uint r, uint g, uint b) {
+void DrawText(int x, int y, char *text, int spacing, uint r, uint g, uint b) {
 	int x2 = x;
 
 	// Set shadow palette
@@ -184,7 +184,7 @@ void DrawText(int x, int y, char *text, uint r, uint g, uint b) {
 
 		switch (c) {
 			case -1: // Space (32)
-				x2 += (font[9].w / 2); // character 9 ('*') has maximum width
+				x2 += (font[9].w / 2) + spacing; // character 9 ('*') has maximum width
 			default:
 				// Draw "shadow"
 				SDL_SetPalette(font[c].surf, SDL_LOGPAL, shadowPalette, 0, 256);
@@ -194,7 +194,7 @@ void DrawText(int x, int y, char *text, uint r, uint g, uint b) {
 				SDL_SetPalette(font[c].surf, SDL_LOGPAL, palette, 0, 256);
 				ApplySurface(x2, y, font[c].surf, screenSurface);
 				
-				x2 += (font[c].w + 2);
+				x2 += (font[c].w + 2) + spacing;
 				break;
 		}
 	}
