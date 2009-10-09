@@ -267,8 +267,8 @@ void CenterCamera(char override) {
 	
 	// Move the camera instantly
 	if (override == 1) {
-		//cameraXVel = 0;
-		//cameraYVel = 0;
+		cameraXVel = 0;
+		cameraYVel = 0;
 		
 		cameraX = targetX;
 		cameraY = targetY;

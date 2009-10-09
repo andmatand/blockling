@@ -209,7 +209,7 @@ int Game() {
 							break;
 						case -2: // Close Window
 							returnVal = -2;
-						case 4: // Quit Game
+						case 3: // Quit Game
 							showingReplay = false;
 							quitGame = true;
 							break;
@@ -807,7 +807,7 @@ bool LoadLevel(uint level, bool zing) {
 		return false;
 	}
 
-	// Get info about level (width, height, numBlocks, numBricks, etc.)
+	/** Read the file for the first time, to get info about level (width, height, numBlocks, numBricks, etc.) ****/
 	int c;
 	int x = 0, y = 0, width = 0, height = 0;
 	
@@ -986,7 +986,7 @@ bool LoadLevel(uint level, bool zing) {
 	}
 
 
-	// Now read the level again, getting object coordinates
+	/** Read the file again, this time storing object's positions ****/
 	numBlocks = numPlayers; // We'll re-use these variables for array indexes
 	numPlayers = 0;
 	numBricks = 0;

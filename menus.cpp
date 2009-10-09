@@ -401,7 +401,7 @@ int EndOfLevelMenu() {
 				break;
 		}
 		
-		Render(3);
+		Render(0);
 		theMenu.Display();
 		SDL_UpdateRect(screenSurface, 0, 0, 0, 0);
 		
