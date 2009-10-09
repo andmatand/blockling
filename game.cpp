@@ -781,11 +781,11 @@ bool LoadLevel(uint level, bool zing) {
 	switch (option_levelSet) {
 		case 0:
 			//levelSet = new char[8];
-			strncpy(levelSet, "default", sizeof(levelSet));
+			sprintf(levelSet, "default");
 			break;
 		case 1:
 			//levelSet = new char[6];
-			strncpy(levelSet, "bman1", sizeof(levelSet));
+			sprintf(levelSet, "bman1");
 			break;
 	}
 
