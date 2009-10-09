@@ -114,7 +114,6 @@ uint option_undoSize = 300;
 bool option_soundOn = true;
 bool option_musicOn = true;
 uint option_levelSet = 0;
-char *levelSetName = NULL;
 
 
 

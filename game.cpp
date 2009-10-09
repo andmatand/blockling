@@ -784,7 +784,7 @@ bool LoadLevel(uint level, bool zing) {
 			strncpy(levelSet, "default", sizeof(levelSet));
 			break;
 		case 1:
-			levelSetName = new char[6];
+			levelSet = new char[6];
 			strncpy(levelSet, "bman1", sizeof(levelSet));
 			break;
 	}
@@ -796,7 +796,7 @@ bool LoadLevel(uint level, bool zing) {
 	char filename[256];
 	sprintf(filename, "%s%s%s/%s", DATA_PATH, LEVEL_PATH, levelSet, levelFile);
 		
-	delete [] levelSetName; levelSetName = NULL;
+	delete [] levelSet; levelSet = NULL;
 	
 	FILE * f;
 
