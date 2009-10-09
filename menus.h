@@ -26,8 +26,13 @@ int ReplayPauseMenu();
 int EndOfLevelMenu();
 int OptionsMenu(bool inGame);
 int PauseMenu();
-uint NextFreeReplayNumber(uint level);
+int SelectLevelMenu();
 
+
+/*** Constants ***/
+uint MENU_ITEM_ON_R = 251;
+uint MENU_ITEM_ON_G = 177;
+uint MENU_ITEM_ON_B = 17;
 
 
 
@@ -89,6 +94,7 @@ class menu {
 		/*** Get ***/
 		int GetItemX(uint item) { return items[item].GetX(); };
 		int GetItemY(uint item) { return items[item].GetY(); };
+		int GetItemW(uint item, int spacing) { return items[item].GetW(spacing); };
 		int GetSel() const { return sel; };
 		
 		/*** Set ***/
@@ -194,7 +200,7 @@ void menu::AutoArrange(char type) {
 	// Type 1 uses type 0's Y-positionings, but changes the Xs to be centered
 	if (type == 1) {
 		titleX = x - (GetTextW(title, titleLetterSpacing) / 2);
-		printf("title width: %d\n", GetTextW(title, titleLetterSpacing));
+
 		for (uint i = 0; i < numItems; i++) {
 			items[i].SetX(x - (items[i].GetW(0) / 2));
 		}
@@ -219,15 +225,11 @@ void menu::Display() {
 	}
 	for (uint i = 0; i < numItems; i++) {
 		if (i == static_cast<uint>(sel)) {
-			r = 251;
-			g = 177;
-			b = 17;
-			//r = g = b = 255;
+			r = MENU_ITEM_ON_R;
+			g = MENU_ITEM_ON_G;
+			b = MENU_ITEM_ON_B;
 		}
 		else {
-			//r = 186;
-			//g = 109;
-			//b = 33;
 			r = g = b = 220;
 		}
 		DrawText(items[i].GetX(), items[i].GetY(), items[i].GetText(), 0, r, g, b);

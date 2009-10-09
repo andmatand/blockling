@@ -53,9 +53,6 @@ void CollectLevelGarbage() {
 		delete [] undoTelepads;
 		undoTelepads = NULL;
 	}
-	
-	delete [] levelSetName;
-	levelSetName = NULL;
 }
 
 
@@ -74,7 +71,7 @@ int Game() {
 	float cameraXVel, cameraYVel;
 	uint wonLevelTimer = 0;
 
-	currentLevel = 0;
+	uint oldLevel = currentLevel;
 	stickyPlayer = false;
 
 	// Replay variables
@@ -93,26 +90,31 @@ int Game() {
 
 	/*** Loop to advance to next level ***/
 	while(quitGame == false) {
-		// Find the name of the levelset directory
-		switch (option_levelSet) {
-			case 0:
-				levelSetName = new char[8];
-				strncpy(levelSetName, "default", sizeof(levelSetName));
+		if (stickyPlayer || showingReplay || currentLevel != oldLevel) {
+			while (true) {
+				// Load Level
+				if (LoadLevel(currentLevel, (stickyPlayer ? true : false)) == false) {
+					fprintf(stderr, "Error: Loading level %d failed.\n", currentLevel);
+	
+					currentLevel = 0;
+					CollectLevelGarbage();
+					continue;
+				}
 				break;
-			case 1:
-				levelSetName = new char[6];
-				strncpy(levelSetName, "bman1", sizeof(levelSetName));
-				break;
+			}
 		}
-
-		// Load Level
-		if (LoadLevel(levelSetName, currentLevel, (stickyPlayer ? true : false)) == false) {
-			fprintf(stderr, "Error: Loading level %d failed.\n", currentLevel);
-
-			currentLevel = 0;
-			CollectLevelGarbage();
-			continue;
+		else {
+			selectingLevel = true;
+			switch (SelectLevelMenu()) {
+				case 0:
+					break;
+				case -1:
+					return -1;
+					break;
+			}
 		}
+		selectingLevel = false;
+		oldLevel = currentLevel;
 		
 		playerBlock = new int[numPlayers];
 		
@@ -165,7 +167,7 @@ int Game() {
 		}
 
 		/******* GAME LOOP *******/
-		while (quitGame == false) {
+		while (quitGame == false && selectingLevel == false) {
 			#ifdef DEBUG
 			i = currentLevel;
 			#endif
@@ -206,7 +208,7 @@ int Game() {
 							break;
 						case -2: // Close Window
 							returnVal = -2;
-						case 3:  // Quit Game
+						case 4: // Quit Game
 							showingReplay = false;
 							quitGame = true;
 							break;
@@ -232,13 +234,19 @@ int Game() {
 							case 2: // Help
 								// Help();
 								break;
+							case 3: // Switch Level
+								b = 1;
+								showingReplay = false;
+								stickyPlayer = false;
+								selectingLevel = true;
+								break;
 							case -1: // Esc
 								b = 1;
 								break; // Resume the game
 							case -2: // Close window
 								b = 1;
 								returnVal = -2;
-							case 3: // Quit Game
+							case 4: // Quit Game
 								b = 1;
 								showingReplay = false;
 								quitGame = true;
@@ -677,7 +685,7 @@ int Game() {
 			/*** Draw the Background (underneath teleportation animation) ***/
 			DrawBackground();
 
-			/*** Do Telepads ***/
+			/*** Do Telepads (including teleportation animation) ***/
 			for (i = 0; i < numTelepads; i++) {
 				// If the telpad is currently in the process of teleporting something
 				// OR the telepad needs to teleport
@@ -688,6 +696,7 @@ int Game() {
 					telepads[i].Teleport();
 				}
 			}
+			
 			
 			/** Render **/
 			Render(4);
@@ -765,13 +774,28 @@ int Game() {
 
 
 
-bool LoadLevel(char *levelSet, uint level, bool zing) {
+bool LoadLevel(uint level, bool zing) {
+	// Find the name of the levelset directory
+	char *levelSet;
+	switch (option_levelSet) {
+		case 0:
+			levelSet = new char[8];
+			strncpy(levelSet, "default", sizeof(levelSet));
+			break;
+		case 1:
+			levelSetName = new char[6];
+			strncpy(levelSet, "bman1", sizeof(levelSet));
+			break;
+	}
+
 	bool syntaxError = false;
 	
 	char levelFile[4];
 	sprintf(levelFile, "%03d", level);
 	char filename[256];
 	sprintf(filename, "%s%s%s/%s", DATA_PATH, LEVEL_PATH, levelSet, levelFile);
+		
+	delete [] levelSetName; levelSetName = NULL;
 	
 	FILE * f;
 

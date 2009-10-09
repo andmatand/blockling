@@ -85,6 +85,8 @@ uint numTelepads;
 uint numItems;
 
 uint currentLevel;
+uint numLevels = 999; // This will need to be detected by finding what the last existing level file is
+bool selectingLevel; // If we are currently in the pseudo-menu for selecting a level
 bool levelTimeRunning; // If the level timer is running
 uint levelTime;	//How long the player has taken on this level (in milliseconds)
 uint levelTimeTick; // For tracking how long each frame takes

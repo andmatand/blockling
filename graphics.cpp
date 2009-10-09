@@ -663,6 +663,7 @@ void Render (char flag) {
 	static uint torchTimer = 0;
 	static uint doorFrame, doorFramePause;
 	static uint timerPos;
+	static int levelTextX = 10;
 	uint i;
 	
 
@@ -771,11 +772,22 @@ void Render (char flag) {
 	//PutPixel(screenSurface, cameraX + 10, cameraY + 10, SDL_MapRGB(screenSurface->format, 0x00, 0xff, 0x00));
 
 
-	/*** Text ***/
+	/** Draw Text ****/
 	char message[128];
+	
 	// Level #
 	sprintf(message, "Level %d", currentLevel);
-	DrawText(10, 380, message, 0, 220, 220, 220);
+
+	// If we are selecting a level, center the level text
+	if (selectingLevel) {
+		levelTextX = (SCREEN_W / 2) - (GetTextW(message, 0) / 2);
+	}
+	else {
+		levelTextX -= FPS * 2;
+		if (levelTextX < 10) levelTextX = 10;
+		DrawText(levelTextX, SCREEN_H - FONT_H - 4, message, 0, 220, 220, 220);
+	}
+	
 	
 	// Timer
 	if (levelTimeRunning) {
@@ -793,11 +805,12 @@ void Render (char flag) {
 	}
 
 
+	/** Screen Update ****/
 	if (flag != 0 && flag != 3) {
 		// Tell SDL to update the whole screenSurface
 		SDL_UpdateRect(screenSurface, 0, 0, 0, 0);
 		LimitFPS();
-	}	
+	}
 }
 
 

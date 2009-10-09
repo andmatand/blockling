@@ -22,4 +22,4 @@
 
 int Game ();
 void Undo(char action);
-bool LoadLevel(char *levelSet, uint level, bool zing);
+bool LoadLevel(uint level, bool zing);

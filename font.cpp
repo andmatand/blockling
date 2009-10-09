@@ -41,7 +41,7 @@ int GetTextW(char *text, int spacing) {
 
 		switch (c) {
 			case -1: // Space (32)
-				lW += (font[9].w / 2) + spacing; // character 9 ('*') has maximum width
+				lW += FONT_W + spacing;
 			default:
 				lW += font[c].w;
 				
@@ -184,7 +184,7 @@ void DrawText(int x, int y, char *text, int spacing, uint r, uint g, uint b) {
 
 		switch (c) {
 			case -1: // Space (32)
-				x2 += (font[9].w / 2) + spacing; // character 9 ('*') has maximum width
+				x2 += FONT_W + spacing;
 			default:
 				// Draw "shadow"
 				SDL_SetPalette(font[c].surf, SDL_LOGPAL, shadowPalette, 0, 256);

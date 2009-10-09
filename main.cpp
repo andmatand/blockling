@@ -160,6 +160,7 @@ void Init() {
 	gameKeys[5].mod = KMOD_NONE;	// modifier
 
 	ResetDefaultKeys();
+	currentLevel = 0;
 }
 
 

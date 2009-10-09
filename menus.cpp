@@ -207,12 +207,14 @@ int OptionsMenu(bool inGame) {
 		optMenu.NameItem(1, text);
 
 		
-		// Determine Sound text
+		// Determine Music text
 		sprintf(text, "Music: ");
 		strcat(text, (option_musicOn ? "ON" : "OFF"));
 		// Set it
 		optMenu.NameItem(2, text);
 
+		
+		
 		/** Render *****************/
 		if (inGame) {
 			Render(3);
@@ -327,17 +329,20 @@ int OptionsMenu(bool inGame) {
 
 
 int PauseMenu() {
-	int numItems = 4;
+	int numItems = 5;
 	menu pauseMenu(numItems);
 	
 	pauseMenu.SetTitle("PAUSED");
 	pauseMenu.NameItem(0, "Resume");
 	pauseMenu.NameItem(1, "Options");
 	pauseMenu.NameItem(2, "Help");
-	pauseMenu.NameItem(3, "Quit Game");
+	pauseMenu.NameItem(3, "Switch Level");
+	pauseMenu.NameItem(4, "Quit Game");
 	
 	pauseMenu.Move(SCREEN_W / 2, 100);
 	pauseMenu.AutoArrange(1);
+	pauseMenu.MoveItem(3, pauseMenu.GetItemX(3), pauseMenu.GetItemY(3) + FONT_H);
+	pauseMenu.MoveItem(4, pauseMenu.GetItemX(4), pauseMenu.GetItemY(4) + FONT_H);
 	
 	int action;
 	
@@ -447,3 +452,130 @@ int ReplayPauseMenu() {
 
 }
 
+
+
+
+
+int SelectLevelMenu() {
+	int numItems = 1;
+	menu lvlMenu(numItems); // Create the menu object
+	char text[32]; // For temporarily holding menu items' text as it is formed
+	//char tempString[10];
+	int bottomY = SCREEN_H - FONT_H - 4;
+	
+	uint oldLevel = 0;
+	// Make sure the old level doesn't equal the current one
+	if (currentLevel == 0) oldLevel = 1;
+	
+	int action;
+	
+	/** Set static menu items **/
+	lvlMenu.Move(SCREEN_W / 2, 4);
+	lvlMenu.SetTitle("CHOOSE A LEVEL");
+
+	bool arrowFlash = true;
+	uint arrowTimer = SDL_GetTicks();
+	
+	while (true) {
+		if (SDL_GetTicks() >= arrowTimer + 500) {
+			arrowFlash = (arrowFlash ? false : true);
+			arrowTimer = SDL_GetTicks();
+		}
+		
+		/** Set dynamic menu items' text *****************/
+		// Determine Level text
+		sprintf(text, "Level %d", currentLevel);
+		// Set it
+		lvlMenu.NameItem(0, text);
+		
+
+		// Determine LevelSet text
+		/*
+		sprintf(text, "Level Set: ");
+		switch (option_levelSet) {
+			case 0:
+				strcat(text, "BLOCKMAN");
+				break;
+			case 1:
+				strcat(text, "BLOCK-MAN 1");
+				break;
+			case 2:
+				strcat(text, "CUSTOM");
+				break;
+		}
+		*/
+
+
+		
+		/** Render *****************/
+		if (oldLevel != currentLevel) {
+			while (true) {
+				// Load Level
+				if (LoadLevel(currentLevel, false) == false) {
+					fprintf(stderr, "Error: Loading level %d failed.\n", currentLevel);
+	
+					currentLevel = 0;
+					CollectLevelGarbage();
+					continue;
+				}
+				break;
+			}
+			
+			oldLevel = currentLevel;
+		}
+		Render(3);
+		lvlMenu.AutoArrange(static_cast<char>(1));
+		
+		// Put the level number at the bottom of the screen.
+		lvlMenu.MoveItem(0, lvlMenu.GetItemX(0), bottomY);
+		
+		// Display the menu
+		lvlMenu.Display();
+		
+		// Draw the flashing arrows on either side of the level #
+		strcpy(text, "<");
+		if (currentLevel > 0 && arrowFlash) DrawText(lvlMenu.GetItemX(0) - FONT_W - 2 - GetTextW(text, 0), bottomY, text, 0, MENU_ITEM_ON_R, MENU_ITEM_ON_G, MENU_ITEM_ON_B);
+		strcpy(text, ">");
+		if (currentLevel < numLevels && arrowFlash) DrawText(lvlMenu.GetItemX(0) + lvlMenu.GetItemW(0, 0) + FONT_W + 2, bottomY, text, 0, MENU_ITEM_ON_R, MENU_ITEM_ON_G, MENU_ITEM_ON_B);
+
+		SDL_UpdateRect(screenSurface, 0, 0, 0, 0);
+		
+		
+		
+		/** Input ******************/
+		action = lvlMenu.Input();
+		
+		switch (action) {
+			case 1: // Enter
+				switch (lvlMenu.GetSel()) {
+					case 0:
+						return lvlMenu.GetSel();
+						break;
+				}
+				break;
+			case 3: // Left
+				switch (lvlMenu.GetSel()) {
+					case 0:
+						if (currentLevel > 0) currentLevel--;
+						break;
+				}
+				break;
+			case 4: // Right
+				switch (lvlMenu.GetSel()) {
+					case 0:
+						currentLevel++;
+						break;
+				}
+				break;
+			case -1: // Esc
+				return -1;
+				break;
+			case -2: // Close window
+				return -2;
+				break;
+		}
+
+		// Limit currentLevel
+		if (currentLevel > numLevels) currentLevel = numLevels;
+	}
+}
