@@ -179,13 +179,7 @@ void GameInput() {
 				switch (event.key.keysym.sym) {
 					case SDLK_KP_PLUS:
 					case SDLK_PLUS:
-					case SDLK_EQUALS:
-						currentLevel ++;
-						break;
 					case SDLK_KP_MINUS:
-					case SDLK_MINUS:
-						currentLevel --;
-						break;
 					case SDLK_PAGEUP:
 						LoadTileset("default");
 						break;

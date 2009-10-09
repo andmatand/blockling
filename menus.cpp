@@ -336,7 +336,7 @@ int PauseMenu() {
 	pauseMenu.NameItem(0, "Resume");
 	pauseMenu.NameItem(1, "Options");
 	pauseMenu.NameItem(2, "Help");
-	pauseMenu.NameItem(3, "Switch Level");
+	pauseMenu.NameItem(3, "Select Level");
 	pauseMenu.NameItem(4, "Quit Game");
 	
 	pauseMenu.Move(SCREEN_W / 2, 100);
@@ -471,7 +471,8 @@ int SelectLevelMenu() {
 	
 	/** Set static menu items **/
 	lvlMenu.Move(SCREEN_W / 2, 4);
-	lvlMenu.SetTitle("CHOOSE A LEVEL");
+	//lvlMenu.SetTitle("CHOOSE A LEVEL");
+	lvlMenu.SetTitle("");
 
 	bool arrowFlash = true;
 	uint arrowTimer = SDL_GetTicks();

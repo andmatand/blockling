@@ -90,6 +90,11 @@ int Game() {
 
 	/*** Loop to advance to next level ***/
 	while(quitGame == false) {
+		wonLevel = 0;
+		levelTime = 0;
+		levelTimeRunning = false;
+		physicsStarted = false;
+
 		if (stickyPlayer || showingReplay || currentLevel != oldLevel) {
 			while (true) {
 				// Load Level
@@ -123,10 +128,6 @@ int Game() {
 			playerBlock[i] = -1;
 		}
 		
-		wonLevel = 0;
-		levelTime = 0;
-		levelTimeRunning = false;
-		physicsStarted = false;
 		
 		// Reset manual camera movement
 		manualCameraTimer = 0;
