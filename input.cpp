@@ -190,7 +190,7 @@ void GameInput() {
 						LoadTileset("default");
 						break;
 					case SDLK_PAGEDOWN:
-						LoadTileset("sci-fi");
+						LoadTileset("scifi");
 						break;
 						
 					#ifdef DEBUG
