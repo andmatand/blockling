@@ -777,14 +777,14 @@ int Game() {
 
 bool LoadLevel(uint level, bool zing) {
 	// Find the name of the levelset directory
-	char *levelSet;
+	char levelSet[16];
 	switch (option_levelSet) {
 		case 0:
-			levelSet = new char[8];
+			//levelSet = new char[8];
 			strncpy(levelSet, "default", sizeof(levelSet));
 			break;
 		case 1:
-			levelSet = new char[6];
+			//levelSet = new char[6];
 			strncpy(levelSet, "bman1", sizeof(levelSet));
 			break;
 	}
@@ -796,7 +796,7 @@ bool LoadLevel(uint level, bool zing) {
 	char filename[256];
 	sprintf(filename, "%s%s%s/%s", DATA_PATH, LEVEL_PATH, levelSet, levelFile);
 		
-	delete [] levelSet; levelSet = NULL;
+	//delete [] levelSet; levelSet = NULL;
 	
 	FILE * f;
 
