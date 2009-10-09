@@ -457,6 +457,7 @@ int ReplayPauseMenu() {
 
 
 int SelectLevelMenu() {
+	uint i;
 	int numItems = 1;
 	menu lvlMenu(numItems); // Create the menu object
 	char text[32]; // For temporarily holding menu items' text as it is formed
@@ -519,6 +520,12 @@ int SelectLevelMenu() {
 					CollectLevelGarbage();
 					continue;
 				}
+				
+				/*** Do Telepads (including teleportation animation) ***/
+				for (i = 0; i < numTelepads; i++) {
+					telepads[i].NeedsToTeleport();
+				}
+				
 				break;
 			}
 			
