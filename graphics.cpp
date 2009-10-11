@@ -267,8 +267,8 @@ void CenterCamera(char override) {
 	
 	// Move the camera instantly
 	if (override == 1) {
-		cameraXVel = 0;
-		cameraYVel = 0;
+		//cameraXVel = 0;
+		//cameraYVel = 0;
 		
 		cameraX = targetX;
 		cameraY = targetY;
@@ -663,6 +663,7 @@ void Render (char flag) {
 	static uint torchTimer = 0;
 	static uint doorFrame, doorFramePause;
 	static uint timerPos;
+	static uint replayFlashTimer = 0;
 	static int levelTextX = 10;
 	uint i;
 	
@@ -772,10 +773,9 @@ void Render (char flag) {
 	//PutPixel(screenSurface, cameraX + 10, cameraY + 10, SDL_MapRGB(screenSurface->format, 0x00, 0xff, 0x00));
 
 
-	/** Draw Text ****/
 	char message[128];
 	
-	// Level #
+	/** Draw Level # ****/
 	sprintf(message, "Level %d", currentLevel);
 
 	// If we are selecting a level, center the level text
@@ -786,10 +786,24 @@ void Render (char flag) {
 		levelTextX -= FPS * 2;
 		if (levelTextX < 10) levelTextX = 10;
 		DrawText(levelTextX, SCREEN_H - FONT_H - 4, message, 0, 220, 220, 220);
+		
+		// Determine position of "Replay"
+		i = levelTextX + GetTextW(message, 0) + FONT_W;
 	}
+
 	
-	
-	// Timer
+	/** Draw Replay Notification ****/
+	if (showingReplay) {
+		if (SDL_GetTicks() >= replayFlashTimer + 1000) replayFlashTimer = SDL_GetTicks();
+		if (SDL_GetTicks() < replayFlashTimer + 500) {
+			sprintf(message, "Replay");
+			//DrawText((SCREEN_W / 2) - (GetTextW(message, 0) / 2), SCREEN_H - FONT_H - 4, message, 0, TEXT_NORMAL_R, TEXT_NORMAL_G, TEXT_NORMAL_B);
+			DrawText(i, SCREEN_H - FONT_H - 4, message, 0, TEXT_NORMAL_R, TEXT_NORMAL_G, TEXT_NORMAL_B);
+		}
+	}
+
+
+	/** Draw Timer ****/
 	if (levelTimeRunning) {
 		int min = static_cast<int>(levelTime / 60);
 		int sec = levelTime % 60;

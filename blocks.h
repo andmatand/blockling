@@ -99,7 +99,7 @@ class block {
 		
 		void Climb(char direction);  // Makes the player climb over the obstacle in the
 					     // specified direction (same as dir)
-		void Physics();		// Moves the block according to physics
+		void Physics();		// Moves the block according to physics (in physics.cpp)
 		void PostPhysics();	// Decrements the xMoving and yMoving
 		
 		SDL_Surface* GetSurface();	// in graphics.cpp
@@ -247,7 +247,3 @@ int block::GetYOffset() {
 	
 	return a;
 }
-
-
-
-// block:Physics() is in physics.cpp

@@ -29,10 +29,6 @@ int PauseMenu();
 int SelectLevelMenu();
 
 
-/*** Constants ***/
-uint MENU_ITEM_ON_R = 251;
-uint MENU_ITEM_ON_G = 177;
-uint MENU_ITEM_ON_B = 17;
 
 
 
@@ -110,6 +106,7 @@ class menu {
 		void AutoArrange(char type);
 		void Display();
 		int Input();
+		void SpaceItems(uint startItem);
 	private:
 		char *title;		// Title of the menu.
 		int titleLetterSpacing;	// Letter spacing increase for title text.
@@ -225,12 +222,15 @@ void menu::Display() {
 	}
 	for (uint i = 0; i < numItems; i++) {
 		if (i == static_cast<uint>(sel)) {
-			r = MENU_ITEM_ON_R;
-			g = MENU_ITEM_ON_G;
-			b = MENU_ITEM_ON_B;
+			r = TEXT_HIGHLIGHT_R;
+			g = TEXT_HIGHLIGHT_G;
+			b = TEXT_HIGHLIGHT_B;
 		}
 		else {
-			r = g = b = 220;
+			
+			r = TEXT_NORMAL_R;
+			g = TEXT_NORMAL_G;
+			b = TEXT_NORMAL_B;
 		}
 		DrawText(items[i].GetX(), items[i].GetY(), items[i].GetText(), 0, r, g, b);
 	}
@@ -288,4 +288,11 @@ int menu::Input() {
 	if (sel != oldSel) PlaySound(5);
 	
 	return 0;
+}
+
+
+void menu::SpaceItems(uint startItem) {
+	for (uint i = startItem; i < numItems; i++) {
+		items[i].SetY(items[i].GetY() + FONT_H);
+	}
 }

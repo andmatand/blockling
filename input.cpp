@@ -50,7 +50,8 @@ void GlobalInput(SDL_Event event) {
 
 
 
-void GameInput() {
+
+void GameInput(bool inReplay) {
 	// Reset all Players's keys to 0 and let SDL_EnableKeyRepeat handle repeat rate
 	/*
 	for (uint i = 0; i < NUM_PLAYER_KEYS; i++) {
@@ -62,9 +63,7 @@ void GameInput() {
 	}
 	*/
 
-	/** Manually handle repeat rate of keys already on **/
-	
-	// Game Keys
+	/** Handle repeat rate of Game Keys ****/
 	for (uint i = 0; i < NUM_GAME_KEYS; i++) {
 		if (gameKeys[i].on == 1) {
 			gameKeys[i].on = -1; // will be seen by game as Off
@@ -88,7 +87,7 @@ void GameInput() {
 		}
 	}
 
-	// Player Keys
+	/** Handle repeat rate of Player Keys ****/
 	for (uint i = 0; i < NUM_PLAYER_KEYS; i++) {
 		if (playerKeys[i].on == 1) {
 			playerKeys[i].on = -1; // will be seen by game as Off
@@ -116,9 +115,9 @@ void GameInput() {
 
 
 
-
 	while (SDL_PollEvent(&event)) {
 		GlobalInput(event);
+		if (inReplay) ReplayInput(event);
 		
 		switch (event.type) {
 			case SDL_KEYDOWN:
@@ -141,21 +140,22 @@ void GameInput() {
 				}
 
 				/** Turn on Player Keys **/
-				for (uint i = 0; i < NUM_PLAYER_KEYS; i++) {
-					if (event.key.keysym.sym == playerKeys[i].sym) {
-						if (playerKeys[i].on == 0) {
-							// If shift is held
-							if (event.key.keysym.mod & KMOD_LSHIFT || event.key.keysym.mod & KMOD_RSHIFT) {
-								playerKeys[i].on = 3;
-							}
-							else {
-								playerKeys[i].on = 1;
-								playerKeys[i].timer = SDL_GetTicks();
+				if (inReplay == false) {
+					for (uint i = 0; i < NUM_PLAYER_KEYS; i++) {
+						if (event.key.keysym.sym == playerKeys[i].sym) {
+							if (playerKeys[i].on == 0) {
+								// If shift is held
+								if (event.key.keysym.mod & KMOD_LSHIFT || event.key.keysym.mod & KMOD_RSHIFT) {
+									playerKeys[i].on = 3;
+								}
+								else {
+									playerKeys[i].on = 1;
+									playerKeys[i].timer = SDL_GetTicks();
+								}
 							}
 						}
 					}
-				}
-				
+				}				
 
 				
 				break;
@@ -520,4 +520,26 @@ const char* KeyName(SDLKey sym) {
 	}
 	
 	return "[name unknown]";
+}
+
+
+
+
+
+
+void ReplayInput(SDL_Event event) {
+	switch (event.type) {
+		case SDL_KEYDOWN:
+			switch (event.key.keysym.sym) {
+				case SDLK_LEFT:
+					if (option_replaySpeed > 0) option_replaySpeed--;
+					break;
+				case SDLK_RIGHT:
+					if (option_replaySpeed < 3) option_replaySpeed++;
+					break;
+				default:
+					break;
+			}
+	}
+	
 }

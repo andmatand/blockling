@@ -20,8 +20,9 @@
  */
 
 /*** Function Prototypes ***/
-void GameInput();
+void GameInput(bool inReplay);
 char MenuInput();
+void ReplayInput(SDL_Event event);
 void RefreshPlayerKeys();
 void ResetDefaultKeys();
 void TurnOffAllKeys();

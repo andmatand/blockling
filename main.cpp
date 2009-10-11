@@ -160,7 +160,12 @@ void Init() {
 	gameKeys[5].mod = KMOD_NONE;	// modifier
 
 	ResetDefaultKeys();
+	
 	currentLevel = 0;
+	
+	option_undoSize = 300;
+	option_levelSet = 0;
+	option_replaySpeed = 2;
 }
 
 

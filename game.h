@@ -19,7 +19,12 @@
  *   along with Blockman.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
+/** Function Prototypes ****/
 int Game ();
 void Undo(char action);
 bool LoadLevel(uint level, bool zing);
+
+
+
+/** Variables ****/
+bool showingReplay;

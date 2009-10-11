@@ -76,8 +76,7 @@ int ControlSetupMenu(bool inGame) {
 				DrawBackground();
 			}
 			csMenu.AutoArrange(static_cast<char>(inGame ? 1 : 0));
-			csMenu.MoveItem(numItems - 2, csMenu.GetItemX(numItems - 2), csMenu.GetItemY(numItems - 2) + FONT_H);
-			csMenu.MoveItem(numItems - 1, csMenu.GetItemX(numItems - 1), csMenu.GetItemY(numItems - 1) + FONT_H);
+			csMenu.SpaceItems(numItems - 2);
 			csMenu.Display();
 			SDL_UpdateRect(screenSurface, 0, 0, 0, 0);
 			
@@ -329,21 +328,22 @@ int OptionsMenu(bool inGame) {
 
 
 int PauseMenu() {
-	int numItems = 5;
+	int numItems = 6;
 	menu pauseMenu(numItems);
 	
 	pauseMenu.SetTitle("PAUSED");
 	pauseMenu.NameItem(0, "Resume");
 	pauseMenu.NameItem(1, "Options");
 	pauseMenu.NameItem(2, "Help");
-	pauseMenu.NameItem(3, "Select Level");
-	pauseMenu.NameItem(4, "Quit Game");
+	
+	pauseMenu.NameItem(3, "Resart Level");
+	pauseMenu.NameItem(4, "Change Level");
+	pauseMenu.NameItem(5, "Quit Game");
 	
 	pauseMenu.Move(SCREEN_W / 2, 100);
 	pauseMenu.AutoArrange(1);
-	pauseMenu.MoveItem(3, pauseMenu.GetItemX(3), pauseMenu.GetItemY(3) + FONT_H);
-	pauseMenu.MoveItem(4, pauseMenu.GetItemX(4), pauseMenu.GetItemY(4) + FONT_H);
-	
+	pauseMenu.SpaceItems(3);
+
 	int action;
 	
 	while (true) {
@@ -461,7 +461,6 @@ int SelectLevelMenu() {
 	int numItems = 1;
 	menu lvlMenu(numItems); // Create the menu object
 	char text[32]; // For temporarily holding menu items' text as it is formed
-	//char tempString[10];
 	int bottomY = SCREEN_H - FONT_H - 4;
 	
 	uint oldLevel = 0;
@@ -472,7 +471,6 @@ int SelectLevelMenu() {
 	
 	/** Set static menu items **/
 	lvlMenu.Move(SCREEN_W / 2, 4);
-	//lvlMenu.SetTitle("CHOOSE A LEVEL");
 	lvlMenu.SetTitle("");
 
 	bool arrowFlash = true;
@@ -542,9 +540,9 @@ int SelectLevelMenu() {
 		
 		// Draw the flashing arrows on either side of the level #
 		strcpy(text, "<");
-		if (currentLevel > 0 && arrowFlash) DrawText(lvlMenu.GetItemX(0) - FONT_W - 2 - GetTextW(text, 0), bottomY, text, 0, MENU_ITEM_ON_R, MENU_ITEM_ON_G, MENU_ITEM_ON_B);
+		if (currentLevel > 0 && arrowFlash) DrawText(lvlMenu.GetItemX(0) - FONT_W - 2 - GetTextW(text, 0), bottomY, text, 0, TEXT_HIGHLIGHT_R, TEXT_HIGHLIGHT_G, TEXT_HIGHLIGHT_B);
 		strcpy(text, ">");
-		if (currentLevel < numLevels && arrowFlash) DrawText(lvlMenu.GetItemX(0) + lvlMenu.GetItemW(0, 0) + FONT_W + 2, bottomY, text, 0, MENU_ITEM_ON_R, MENU_ITEM_ON_G, MENU_ITEM_ON_B);
+		if (currentLevel < numLevels && arrowFlash) DrawText(lvlMenu.GetItemX(0) + lvlMenu.GetItemW(0, 0) + FONT_W + 2, bottomY, text, 0, TEXT_HIGHLIGHT_R, TEXT_HIGHLIGHT_G, TEXT_HIGHLIGHT_B);
 
 		SDL_UpdateRect(screenSurface, 0, 0, 0, 0);
 		

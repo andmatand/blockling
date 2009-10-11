@@ -27,10 +27,17 @@ int GetTextW(char *text, int spacing);
 
 
 
-/*** Variable Declarations ***/
+/*** Variable/Constant Declarations ***/
 const uint FONT_ARRAY_SIZE = (122 - 33) + 1;
 const int FONT_H = 16;
 const int FONT_W = 16;
+const uint TEXT_NORMAL_R = 220;
+const uint TEXT_NORMAL_G = 220;
+const uint TEXT_NORMAL_B = 220;
+const uint TEXT_HIGHLIGHT_R = 251;
+const uint TEXT_HIGHLIGHT_G = 177;
+const uint TEXT_HIGHLIGHT_B = 17;
+
 
 typedef struct {
 	uint w;

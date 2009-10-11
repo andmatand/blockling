@@ -118,7 +118,7 @@ class replay {
 	private:
 		char *filename;		// Full path to read/write the replay file from/to.
 		
-		FILE * fp;		// Pointer to file stream
+		FILE *fp;		// Pointer to file stream
 		
 		uint bufferSize;	// Number of replaySteps that will be
 					// simultaneously held in the buffer.
@@ -126,6 +126,8 @@ class replay {
 		replayStep *steps;	// Will point to an array of replaySteps
 		
 		uint pos;		// The current step (whether recording or playing)
+		
+		uint *timestamps;	// Will point to an array of timestamps (timestamps come after sleeps)
 };
 
 // Constructor
@@ -133,6 +135,7 @@ replay::replay(char *file, uint buffSize):
 pos(0) {
 	bufferSize = buffSize;
 	steps = new replayStep[bufferSize];
+	timestamps = new uint[bufferSize];
 	
 	if (file != NULL) {
 		filename = new char[strlen(file) + 1];
@@ -187,6 +190,7 @@ void replay::InitWrite() {
 
 void replay::DeInitWrite() {
 	DumpBuffer(); // Make sure to finish writing anything still in the buffer
+	timestamps[pos] = levelTime;
 	
 	if (fclose(fp) != 0) {
 		fprintf(stderr, "File error: Could not close replay file \"%s\"", filename);
@@ -200,12 +204,22 @@ void replay::DeInitWrite() {
 
 
 void replay::DumpBuffer() {
+	static uint lastTimestamp = 0;
+	
 	for (uint i = 0; (i < pos) && (i < bufferSize); i++) {
 		// If the button was pushed more than once, print the number of times first
 		if (steps[i].GetNum() > 1) fprintf(fp, "%d", steps[i].GetNum());
 		
 		// Print the symbol which identifies the action type
 		fprintf(fp, "%c\n", steps[i].GetSymbol());
+		
+		// Print the position of the level timer after each step, so that
+		// if the replay is played back with skipSleep, the timer can
+		// still be kept accurate.
+		if (timestamps[i] > lastTimestamp) {
+			lastTimestamp = timestamps[i];
+			fprintf(fp, "%d\n", timestamps[i]);
+		}
 	}
 	
 	// Reset position
@@ -289,6 +303,20 @@ void replay::FillBuffer() {
 					// Set the key
 					steps[i].SetKey(k);
 					
+					// Clear the timestamp
+					timestamps[i] = 0;
+					
+					// Stop examining this line
+					break;
+				}
+				// If the line contains nothing but a number, it is a level timer position
+				else if (i > 0 && j + 1 == strlen(line)) {
+					n = static_cast<uint>(strtoul(tempString, NULL, 0));
+					timestamps[i - 1] = n;
+					
+					// Don't count this as a replayStep
+					i--;
+					
 					// Stop examining this line
 					break;
 				}
@@ -304,7 +332,8 @@ void replay::FillBuffer() {
 	// If the whole buffer was not filled (i.e. EOF was reached)
 	if (i < bufferSize) {
 		// Raise a flag for PushNextKey to know when to stop
-		steps[i].SetKey(100);
+		steps[i - 1].SetKey(100);
+		timestamps[i - 1] = 0;
 	}
 	
 	// Reset position
@@ -317,6 +346,8 @@ void replay::FillBuffer() {
 void replay::SaveKey(char key) {
 	/*** Check if the number of presses is at the variable's maximum value ***/
 	bool maxNum = false;
+	
+	// Check if the number of presses has exceeded the variable's max value
 	if (pos > 0) {
 		// Add one to the num
 		steps[pos - 1].SetNum(steps[pos - 1].GetNum() + 1);
@@ -340,6 +371,12 @@ void replay::SaveKey(char key) {
 		printf("[replay] New key (%d) was pressed.\n", key);
 		#endif
 		
+		// Update the current level timer position
+		if (pos > 0) {
+			timestamps[pos - 1] = levelTime;
+		}
+		
+
 		// If the buffer is filled
 		if (pos == bufferSize) {
 			#ifdef DEBUG_REPLAY
@@ -354,6 +391,9 @@ void replay::SaveKey(char key) {
 		steps[pos].SetKey(key);
 		steps[pos].SetNum(1);
 		
+		// Save the current level timer position for the current key (will proabably be updated later)
+		timestamps[pos] = levelTime;
+		
 		// Make pos contain the number of the next step
 		pos++;
 	}
@@ -363,6 +403,9 @@ void replay::SaveKey(char key) {
 		
 		// Increment the number of presses of the last key
 		steps[pos - 1].SetNum(steps[pos - 1].GetNum() + 1);
+		
+		// Save the current level timer position
+		timestamps[pos - 1] = levelTime;
 	}
 }
 
@@ -378,6 +421,13 @@ char replay::GetNextKey(bool skipSleep) {
 		
 		// If we've finished pushing the key the required number of times
 		if (steps[pos].GetNum() == 0) {
+			// Adjust the timer according to the timestamp
+			if (timestamps[pos] != 0) {
+				printf("Setting levelTime to %d\n", timestamps[pos]);
+				levelTime = timestamps[pos];
+				levelTimeTick = SDL_GetTicks();
+			}
+
 			// If this is the last step in the buffer
 			if (pos == bufferSize - 1) {
 				// Read more steps from the file
@@ -435,7 +485,7 @@ void replay::PushNextKey(bool skipSleep) {
 	PushKey(k);
 	
 	// Decrement the number of times we must push the key
-	steps[pos].SetNum(steps[pos].GetNum() - 1);
+	steps[pos].SetNum(steps[pos].GetNum() - 1);	
 }
 
 // Press the next key in the replay file

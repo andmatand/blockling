@@ -68,6 +68,7 @@ int Game() {
 	char s[11];
 	bool pushedKey;
 	bool quitGame = false;
+	bool restartLevel;
 	float cameraXVel, cameraYVel;
 	uint wonLevelTimer = 0;
 
@@ -76,8 +77,8 @@ int Game() {
 
 	// Replay variables
 	bool recordingReplay = false;
-	bool showingReplay = false;
-	bool replayFastFwd = true;
+	showingReplay = false;
+	bool replaySkipSleep = false;
 	int currentReplayKey;
 	bool replayKeyWorked;
 	
@@ -95,9 +96,9 @@ int Game() {
 		levelTimeRunning = false;
 		physicsStarted = false;
 
-		if (stickyPlayer || showingReplay || currentLevel != oldLevel) {
+		if (stickyPlayer || showingReplay || currentLevel != oldLevel || restartLevel) {
+			// Load Level without a menu
 			while (true) {
-				// Load Level
 				if (LoadLevel(currentLevel, (stickyPlayer ? true : false)) == false) {
 					fprintf(stderr, "Error: Loading level %d failed.\n", currentLevel);
 	
@@ -109,6 +110,7 @@ int Game() {
 			}
 		}
 		else {
+			// Load Level Menu
 			selectingLevel = true;
 			switch (SelectLevelMenu()) {
 				case 0:
@@ -119,6 +121,7 @@ int Game() {
 			}
 		}
 		selectingLevel = false;
+		restartLevel = false;
 		oldLevel = currentLevel;
 		
 		playerBlock = new int[numPlayers];
@@ -150,7 +153,7 @@ int Game() {
 		// if prefs[0] = 1 {
 			recordingReplay = true;
 		// }
-		replayKeyWorked = true;
+		replayKeyWorked = false;
 	
 		if (showingReplay) {
 			// Initialize the replay for reading
@@ -168,14 +171,61 @@ int Game() {
 		}
 
 		/******* GAME LOOP *******/
-		while (quitGame == false && selectingLevel == false) {
+		while (quitGame == false && selectingLevel == false && restartLevel == false) {
 			#ifdef DEBUG
 			i = currentLevel;
 			#endif
 			
 			//justUndid = false;
-			GameInput();
+			GameInput(showingReplay ? true : false);
 						
+
+			/** Set speed of replay ****/
+			if (showingReplay) {
+				switch (option_replaySpeed) {
+					case 0:
+						// Slow physics
+						blockXSpeed = 1;
+						blockYSpeed = 1;
+						blockYGravity = blockYSpeed;
+
+						// Sleeping preserved
+						replaySkipSleep = false;
+						
+						break;
+					case 1:
+						// Normal-speed physics
+						blockXSpeed = TILE_W / 2;
+						blockYSpeed = TILE_H / 2;
+						blockYGravity = blockYSpeed;
+
+						// Sleeping preserved
+						replaySkipSleep = false;
+						
+						break;
+					case 2:
+						// Normal-speed physics
+						blockXSpeed = TILE_W / 2;
+						blockYSpeed = TILE_H / 2;
+						blockYGravity = blockYSpeed;
+
+						// Sleeping skipped
+						replaySkipSleep = true;
+						
+						break;
+					case 3:
+						// Maximum-speed physics
+						blockXSpeed = TILE_W;
+						blockYSpeed = TILE_H;
+						blockYGravity = blockYSpeed;
+
+						// Sleeping skipped
+						replaySkipSleep = true;
+						
+						break;
+				}
+			}
+
 			#ifdef DEBUG
 			if (currentLevel != i) {
 				showingReplay = false;
@@ -235,19 +285,26 @@ int Game() {
 							case 2: // Help
 								// Help();
 								break;
-							case 3: // Switch Level
+							case 3: // Restart Level
+								b = 1;
+								showingReplay = false;
+								stickyPlayer = false;
+								restartLevel = true;
+								break;
+							case 4: // Switch Level
 								b = 1;
 								showingReplay = false;
 								stickyPlayer = false;
 								selectingLevel = true;
 								break;
+
 							case -1: // Esc
 								b = 1;
 								break; // Resume the game
 							case -2: // Close window
 								b = 1;
 								returnVal = -2;
-							case 4: // Quit Game
+							case 5: // Quit Game
 								b = 1;
 								showingReplay = false;
 								quitGame = true;
@@ -317,8 +374,8 @@ int Game() {
 					// If the next key in the replay is Undo, press that
 					// here (not inside the normal keypressing scope which
 					// requires that the player be on solid ground)
-					if (neatoReplay->GetNextKey(replayFastFwd) == 5) {
-						neatoReplay->PushNextKey(replayFastFwd);
+					if (neatoReplay->GetNextKey(replaySkipSleep) == 5) {
+						neatoReplay->PushNextKey(replaySkipSleep);
 					}
 				}
 				
@@ -351,7 +408,7 @@ int Game() {
 						}
 						
 						if (physicsStarted) {
-							currentReplayKey = neatoReplay->GetNextKey(replayFastFwd);
+							currentReplayKey = neatoReplay->GetNextKey(replaySkipSleep);
 							//printf("currentReplayKey = %d\n", currentReplayKey);
 						
 							// Push the next key if it's okay
@@ -360,7 +417,12 @@ int Game() {
 								//printf("pushing key %d\n", currentReplayKey);
 								
 								neatoReplay->PushKey(currentReplayKey);
-								replayKeyWorked = false;
+								if (currentReplayKey == -1) {
+									replayKeyWorked = true;
+								}
+								else {
+									replayKeyWorked = false;
+								}
 							}
 						}
 					}
@@ -531,7 +593,8 @@ int Game() {
 					}
 					
 					// Only count a replay key as pushed if it did something
-					if (showingReplay && pushedKey && replayKeyWorked) {
+					//if (showingReplay && pushedKey && replayKeyWorked) {
+					if (showingReplay && replayKeyWorked) {
 						neatoReplay->DecrementKey();
 					}
 				}
@@ -672,8 +735,10 @@ int Game() {
 			/** Timer **/
 			// Increment the timer
 			if (levelTimeRunning && wonLevel == 0 && SDL_GetTicks() >= levelTimeTick + 1000) {
-				levelTime ++;
-				levelTimeTick = SDL_GetTicks();
+				if (showingReplay == false || option_replaySpeed == 1) {
+					levelTime ++;
+					levelTimeTick = SDL_GetTicks();
+				}
 			}
 			// Start the timer when the first movement is made
 			if (levelTimeRunning == false && pushedKey) {
@@ -697,7 +762,6 @@ int Game() {
 					telepads[i].Teleport();
 				}
 			}
-			
 			
 			/** Render **/
 			Render(4);
@@ -796,8 +860,6 @@ bool LoadLevel(uint level, bool zing) {
 	char filename[256];
 	sprintf(filename, "%s%s%s/%s", DATA_PATH, LEVEL_PATH, levelSet, levelFile);
 		
-	//delete [] levelSet; levelSet = NULL;
-	
 	FILE * f;
 
 	printf("\nLoading level %d...\n", level);
@@ -975,8 +1037,8 @@ bool LoadLevel(uint level, bool zing) {
 
 	
 	// Default physics settings
-	blockXSpeed = 8;
-	blockYSpeed = 8;
+	blockXSpeed = TILE_W / 2;
+	blockYSpeed = TILE_H / 2;
 	blockXGravity = 0;
 	blockYGravity = blockYSpeed;
 

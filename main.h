@@ -110,11 +110,11 @@ int stickyPlayerOrigX, stickyPlayerOrigY; // The player's game coordinates
 
 
 // Options
-uint option_undoSize = 300;
+uint option_undoSize;
 bool option_soundOn = true;
 bool option_musicOn = true;
-uint option_levelSet = 0;
-
+uint option_levelSet;
+int option_replaySpeed;
 
 
 /******* HEADER INCLUDES *******/
