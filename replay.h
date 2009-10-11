@@ -128,6 +128,7 @@ class replay {
 		uint pos;		// The current step (whether recording or playing)
 		
 		uint *timestamps;	// Will point to an array of timestamps (timestamps come after sleeps)
+		uint lastTimestamp;
 };
 
 // Constructor
@@ -179,6 +180,7 @@ void replay::DeInitRead() {
 
 void replay::InitWrite() {
 	pos = 0;
+	lastTimestamp = 0;
 	fp = fopen(filename, "w");
 	
 	if (fp == NULL) {
@@ -205,8 +207,6 @@ void replay::DeInitWrite() {
 
 
 void replay::DumpBuffer() {
-	static uint lastTimestamp = 0;
-	
 	for (uint i = 0; (i < pos) && (i < bufferSize); i++) {
 		// If the button was pushed more than once, print the number of times first
 		if (steps[i].GetNum() > 1) fprintf(fp, "%d", steps[i].GetNum());

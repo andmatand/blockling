@@ -251,6 +251,12 @@ int Game() {
 						case 1: // Take Control
 							// Turn off any keys that might still be on
 							TurnOffAllKeys();
+							
+							// Reset physics to normal speed
+							blockXSpeed = TILE_W / 2;
+							blockYSpeed = TILE_H / 2;
+							blockYGravity = blockYSpeed;							
+							
 							showingReplay = false;
 							break;
 						case 2: // Next Level
