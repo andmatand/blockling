@@ -147,6 +147,7 @@ pos(0) {
 replay::~replay() {
 	delete [] filename; filename = NULL;
 	delete [] steps; steps = NULL;
+	delete [] timestamps; timestamps = NULL;
 }
 
 
