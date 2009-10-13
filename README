@@ -3,20 +3,10 @@ Please distribute this file with Blockman:
 The source code of Blockman is available from:
 http://www.billamonster.com/blockman
 
-Blockman is free software.  It is distributed under the terms of the GNU GPL license:
-http://www.gnu.org/copyleft/gpl.html
+Blockman is free software.  It is distributed under the terms of the GNU GPL
+license: http://www.gnu.org/copyleft/gpl.html
 
-=====================================================================
-=====================================================================
-#####    ####       ###      ####   ###  ##  ##   ##    ##    ##   ##
- ##  ##   ##       ## ##    ##  ##   ##  ##  ### ###   ####   ###  ##
- ##  ##   ##      ##   ##  ##        ## ##   #######  ##  ##  #### ##
- #####    ##      ##   ##  ##        ####    #######  ##  ##  ## ####
- ##  ##   ##   #  ##   ##  ##        ## ##   ## # ##  ######  ##  ###
- ##  ##   ##  ##   ## ##    ##  ##   ##  ##  ##   ##  ##  ##  ##   ##
-######   #######    ###      ####   ###  ##  ##   ##  ##  ##  ##   ##
-=====================================================================
-=====================================================================
+
 
 TABLE OF CONTENTS
 =================
@@ -29,14 +19,15 @@ I. ABOUT
 ========
 In 1993, Doug and Larry Murk of Soleau Software <www.soleau.com> released
 BLOCK-MAN 1.0.  I first played Block-man at my grandmother's house as a young
-lad circa 1996.  It was included on one of those demo CDs which had dozens of
-Shareware/Demo games on them.  Since Block-man was distributed as "shareware",
-it happened to be included on one of those discs.
+lad circa 1996.  It was included on one of those old demo CDs which would have
+dozens of Shareware/Demo games on them.  Since Block-man was distributed as
+"shareware", it happened to be included on one of those discs.
 
-As I played the game, I was intruiged by its deceitfully simple gameplay;
+As I played the game, I was intrigued by its deceitfully simple gameplay;
 Little blocks, innocently stacked in random piles amidst a room, radiated with
-child-like playfulness, yet the task of arranging them in such a way as to
-reach the exit became a trickier puzzle with each level.
+child-like playfulness; yet, as the levels progressed, the task of arranging
+them in such a way as to reach the exit became a puzzle far too complex for
+most grown men!
 
 
 

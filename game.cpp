@@ -87,7 +87,7 @@ int Game() {
 
 	// Get full filename for the replay temp file
 	char replayTempFile[256];
-	sprintf(replayTempFile, "%stempreplay.tmp", TEMP_PATH);
+	sprintf(replayTempFile, "%sblockman-replay.tmp", TEMP_PATH);
 
 	/*** Loop to advance to next level ***/
 	while(quitGame == false) {
@@ -846,6 +846,14 @@ int Game() {
 
 
 bool LoadLevel(uint level, bool zing) {
+	// Zero all game object count variables
+	numBlocks = 0;
+	numPlayers = 0;
+	numBricks = 0;
+	numTelepads = 0;
+	numTorches = 0;
+	numSpikes = 0;
+	
 	// Find the name of the levelset directory
 	char levelSet[16];
 	switch (option_levelSet) {
@@ -887,12 +895,6 @@ bool LoadLevel(uint level, bool zing) {
 	}
 	bool addNewTelepad;
 	
-	numBlocks = 0;
-	numPlayers = 0;
-	numBricks = 0;
-	numTelepads = 0;
-	numTorches = 0;
-	numSpikes = 0;
 	bool charOnThisLine = false;
 	bool restOfLineIsComment = false;
 	int numExits = 0;

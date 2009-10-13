@@ -45,17 +45,22 @@ const unsigned char NUM_TORCH_FLAMES = 8;
 const unsigned char NUM_TELEPAD_STATES = 3;
 const unsigned char NUM_EXIT_FRAMES = 3;
 const unsigned char NUM_ITEM_TYPES = 1;
+const unsigned char NUM_LEVEL_SETS = 3;
 const unsigned char TELEPAD_H = 4;
 const std::string GAME_TITLE = "Blockman";
 const std::string TILE_BASE_DIR = "data/tiles/";
 const std::string DEFAULT_TILESET_DIR = "default";
 const std::string DEFAULT_LEVELSET_DIR = "default";
-const char TEMP_PATH[] = "./";
 const char DATA_PATH[] = "data/";
 const char FONT_PATH[] = "font/";
 const char MUSIC_PATH[] = "music/";
 const char SOUND_PATH[] = "sound/";
 const char LEVEL_PATH[] = "levels/";
+#ifdef WINDOZE
+	const char TEMP_PATH[] = "./";
+#else
+	const char TEMP_PATH[] = "/tmp/";
+#endif
 
 
 
@@ -85,7 +90,6 @@ uint numTelepads;
 uint numItems;
 
 uint currentLevel;
-uint numLevels = 999; // This will need to be detected by finding what the last existing level file is
 bool selectingLevel; // If we are currently in the pseudo-menu for selecting a level
 bool levelTimeRunning; // If the level timer is running
 uint levelTime;	//How long the player has taken on this level (in milliseconds)

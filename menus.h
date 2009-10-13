@@ -94,6 +94,7 @@ class menu {
 		int GetSel() const { return sel; };
 		
 		/*** Set ***/
+		void SetSel(int s) { sel = s; };
 		void Move(int xPos, int yPos) { x = xPos; y = yPos; };
 		void MoveItem(uint item, int xPos, int yPos);
 		void NameItem(uint item, const char *name);

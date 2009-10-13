@@ -37,7 +37,15 @@ void GlobalInput(SDL_Event event) {
 					
 				// Toggle fullscreen
 				case SDLK_f:
-					printf("FullScreen toggle: %d\n", SDL_WM_ToggleFullScreen(screenSurface));
+					#ifdef WINDOWS
+						screenSurface = SDL_SetVideoMode(surface->w,
+								surface->h,
+								surface->format->BitsPerPixel,
+								SDL_HWSURFACE |
+									(surface->flags & (SDL_FULLSCREEN ? 0 : SDL_FULLSCREEN)));
+					#else
+						printf("FullScreen toggle: %d\n", SDL_WM_ToggleFullScreen(screenSurface));
+					#endif
 					break;
 				
 				default:
@@ -249,6 +257,13 @@ void GameInput(bool inReplay) {
 //	10 Page Up
 //	11 Page Down
 char MenuInput() {
+	// Keep track of which key is currently held down
+	static char keyDown = 0;
+	bool keyRepeating;
+	static uint keyTimer = 0;
+	
+	char oldKeyDown = keyDown;
+	
 	while (SDL_PollEvent(&event)) {
 		GlobalInput(event);
 		switch (event.type) {
@@ -258,16 +273,16 @@ char MenuInput() {
 					case SDLK_RETURN:
 						return 5;
 					case SDLK_UP:
-						return 1;
+						keyDown = 1;
 						break;
 					case SDLK_DOWN:
-						return 2;
+						keyDown = 2;
 						break;
 					case SDLK_LEFT:
-						return 3;
+						keyDown = 3;
 						break;
 					case SDLK_RIGHT:
-						return 4;
+						keyDown = 4;
 						break;
 					case SDLK_HOME:
 						return 6;
@@ -289,13 +304,50 @@ char MenuInput() {
 						break;
 				}
 				break;
-			//case SDL_KEYUP:
-				
-			//	break;
+			case SDL_KEYUP:
+				switch (event.key.keysym.sym) {
+					case SDLK_UP:
+						if (keyDown == 1) keyDown = 0;
+						break;
+					case SDLK_DOWN:
+						if (keyDown == 2) keyDown = 0;
+						break;
+					case SDLK_LEFT:
+						if (keyDown == 3) keyDown = 0;
+						break;
+					case SDLK_RIGHT:
+						if (keyDown == 4) keyDown = 0;
+						break;
+					default:
+						break;
+				}
+				break;
 			case SDL_QUIT:
 				return 9;
 				break;
 		}
+	}
+	
+	
+	/** Handle repeat rate of arrow keys ****/
+	
+	// If this key was not pushed last time
+	if (keyDown != oldKeyDown) {
+		keyRepeating = false;
+		keyTimer = SDL_GetTicks();
+		return keyDown;
+	}
+	// If the key is being held down
+	else {
+		// Initial delay
+		if (SDL_GetTicks() >= keyTimer + 200) {
+			keyRepeating = true;
+		}
+	}
+
+	if (keyRepeating && SDL_GetTicks() >= keyTimer + 50) {
+		keyTimer = SDL_GetTicks();
+		return keyDown;
 	}
 	
 	return 0;
