@@ -130,7 +130,7 @@ int MainMenu() {
 	int numItems = 3;
 	menu mainMenu(numItems);
 	
-	mainMenu.SetTitle("BLOCKMAN");
+	mainMenu.SetTitle(GAME_TITLE);
 	mainMenu.NameItem(0, "Play");
 	mainMenu.NameItem(1, "Options");
 	mainMenu.NameItem(2, "Quit");
@@ -526,7 +526,7 @@ int SelectLevelMenu() {
 		if (option_levelSet > 0) strcat(text, "< ");
 		switch (option_levelSet) {
 			case 0:
-				strcat(text, "BLOCKMAN");
+				strcat(text, GAME_TITLE);
 				break;
 			case 1:
 				strcat(text, "BLOCK-MAN 1");

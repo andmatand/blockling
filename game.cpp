@@ -847,12 +847,13 @@ FILE * OpenLevel(uint level) {
 	char levelSet[16];
 	switch (option_levelSet) {
 		case 0:
-			//levelSet = new char[8];
 			sprintf(levelSet, "default");
 			break;
 		case 1:
-			//levelSet = new char[6];
 			sprintf(levelSet, "bman1");
+			break;
+		case 2:
+			sprintf(levelSet, "custom");
 			break;
 	}
 

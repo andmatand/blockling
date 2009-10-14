@@ -66,7 +66,7 @@ int main(int argc, char** argv) {
 		exit(1);
 	}
 	
-	SDL_WM_SetCaption("Blockman", NULL);
+	SDL_WM_SetCaption(GAME_TITLE, NULL);
 	SDL_ShowCursor(SDL_DISABLE);
 	
 	Init();
