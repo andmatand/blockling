@@ -842,18 +842,7 @@ int Game() {
 
 
 
-
-
-
-bool LoadLevel(uint level, bool zing) {
-	// Zero all game object count variables
-	numBlocks = 0;
-	numPlayers = 0;
-	numBricks = 0;
-	numTelepads = 0;
-	numTorches = 0;
-	numSpikes = 0;
-	
+FILE * OpenLevel(uint level) {
 	// Find the name of the levelset directory
 	char levelSet[16];
 	switch (option_levelSet) {
@@ -867,18 +856,35 @@ bool LoadLevel(uint level, bool zing) {
 			break;
 	}
 
-	bool syntaxError = false;
-	
 	char levelFile[4];
 	sprintf(levelFile, "%03d", level);
 	char filename[256];
 	sprintf(filename, "%s%s%s/%s", DATA_PATH, LEVEL_PATH, levelSet, levelFile);
-		
-	FILE * f;
 
 	printf("\nLoading level %d...\n", level);
 	printf("filename: \"%s\"\n", filename);
-	f = fopen(filename, "rb");
+
+	return fopen(filename, "rb");
+}
+
+
+
+
+bool LoadLevel(uint level, bool zing) {
+	// Zero all game object count variables
+	numBlocks = 0;
+	numPlayers = 0;
+	numBricks = 0;
+	numTelepads = 0;
+	numTorches = 0;
+	numSpikes = 0;
+	
+
+
+	bool syntaxError = false;
+	
+	FILE *f;
+	f = OpenLevel(level);
 	if (f == NULL) {
 		return false;
 	}

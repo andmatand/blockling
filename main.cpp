@@ -166,6 +166,7 @@ void Init() {
 	option_undoSize = 300;
 	option_levelSet = 0;
 	option_replaySpeed = 2;
+	option_background = 2;
 }
 
 

@@ -1,8 +1,11 @@
--Add tab support to DrawText
+-Move camera movement into a function so it can be called also from the Load Level menu
+-In load level menu, check if next level exists so we know whether to draw the >
+-Add tab support to DrawText (for control setup menu.  It would look nice if they were aligned better.)
 -Add background scrolling on/off option
 -Maybe: Holding down shift with arrows makes player walk as far as possible
 -Spinach/other items?
 -Speech
+-Save/load settings to a file
 
 ==Bugs==
 -Undo memory of 1 does not work

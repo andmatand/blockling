@@ -463,6 +463,7 @@ int SelectLevelMenu() {
 	char text[32]; // For temporarily holding menu items' text as it is formed
 	int bottomY = SCREEN_H - FONT_H - 4;
 	
+	FILE *testFile;
 	bool refreshLevel = true;
 	uint numLevels = 999;
 	
@@ -497,6 +498,14 @@ int SelectLevelMenu() {
 					if (currentLevel <= 0) break;
 					currentLevel--;
 					continue;
+				}
+				
+				testFile = OpenLevel(currentLevel + 1);
+				if (testFile != NULL) {
+					fclose(testFile);
+				}
+				else {
+					numLevels = currentLevel + 1;
 				}
 				
 				/*** Do Telepads (including teleportation animation) ***/

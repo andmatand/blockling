@@ -23,7 +23,7 @@
 int Game ();
 void Undo(char action);
 bool LoadLevel(uint level, bool zing);
-
+FILE * OpenLevel(uint level);
 
 
 /** Variables ****/

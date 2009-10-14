@@ -119,6 +119,7 @@ bool option_soundOn = true;
 bool option_musicOn = true;
 uint option_levelSet;
 int option_replaySpeed;
+char option_background;
 
 
 /******* HEADER INCLUDES *******/
