@@ -260,7 +260,7 @@ void GameInput(bool inReplay) {
 char MenuInput() {
 	// Keep track of which key is currently held down
 	static char keyDown = 0;
-	bool keyRepeating;
+	static bool keyRepeating;
 	static uint keyTimer = 0;
 	
 	char oldKeyDown = keyDown;
@@ -339,13 +339,14 @@ char MenuInput() {
 		return keyDown;
 	}
 	// If the key is being held down
-	else {
+	else if (keyRepeating == false) {
 		// Initial delay
-		if (SDL_GetTicks() >= keyTimer + 200) {
+		if (SDL_GetTicks() >= keyTimer + 250) {
 			keyRepeating = true;
 		}
 	}
-
+	
+	// Repeat delay
 	if (keyRepeating && SDL_GetTicks() >= keyTimer + 50) {
 		keyTimer = SDL_GetTicks();
 		return keyDown;

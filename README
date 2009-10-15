@@ -29,9 +29,23 @@ child-like playfulness; yet, as the levels progressed, the task of arranging
 them in such a way as to reach the exit became a puzzle far too complex for
 most grown men!
 
+Being an avid QBasic programmer from the age of nine, I figured I'd attempt to
+implement my own version of Block-man.  I did so rather succesfully, adding my
+own touches such as telepads and the ability to push blocks and turn around
+without walking.  These additions gave the game a somewhat different dynamic,
+and I was pleased overall with the result, except for one big problem: I had
+written the whole thing in QBasic.  Becuase my code was much too large for the
+simple QBasic interpreter, not only was I forced to stop adding to it, but I
+was unable to compile it into an executable, thus making it impossible to 
+distribute to others in any practical way.  Don't use QBasic, folks (not that
+anyone does anymore anyway).
+
+Many years later, I discovered Linux (*applause*).  
 
 
-==CONTROLS==
+
+II. CONTROLS
+============
 Esc     Menu
 F1      Help (not yet implemented)
 F2      Toggle Music
