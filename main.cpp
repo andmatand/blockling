@@ -159,6 +159,9 @@ void Init() {
 	gameKeys[5].sym = SDLK_s;	// Move camera down
 	gameKeys[5].mod = KMOD_NONE;	// modifier
 
+	gameKeys[6].sym = SDLK_F5;	// Restart Level
+	gameKeys[6].mod = KMOD_NONE;	// modifier
+
 	ResetDefaultKeys();
 	
 	currentLevel = 0;

@@ -172,13 +172,15 @@ int Game() {
 
 		/******* GAME LOOP *******/
 		while (quitGame == false && selectingLevel == false && restartLevel == false) {
-			#ifdef DEBUG
-			i = currentLevel;
-			#endif
-			
-			//justUndid = false;
 			GameInput(showingReplay ? true : false);
 						
+			// Handle Restart Level key
+			if (gameKeys[6].on == 1) {
+				showingReplay = false;
+				stickyPlayer = false;
+				restartLevel = true;
+				break;
+			}
 
 			/** Set speed of replay ****/
 			if (showingReplay) {
@@ -225,13 +227,6 @@ int Game() {
 						break;
 				}
 			}
-
-			#ifdef DEBUG
-			if (currentLevel != i) {
-				showingReplay = false;
-				break;
-			}
-			#endif
 
 
 			/*** Pause Menu (when Esc is pushed) ***/
