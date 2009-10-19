@@ -127,7 +127,7 @@ void CenterCamera(char override) {
 	int maxYVel;
 	
 	// If camera has recently been manually moved
-	if (manualCameraTimer > 0 && SDL_GetTicks() < manualCameraTimer + 2000) {
+	if (override == 0 && manualCameraTimer > 0 && SDL_GetTicks() < manualCameraTimer + 2000) {
 		// Don't allow camera to move too far away with the level completely offscreen
 		if (cameraX + SCREEN_W < levelX)
 			cameraX = levelX - SCREEN_W;
@@ -266,10 +266,13 @@ void CenterCamera(char override) {
 	
 	
 	// Move the camera instantly
-	if (override == 1) {
-		//cameraXVel = 0;
-		//cameraYVel = 0;
-		
+	if (override == 1 || override == -1) {
+		if (override == -1) {
+			cameraXVel = 0;
+			cameraYVel = 0;
+		}
+		printf("\ncameraY = %d\n targetY = %d\n", cameraY, targetY);
+	
 		cameraX = targetX;
 		cameraY = targetY;
 		

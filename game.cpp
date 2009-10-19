@@ -1436,7 +1436,10 @@ void Undo(char action) {
 			if (undoSlot == -1) undoSlot = maxUndo - 1;
 
 			
-			//justUndid = true; // Flag to tell telepads to ignore new occupants
+			// Instantly move camera back to player
+			SetCameraTargetBlock(0);
+			CenterCamera(-1);
+			
 			
 			#ifdef DEBUG_UNDO
 			printf("UndoEnd = %d\n", undoEnd);
