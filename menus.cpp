@@ -167,50 +167,82 @@ int MainMenu() {
 
 
 int OptionsMenu(bool inGame) {
-	int numItems = 5;
+	int numItems = 6;
 	menu optMenu(numItems); // Create the menu object
-	char text[256]; // For temporarily holding menu items' text as it is formed
-	char tempString[11];
+	char text[64]; // For temporarily holding menu items' text as it is formed
 	
 	uint maxUndoSize = 500;
 	char change_undoSize;
+	
+	char maxBackground = 2;
 	
 	int action;
 	
 	/** Set static menu items **/
 	optMenu.Move(inGame ? SCREEN_W / 2 : 75, 100);
 	optMenu.SetTitle("OPTIONS");
-	optMenu.NameItem(3, "Control Setup");
-	optMenu.NameItem(4, "Done");
+	optMenu.NameItem(4, "Control Setup");
+	optMenu.NameItem(5, "Done");
 
 	while (true) {
 		/** Set dynamic menu items' text *****************/
 		// Determine Undo text
-		sprintf(text, "Undo Memory: ");
-		if (option_undoSize > 0) strcat(text, "<"); else strcat(text, " ");
-		
-		sprintf(tempString, " %d move", option_undoSize);
-		if (option_undoSize != 1) strcat(tempString, "s");
-		strcat(text, tempString);
-		
-		if (option_undoSize < maxUndoSize) strcat(text, " >");
-		
-		// Set it
+		sprintf(text, "Undo Memory:");
 		optMenu.NameItem(0, text);
 		
+		sprintf(text, "%d move", option_undoSize);
+		if (option_undoSize != 1) strcat(text, "s");
+		optMenu.SetItemValue(0, text);
 		
-		// Determine Sound text
-		sprintf(text, "Sound: ");
-		strcat(text, (option_soundOn ? "ON" : "OFF"));
-		// Set it
+		optMenu.SetLeftArrow(0,
+			(option_undoSize > 0) ? 1 : 0);
+		optMenu.SetRightArrow(0,
+			(option_undoSize < maxUndoSize) ? 1 : 0);
+		
+
+		// Determine Background text
+		sprintf(text, "Background:");
 		optMenu.NameItem(1, text);
+		switch (option_background) {
+			case 0:
+				strcat(text, "OFF");
+				break;
+			case 1:
+				strcat(text, "STATIC");
+				break;
+			case 2:
+				strcat(text, "SCROLLING");
+				break;
+		}
+		optMenu.SetItemValue(1, text);
+		
+		optMenu.SetLeftArrow(1,
+			(option_background > 0) ? 1 : 0);
+		optMenu.SetRightArrow(1,
+			(option_background < maxBackground) ? 1 : 0);
+
+		// Determine Sound text
+		sprintf(text, "Sound:");
+		optMenu.NameItem(2, text);
+		strcat(text, (option_soundOn ? "ON" : "OFF"));
+		optMenu.SetItemValue(2, text);
+
+		optMenu.SetLeftArrow(2,
+			(option_soundOn > 0) ? 1 : 0);
+		optMenu.SetRightArrow(2,
+			(option_soundOn < 1) ? 1 : 0);
 
 		
 		// Determine Music text
 		sprintf(text, "Music: ");
+		//optMenu.NameItem(3, text);
 		strcat(text, (option_musicOn ? "ON" : "OFF"));
-		// Set it
-		optMenu.NameItem(2, text);
+		optMenu.SetItemValue(3, text);
+
+		optMenu.SetLeftArrow(3,
+			(option_musicOn > 0) ? 1 : 0);
+		optMenu.SetRightArrow(3,
+			(option_musicOn < 1) ? 1 : 0);
 
 		
 		
@@ -246,15 +278,18 @@ int OptionsMenu(bool inGame) {
 						if (option_undoSize == maxUndoSize) option_undoSize = 0;
 						break;
 					case 1:
-						ToggleSound();
+						if (option_background < maxBackground) option_background++;
 						break;
 					case 2:
-						(option_musicOn) ? option_musicOn = false : option_musicOn = true;
+						ToggleSound();
 						break;
 					case 3:
-						if (ControlSetupMenu(inGame) == -2) return -2;
+						(option_musicOn) ? option_musicOn = false : option_musicOn = true;
 						break;
 					case 4:
+						if (ControlSetupMenu(inGame) == -2) return -2;
+						break;
+					case 5:
 						return -1;
 						break;
 				}
@@ -265,9 +300,12 @@ int OptionsMenu(bool inGame) {
 						change_undoSize = -1;						
 						break;
 					case 1:
-						ToggleSound();
+						if (option_background > 0) option_background--;
 						break;
 					case 2:
+						ToggleSound();
+						break;
+					case 3:
 						(option_musicOn) ? option_musicOn = false : option_musicOn = true;
 						break;
 				}
@@ -278,9 +316,12 @@ int OptionsMenu(bool inGame) {
 						change_undoSize = 1;
 						break;
 					case 1:
-						ToggleSound();
+						if (option_background < maxBackground) option_background++;
 						break;
 					case 2:
+						ToggleSound();
+						break;
+					case 3:
 						(option_musicOn) ? option_musicOn = false : option_musicOn = true;
 						break;
 				}
@@ -473,19 +514,7 @@ int SelectLevelMenu() {
 	lvlMenu.SetTitle("");
 	lvlMenu.SetSel(1); // Select the level number menu item by default
 
-	bool arrowFlash = true;
-	uint arrowTimer = SDL_GetTicks();
-	
 	while (true) {
-		if (SDL_GetTicks() >= arrowTimer + 500) {
-			arrowFlash = (arrowFlash ? false : true);
-			arrowTimer = SDL_GetTicks();
-		}
-		
-
-
-
-		
 		/** Load Level *****************/
 		if (refreshLevel) {
 			while (true) {
@@ -541,9 +570,12 @@ int SelectLevelMenu() {
 		
 		// Determine Level text
 		sprintf(text, "Level %d", currentLevel);
-		// Set it
-		lvlMenu.NameItem(1, text);		
-		
+		lvlMenu.SetItemValue(1, text);
+
+		lvlMenu.SetLeftArrow(1,
+			(currentLevel > 0) ? 1 : 0);
+		lvlMenu.SetRightArrow(1,
+			(currentLevel < numLevels - 1) ? 1 : 0);
 		
 		
 		/** Render *****************/
@@ -557,19 +589,7 @@ int SelectLevelMenu() {
 		// Display the menu
 		lvlMenu.Display();
 		
-		// Draw the flashing arrows on either side of the level #
-		if (lvlMenu.GetSel() == 1) {
-			if (currentLevel > 0) {
-				strcpy(text, "<");
-				if (arrowFlash) DrawText(lvlMenu.GetItemX(1) - FONT_W - 2 - GetTextW(text, 0), bottomY, text, 0, TEXT_HIGHLIGHT_R, TEXT_HIGHLIGHT_G, TEXT_HIGHLIGHT_B);
-			}
-			
-			if (currentLevel < numLevels - 1) {
-				strcpy(text, ">");
-				if (arrowFlash) DrawText(lvlMenu.GetItemX(1) + lvlMenu.GetItemW(1, 0) + FONT_W + 2, bottomY, text, 0, TEXT_HIGHLIGHT_R, TEXT_HIGHLIGHT_G, TEXT_HIGHLIGHT_B);
-			}
-		}
-
+		// Update the screen
 		SDL_UpdateRect(screenSurface, 0, 0, 0, 0);
 		
 		

@@ -47,6 +47,8 @@ class telepad {
 
 		int GetOccupant1(); // Returns which block is currently on the first telepad
 		int GetOccupant2(); // Returns which block is currently on the second telepad
+
+		SDL_Surface* GetSurface(bool animate); // Returns correct surface, based on state (in graphics.cpp)
 	
 
 		/** Set **/
@@ -59,7 +61,6 @@ class telepad {
 		bool NeedsToTeleport();	// in physics.cpp
 		void Teleport(); 	// in physics.cpp
 		void DeInitTeleport(bool freePointers);	// in physics.cpp
-		SDL_Surface* GetSurface(); // Returns correct surface, based on state (in graphics.cpp)
 
 	private:
 		int x1, y1;	// First telepad
@@ -94,7 +95,7 @@ int telepad::GetOccupant2() {
 
 
 
-SDL_Surface* telepad::GetSurface() {
+SDL_Surface* telepad::GetSurface(bool animate) {
 	static uint t = 0;
 	
 	switch (state) {
@@ -102,6 +103,8 @@ SDL_Surface* telepad::GetSurface() {
 			return telepadSurface[0];
 			break;
 		case 1:
+			if (animate == false) return telepadSurface[1];
+			
 			if (SDL_GetTicks() < t + 500) {
 				return telepadSurface[1];
 			}
@@ -112,6 +115,8 @@ SDL_Surface* telepad::GetSurface() {
 			
 			break;
 		case 2:
+			if (animate == false) return telepadSurface[2];
+			
 			if (SDL_GetTicks() < t + 100) {
 				return telepadSurface[2];
 			}
@@ -381,7 +386,21 @@ void telepad::Teleport() {
 		
 		// Move multiple squares at a time, and always proportionate to the
 		// load size (so it will always appear to be the same speed)
-		for (uint i = 0; i < (sH / squareSize); i++) {
+		uint numLoops = sH / squareSize;
+		if (showingReplay) {
+			switch (option_replaySpeed) {
+				case 0:
+					numLoops = 1;
+					break;
+				case 2:
+					numLoops = sH / (squareSize / 2);
+					break;
+				case 3:
+					numLoops = squareSize * sH;
+					break;
+			}
+		}
+		for (uint i = 0; i < numLoops; i++) {
 			// Check if we've moved all the pixels over
 			numPixels = 0;
 			for (uint j = 0; j < (sH * TILE_W) / squareSize; j++) {
@@ -405,7 +424,7 @@ void telepad::Teleport() {
 				}
 			}
 		
-			// Trasfer one squares at a time (whose dimensions are (squareSize / 2) x (squareSize / 2))
+			// Trasfer one square at a time (whose dimensions are (squareSize / 2) x (squareSize / 2))
 			for (uint sqY = 0; sqY < squareSize / 2; sqY++) {
 				for (uint sqX = 0; sqX < squareSize / 2; sqX++) {
 					// Get pixel color from source

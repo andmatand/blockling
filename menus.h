@@ -36,7 +36,10 @@ int SelectLevelMenu();
 class menuItem {
 	public:
 		// Constructor
-		menuItem():text(NULL) {}
+		menuItem():
+			text(NULL),
+			value(NULL)
+			{}
 	
 		// Destructor Prototype
 		~menuItem();
@@ -44,8 +47,11 @@ class menuItem {
 		/*** Get ***/
 		int GetX() const { return x; };
 		int GetY() const { return y; };
-		int GetW(int letterSpacing) const { return GetTextW(text, letterSpacing); }; // GetTextW is in font.cpp
+		int GetW(int letterSpacing) const;
 		char* GetText() const { return text; };
+		char* GetValue() const { return value; };
+		bool GetLeftArrow() const { return leftArrow; };
+		bool GetRightArrow() const { return rightArrow; };
 	
 		/*** Set ***/
 		void SetX(int xPos) { x = xPos; };
@@ -53,25 +59,45 @@ class menuItem {
 		
 		void DelText() { delete [] text; text = NULL; }; // This must be called before SetText
 		void SetText(char *txt);
+		
+		void DelValue() { delete [] value; value = NULL; }; // This must be called before SetText
+		void SetValue(char *txt);
+	
+		void SetLeftArrow(bool on) { leftArrow = on; };
+		void SetRightArrow(bool on) { rightArrow = on; };
 	
 	private:
 		int x;
 		int y;
 		char *text;
+		bool leftArrow;		// Left flashing arrow
+		bool rightArrow;	// Right flashing arrow
 };
 
 // Destructor
 menuItem::~menuItem() {
-	delete [] text;
-	text = NULL;
+	DelText();
+	DelValue();
 }
 
+
+int menuItem::GetW(int letterSpacing) const {
+	// GetTextW is in font.cpp
+	return GetTextW(text, letterSpacing);
+};
 
 void menuItem::SetText(char *txt) {
 	DelText();
 	
 	text = new char[strlen(txt) + 1];
 	strcpy(text, txt);
+}
+
+void menuItem::SetValue(char *txt) {
+	DelValue();
+	
+	value = new char[strlen(txt) + 1];
+	strcpy(value, txt);
 }
 
 
@@ -97,17 +123,25 @@ class menu {
 		void SetSel(int s) { sel = s; };
 		void Move(int xPos, int yPos) { x = xPos; y = yPos; };
 		void MoveItem(uint item, int xPos, int yPos);
+		
 		void NameItem(uint item, const char *name);
 		void NameItem(uint item, char *name);
 		
+		void SetItemValue(uint item, const char *txt);
+		void SetItemValue(uint item, char *txt);
+		
 		void SetTitle(const char *aTitle);
 		void SetTitle(char *aTitle);
+		
+		void SetLeftArrow(uint item, bool on) { items[item].SetLeftArrow(on); };
+		void SetRightArrow(uint item, bool on) { items[item].SetRightArrow(on); };
 		
 		/*** Other ***/
 		void AutoArrange(char type);
 		void Display();
 		int Input();
 		void SpaceItems(uint startItem);
+	
 	private:
 		char *title;		// Title of the menu.
 		int titleLetterSpacing;	// Letter spacing increase for title text.
@@ -163,15 +197,22 @@ void menu::SetTitle(char *aTitle) {
 
 // Overloaded for both "const char *" and "char *"
 void menu::NameItem(uint item, const char *name) {
-	// Clean up old text data
-	items[item].DelText();
-	
 	char tempName[strlen(name) + 1];
 	strcpy(tempName, name);
 	items[item].SetText(tempName);
 }
 void menu::NameItem(uint item, char *name) {
 	items[item].SetText(name);
+}
+
+// Overloaded for both "const char *" and "char *"
+void menu::SetItemValue(uint item, const char *txt) {
+	char tempTxt[strlen(txt) + 1];
+	strcpy(tempTxt, txt);
+	SetItemValue(item, tempTxt);
+}
+void menu::SetItemValue(uint item, char *txt) {
+	items[item].SetValue(txt);
 }
 
 
@@ -200,7 +241,7 @@ void menu::AutoArrange(char type) {
 		titleX = x - (GetTextW(title, titleLetterSpacing) / 2);
 
 		for (uint i = 0; i < numItems; i++) {
-			items[i].SetX(x - (items[i].GetW(0) / 2));
+			items[i].SetX(x - (items[i].GetW(0) / 2));	
 		}
 	}
 }
@@ -217,7 +258,16 @@ void menu::MoveItem(uint item, int xPos, int yPos) {
 
 void menu::Display() {
 	uint r, g, b;
+	int x; // Keeps track of text cursor x position
+	char arrow[2];
+	static bool arrowFlash = true;
+	static uint arrowTimer = 0;
 	
+	if (SDL_GetTicks() >= arrowTimer + 500) {
+		arrowFlash = (arrowFlash ? false : true);
+		arrowTimer = SDL_GetTicks();
+	}
+
 	if (title != NULL) {
 		DrawText(titleX, titleY, title, titleLetterSpacing, 255, 255, 255);
 	}
@@ -233,8 +283,31 @@ void menu::Display() {
 			g = TEXT_NORMAL_G;
 			b = TEXT_NORMAL_B;
 		}
-		DrawText(items[i].GetX(), items[i].GetY(), items[i].GetText(), 0, r, g, b);
-	}
+		
+		// Draw the item's text
+		if (items[i].GetText() != NULL) {
+			DrawText(items[i].GetX(), items[i].GetY(), items[i].GetText(), 0, r, g, b);
+		}
+		
+		
+		if (items[i].GetValue() != NULL) {
+			x = items[i].GetX() + GetTextW(items[i].GetText(), 0) + FONT_W;
+
+			if (sel == static_cast<int>(i) && arrowFlash && items[i].GetLeftArrow()) {
+				sprintf(arrow, "<");
+				DrawText(x, items[i].GetY(), arrow, 0, r, g, b);
+			}
+			
+			if (sel == static_cast<int>(i)) x += FONT_W * 2;
+			DrawText(x, items[i].GetY(), items[i].GetValue(), 0, r, g, b);
+
+			if (sel == static_cast<int>(i) && arrowFlash && items[i].GetRightArrow()) {
+				x += GetTextW(items[i].GetValue(), 0) + FONT_W;
+				sprintf(arrow, ">");
+				DrawText(x, items[i].GetY(), arrow, 0, r, g, b);
+			}
+		}
+	}	
 }
 
 

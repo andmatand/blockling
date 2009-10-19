@@ -758,8 +758,17 @@ void Render (char flag) {
 
 	/*** TELEPADS ***/
 	for (i = 0; i < numTelepads; i++) {
-		ApplySurface(telepads[i].GetX1() - cameraX, telepads[i].GetY1() - cameraY, telepads[i].GetSurface(), screenSurface);
-		ApplySurface(telepads[i].GetX2() - cameraX, telepads[i].GetY2() - cameraY, telepads[i].GetSurface(), screenSurface);
+		ApplySurface(
+			telepads[i].GetX1() - cameraX,
+			telepads[i].GetY1() - cameraY,
+			telepads[i].GetSurface(flag != 3 ? true : false),
+			screenSurface);
+		
+		ApplySurface(
+			telepads[i].GetX2() - cameraX,
+			telepads[i].GetY2() - cameraY,
+			telepads[i].GetSurface(flag != 3 ? true : false),
+			screenSurface);
 	}
 
 

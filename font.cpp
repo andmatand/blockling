@@ -21,6 +21,8 @@
 
 
 int GetTextW(char *text, int spacing) {
+	if (text == NULL) return 0;
+	
 	int w = 0;
 	int lW = 0; // The current line's width
 	int c;
