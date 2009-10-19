@@ -187,12 +187,9 @@ int OptionsMenu(bool inGame) {
 	while (true) {
 		/** Set dynamic menu items' text *****************/
 		// Determine Undo text
-		sprintf(text, "Undo Memory:");
-		optMenu.NameItem(0, text);
-		
-		sprintf(text, "%d move", option_undoSize);
+		sprintf(text, "Undo Memory: %d move", option_undoSize);
 		if (option_undoSize != 1) strcat(text, "s");
-		optMenu.SetItemValue(0, text);
+		optMenu.NameItem(0, text);
 		
 		optMenu.SetLeftArrow(0,
 			(option_undoSize > 0) ? 1 : 0);
@@ -201,8 +198,7 @@ int OptionsMenu(bool inGame) {
 		
 
 		// Determine Background text
-		sprintf(text, "Background:");
-		optMenu.NameItem(1, text);
+		sprintf(text, "Background: ");
 		switch (option_background) {
 			case 0:
 				strcat(text, "OFF");
@@ -214,7 +210,7 @@ int OptionsMenu(bool inGame) {
 				strcat(text, "SCROLLING");
 				break;
 		}
-		optMenu.SetItemValue(1, text);
+		optMenu.NameItem(1, text);
 		
 		optMenu.SetLeftArrow(1,
 			(option_background > 0) ? 1 : 0);
@@ -222,10 +218,9 @@ int OptionsMenu(bool inGame) {
 			(option_background < maxBackground) ? 1 : 0);
 
 		// Determine Sound text
-		sprintf(text, "Sound:");
-		optMenu.NameItem(2, text);
+		sprintf(text, "Sound: ");
 		strcat(text, (option_soundOn ? "ON" : "OFF"));
-		optMenu.SetItemValue(2, text);
+		optMenu.NameItem(2, text);
 
 		optMenu.SetLeftArrow(2,
 			(option_soundOn > 0) ? 1 : 0);
@@ -235,9 +230,8 @@ int OptionsMenu(bool inGame) {
 		
 		// Determine Music text
 		sprintf(text, "Music: ");
-		//optMenu.NameItem(3, text);
 		strcat(text, (option_musicOn ? "ON" : "OFF"));
-		optMenu.SetItemValue(3, text);
+		optMenu.NameItem(3, text);
 
 		optMenu.SetLeftArrow(3,
 			(option_musicOn > 0) ? 1 : 0);
@@ -303,10 +297,10 @@ int OptionsMenu(bool inGame) {
 						if (option_background > 0) option_background--;
 						break;
 					case 2:
-						ToggleSound();
+						if (option_soundOn) ToggleSound();
 						break;
 					case 3:
-						(option_musicOn) ? option_musicOn = false : option_musicOn = true;
+						option_musicOn = false;
 						break;
 				}
 				break;
@@ -319,10 +313,10 @@ int OptionsMenu(bool inGame) {
 						if (option_background < maxBackground) option_background++;
 						break;
 					case 2:
-						ToggleSound();
+						if (!option_soundOn) ToggleSound();
 						break;
 					case 3:
-						(option_musicOn) ? option_musicOn = false : option_musicOn = true;
+						option_musicOn = true;
 						break;
 				}
 				break;
@@ -552,7 +546,6 @@ int SelectLevelMenu() {
 		/** Set dynamic menu items' text *****************/
 		// Determine Leveset text
 		sprintf(text, "Set: ");
-		if (option_levelSet > 0) strcat(text, "< ");
 		switch (option_levelSet) {
 			case 0:
 				strcat(text, GAME_TITLE);
@@ -564,14 +557,15 @@ int SelectLevelMenu() {
 				strcat(text, "CUSTOM");
 				break;
 		}
-		if (option_levelSet < NUM_LEVEL_SETS - 1) strcat(text, " >");
-		// Set it
 		lvlMenu.NameItem(0, text);
+		lvlMenu.SetLeftArrow(0,
+			(option_levelSet > 0) ? 1 : 0);
+		lvlMenu.SetRightArrow(0,
+			(option_levelSet < NUM_LEVEL_SETS - 1) ? 1 : 0);
 		
 		// Determine Level text
 		sprintf(text, "Level %d", currentLevel);
-		lvlMenu.SetItemValue(1, text);
-
+		lvlMenu.NameItem(1, text);
 		lvlMenu.SetLeftArrow(1,
 			(currentLevel > 0) ? 1 : 0);
 		lvlMenu.SetRightArrow(1,

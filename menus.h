@@ -38,7 +38,8 @@ class menuItem {
 		// Constructor
 		menuItem():
 			text(NULL),
-			value(NULL)
+			leftArrow(false),
+			rightArrow(false)
 			{}
 	
 		// Destructor Prototype
@@ -49,7 +50,6 @@ class menuItem {
 		int GetY() const { return y; };
 		int GetW(int letterSpacing) const;
 		char* GetText() const { return text; };
-		char* GetValue() const { return value; };
 		bool GetLeftArrow() const { return leftArrow; };
 		bool GetRightArrow() const { return rightArrow; };
 	
@@ -60,9 +60,6 @@ class menuItem {
 		void DelText() { delete [] text; text = NULL; }; // This must be called before SetText
 		void SetText(char *txt);
 		
-		void DelValue() { delete [] value; value = NULL; }; // This must be called before SetText
-		void SetValue(char *txt);
-	
 		void SetLeftArrow(bool on) { leftArrow = on; };
 		void SetRightArrow(bool on) { rightArrow = on; };
 	
@@ -77,7 +74,6 @@ class menuItem {
 // Destructor
 menuItem::~menuItem() {
 	DelText();
-	DelValue();
 }
 
 
@@ -91,13 +87,6 @@ void menuItem::SetText(char *txt) {
 	
 	text = new char[strlen(txt) + 1];
 	strcpy(text, txt);
-}
-
-void menuItem::SetValue(char *txt) {
-	DelValue();
-	
-	value = new char[strlen(txt) + 1];
-	strcpy(value, txt);
 }
 
 
@@ -126,10 +115,7 @@ class menu {
 		
 		void NameItem(uint item, const char *name);
 		void NameItem(uint item, char *name);
-		
-		void SetItemValue(uint item, const char *txt);
-		void SetItemValue(uint item, char *txt);
-		
+
 		void SetTitle(const char *aTitle);
 		void SetTitle(char *aTitle);
 		
@@ -205,17 +191,6 @@ void menu::NameItem(uint item, char *name) {
 	items[item].SetText(name);
 }
 
-// Overloaded for both "const char *" and "char *"
-void menu::SetItemValue(uint item, const char *txt) {
-	char tempTxt[strlen(txt) + 1];
-	strcpy(tempTxt, txt);
-	SetItemValue(item, tempTxt);
-}
-void menu::SetItemValue(uint item, char *txt) {
-	items[item].SetValue(txt);
-}
-
-
 // Arranges menu items according to type:
 //	type = 0
 //	Position first item at the menu's (x, y) and all other items
@@ -288,21 +263,20 @@ void menu::Display() {
 		if (items[i].GetText() != NULL) {
 			DrawText(items[i].GetX(), items[i].GetY(), items[i].GetText(), 0, r, g, b);
 		}
+	
 		
-		
-		if (items[i].GetValue() != NULL) {
-			x = items[i].GetX() + GetTextW(items[i].GetText(), 0) + FONT_W;
 
-			if (sel == static_cast<int>(i) && arrowFlash && items[i].GetLeftArrow()) {
+		if (sel == static_cast<int>(i)) {
+			if (arrowFlash && items[i].GetLeftArrow()) {
+				x = items[i].GetX() - (FONT_W * 2);
+				
 				sprintf(arrow, "<");
 				DrawText(x, items[i].GetY(), arrow, 0, r, g, b);
 			}
-			
-			if (sel == static_cast<int>(i)) x += FONT_W * 2;
-			DrawText(x, items[i].GetY(), items[i].GetValue(), 0, r, g, b);
-
-			if (sel == static_cast<int>(i) && arrowFlash && items[i].GetRightArrow()) {
-				x += GetTextW(items[i].GetValue(), 0) + FONT_W;
+		
+			if (arrowFlash && items[i].GetRightArrow()) {
+				x = items[i].GetX() + GetTextW(items[i].GetText(), 0) + FONT_W;
+				
 				sprintf(arrow, ">");
 				DrawText(x, items[i].GetY(), arrow, 0, r, g, b);
 			}
