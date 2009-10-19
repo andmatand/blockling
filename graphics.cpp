@@ -637,7 +637,7 @@ void DrawBackground() {
 	static uint bgTimer = 0;
 	
 	// Move background offset X and Y (to scroll it)
-	if (SDL_GetTicks() > bgTimer + 60) {
+	if (option_background == 2 && SDL_GetTicks() > bgTimer + 60) {
 		bgX += 1;
 		if (bgX >= bgW) bgX = 0;
 		
@@ -646,10 +646,19 @@ void DrawBackground() {
 		
 		bgTimer = SDL_GetTicks();
 	}
-	for (int b = -bgH; b < -bgH + (((SCREEN_H / bgH) + 2) * bgH); b+= bgH) {
-		for (int a = -bgW; a < -bgW + (((SCREEN_W /bgW) + 2) * bgW); a+= bgW) {
-			ApplySurface(a + bgX, b + bgY, bgSurface, screenSurface);
+	
+	// Draw background
+	if (option_background > 0) {
+		for (int b = -bgH; b < -bgH + (((SCREEN_H / bgH) + 2) * bgH); b+= bgH) {
+			for (int a = -bgW; a < -bgW + (((SCREEN_W /bgW) + 2) * bgW); a+= bgW) {
+				ApplySurface(a + bgX, b + bgY, bgSurface, screenSurface);
+			}
 		}
+	}
+	
+	// Draw blackness if background is disabled
+	if (option_background == 0) {
+		SDL_FillRect(screenSurface, NULL, 0x000000);
 	}
 }
 
