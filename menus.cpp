@@ -191,12 +191,9 @@ int OptionsMenu(bool inGame) {
 		if (option_undoSize != 1) strcat(text, "s");
 		optMenu.NameItem(0, text);
 		
-		optMenu.SetLeftArrow(0,
-			(option_undoSize > 0) ? 1 : 0);
-		optMenu.SetRightArrow(0,
-			(option_undoSize < maxUndoSize) ? 1 : 0);
+		optMenu.SetLeftArrow(0,	(option_undoSize > 0));
+		optMenu.SetRightArrow(0, (option_undoSize < maxUndoSize));
 		
-
 		// Determine Background text
 		sprintf(text, "Background: ");
 		switch (option_background) {
@@ -212,20 +209,16 @@ int OptionsMenu(bool inGame) {
 		}
 		optMenu.NameItem(1, text);
 		
-		optMenu.SetLeftArrow(1,
-			(option_background > 0) ? 1 : 0);
-		optMenu.SetRightArrow(1,
-			(option_background < maxBackground) ? 1 : 0);
+		optMenu.SetLeftArrow(1, (option_background > 0));
+		optMenu.SetRightArrow(1, (option_background < maxBackground));
 
 		// Determine Sound text
 		sprintf(text, "Sound: ");
 		strcat(text, (option_soundOn ? "ON" : "OFF"));
 		optMenu.NameItem(2, text);
 
-		optMenu.SetLeftArrow(2,
-			(option_soundOn > 0) ? 1 : 0);
-		optMenu.SetRightArrow(2,
-			(option_soundOn < 1) ? 1 : 0);
+		optMenu.SetLeftArrow(2,	(option_soundOn > 0));
+		optMenu.SetRightArrow(2, (option_soundOn < 1));
 
 		
 		// Determine Music text
@@ -233,10 +226,8 @@ int OptionsMenu(bool inGame) {
 		strcat(text, (option_musicOn ? "ON" : "OFF"));
 		optMenu.NameItem(3, text);
 
-		optMenu.SetLeftArrow(3,
-			(option_musicOn > 0) ? 1 : 0);
-		optMenu.SetRightArrow(3,
-			(option_musicOn < 1) ? 1 : 0);
+		optMenu.SetLeftArrow(3,	(option_musicOn > 0));
+		optMenu.SetRightArrow(3, (option_musicOn < 1));
 
 		
 		
@@ -248,6 +239,7 @@ int OptionsMenu(bool inGame) {
 			DrawBackground();
 		}
 		optMenu.AutoArrange(static_cast<char>(inGame ? 1 : 0));
+		optMenu.SpaceItems(5);
 		optMenu.Display();
 		// If the undo option is selected
 		if (inGame && optMenu.GetSel() == 0) {
@@ -558,18 +550,14 @@ int SelectLevelMenu() {
 				break;
 		}
 		lvlMenu.NameItem(0, text);
-		lvlMenu.SetLeftArrow(0,
-			(option_levelSet > 0) ? 1 : 0);
-		lvlMenu.SetRightArrow(0,
-			(option_levelSet < NUM_LEVEL_SETS - 1) ? 1 : 0);
+		lvlMenu.SetLeftArrow(0,	(option_levelSet > 0));
+		lvlMenu.SetRightArrow(0, (option_levelSet < NUM_LEVEL_SETS - 1));
 		
 		// Determine Level text
 		sprintf(text, "Level %d", currentLevel);
 		lvlMenu.NameItem(1, text);
-		lvlMenu.SetLeftArrow(1,
-			(currentLevel > 0) ? 1 : 0);
-		lvlMenu.SetRightArrow(1,
-			(currentLevel < numLevels - 1) ? 1 : 0);
+		lvlMenu.SetLeftArrow(1,	(currentLevel > 0));
+		lvlMenu.SetRightArrow(1, (currentLevel < numLevels - 1));
 		
 		
 		/** Render *****************/
