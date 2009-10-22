@@ -305,7 +305,10 @@ int OptionsMenu(bool inGame) {
 						if (option_background < maxBackground) option_background++;
 						break;
 					case 2:
-						if (!option_soundOn) ToggleSound();
+						if (!option_soundOn) {
+							ToggleSound();
+							PlaySound(5); // Play sound again here, since the sound in the menu selection was muted.
+						}
 						break;
 					case 3:
 						option_musicOn = true;

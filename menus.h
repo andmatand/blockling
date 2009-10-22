@@ -298,11 +298,11 @@ int menu::Input() {
 			sel++;
 			break;
 		case 3: // Left
-			PlaySound(5);
+			if (items[sel].GetLeftArrow()) PlaySound(5);
 			return 3;
 			break;
 		case 4: // Right
-			PlaySound(5);
+			if (items[sel].GetRightArrow()) PlaySound(5);
 			return 4;
 			break;
 		case 5: // Enter
