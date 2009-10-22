@@ -398,7 +398,9 @@ int Game() {
 					// and the block is not disabled
 					&& blocks[i].GetType() >= 0
 					// and the player is still playing (hasn't won)
-					&& blocks[i].GetWon() == 0)
+					&& blocks[i].GetWon() == 0
+					// and the player is either facing left or right (not toward camera)
+					&& (blocks[i].GetDir() == 0 || blocks[i].GetDir() == 1))
 				{
 					
 					/*** Perform next keypress from replay file ***/

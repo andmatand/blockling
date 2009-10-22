@@ -209,12 +209,14 @@ class torch {
 
 void torch::FlickerFlame() {
 	if (rand() % 2 == 0) {
-		flame -= (rand() % 2) + 1;
+		if (rand() % 2 == 0) {
+			flame -= (rand() % 2) + 1;
+		}
+		else {
+			flame += (rand() % 2) + 1;
+		}
 	}
-	else {
-		flame += (rand() % 2) + 1;
-	}
-	
+		
 	if (flame < 0) flame += 2;
 	if (flame > NUM_TORCH_FLAMES - 1) flame -= 2;
 }
