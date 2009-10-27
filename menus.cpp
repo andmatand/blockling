@@ -78,10 +78,8 @@ int ControlSetupMenu(bool inGame) {
 			csMenu.AutoArrange(static_cast<char>(inGame ? 1 : 0));
 			csMenu.SpaceItems(numItems - 2);
 			csMenu.Display();
-			SDL_UpdateRect(screenSurface, 0, 0, 0, 0);
+			UpdateScreen();
 			
-			if (inGame == false) LimitFPS();
-
 			if (gettingKey) {
 				while (SDL_PollEvent(&event)) {
 					if (event.type == SDL_KEYDOWN) {
@@ -158,9 +156,7 @@ int MainMenu() {
 		
 		DrawBackground();
 		mainMenu.Display();
-		SDL_UpdateRect(screenSurface, 0, 0, 0, 0);
-		
-		LimitFPS();
+		UpdateScreen();
 	}
 }
 
@@ -186,14 +182,24 @@ int OptionsMenu(bool inGame) {
 
 	while (true) {
 		/** Set dynamic menu items' text *****************/
-		// Determine Undo text
-		sprintf(text, "Undo Memory: %d move", option_undoSize);
-		if (option_undoSize != 1) strcat(text, "s");
+
+		// Determine Sound text
+		sprintf(text, "Sound: ");
+		strcat(text, (option_soundOn ? "ON" : "OFF"));
 		optMenu.NameItem(0, text);
+
+		optMenu.SetLeftArrow(0,	(option_soundOn > 0));
+		optMenu.SetRightArrow(0, (option_soundOn < 1));
+
 		
-		optMenu.SetLeftArrow(0,	(option_undoSize > 0));
-		optMenu.SetRightArrow(0, (option_undoSize < maxUndoSize));
-		
+		// Determine Music text
+		sprintf(text, "Music: ");
+		strcat(text, (option_musicOn ? "ON" : "OFF"));
+		optMenu.NameItem(1, text);
+
+		optMenu.SetLeftArrow(1,	(option_musicOn > 0));
+		optMenu.SetRightArrow(1, (option_musicOn < 1));
+
 		// Determine Background text
 		sprintf(text, "Background: ");
 		switch (option_background) {
@@ -207,29 +213,21 @@ int OptionsMenu(bool inGame) {
 				strcat(text, "SCROLLING");
 				break;
 		}
-		optMenu.NameItem(1, text);
-		
-		optMenu.SetLeftArrow(1, (option_background > 0));
-		optMenu.SetRightArrow(1, (option_background < maxBackground));
-
-		// Determine Sound text
-		sprintf(text, "Sound: ");
-		strcat(text, (option_soundOn ? "ON" : "OFF"));
 		optMenu.NameItem(2, text);
 
-		optMenu.SetLeftArrow(2,	(option_soundOn > 0));
-		optMenu.SetRightArrow(2, (option_soundOn < 1));
+		optMenu.SetLeftArrow(2, (option_background > 0));
+		optMenu.SetRightArrow(2, (option_background < maxBackground));
 
-		
-		// Determine Music text
-		sprintf(text, "Music: ");
-		strcat(text, (option_musicOn ? "ON" : "OFF"));
+
+		// Determine Undo text
+		sprintf(text, "Undo Memory: %d move", option_undoSize);
+		if (option_undoSize != 1) strcat(text, "s");
 		optMenu.NameItem(3, text);
-
-		optMenu.SetLeftArrow(3,	(option_musicOn > 0));
-		optMenu.SetRightArrow(3, (option_musicOn < 1));
-
 		
+		optMenu.SetLeftArrow(3,	(option_undoSize > 0));
+		optMenu.SetRightArrow(3, (option_undoSize < maxUndoSize));
+		
+
 		
 		/** Render *****************/
 		if (inGame) {
@@ -242,14 +240,11 @@ int OptionsMenu(bool inGame) {
 		optMenu.SpaceItems(5);
 		optMenu.Display();
 		// If the undo option is selected
-		if (inGame && optMenu.GetSel() == 0) {
+		if (inGame && optMenu.GetSel() == 3) {
 			sprintf(text, "This setting will not take effect\nuntil a new level is loaded");
 			DrawText((SCREEN_W / 2) - (GetTextW(text, 0) / 2), 300, text, 0, 200, 200, 200);
 		}
-		SDL_UpdateRect(screenSurface, 0, 0, 0, 0);
-		
-		if (inGame == false) LimitFPS();
-
+		UpdateScreen();
 		
 		
 		/** Input ******************/
@@ -260,17 +255,17 @@ int OptionsMenu(bool inGame) {
 			case 1: // Enter
 				switch (optMenu.GetSel()) {
 					case 0:
-						change_undoSize = 1;
-						if (option_undoSize == maxUndoSize) option_undoSize = 0;
-						break;
-					case 1:
-						if (option_background < maxBackground) option_background++;
-						break;
-					case 2:
 						ToggleSound();
 						break;
-					case 3:
+					case 1:
 						(option_musicOn) ? option_musicOn = false : option_musicOn = true;
+						break;
+					case 2:
+						if (option_background < maxBackground) option_background++;
+						break;
+					case 3:
+						change_undoSize = 1;
+						if (option_undoSize == maxUndoSize) option_undoSize = 0;
 						break;
 					case 4:
 						if (ControlSetupMenu(inGame) == -2) return -2;
@@ -283,35 +278,35 @@ int OptionsMenu(bool inGame) {
 			case 3: // Left
 				switch (optMenu.GetSel()) {
 					case 0:
-						change_undoSize = -1;						
-						break;
-					case 1:
-						if (option_background > 0) option_background--;
-						break;
-					case 2:
 						if (option_soundOn) ToggleSound();
 						break;
-					case 3:
+					case 1:
 						option_musicOn = false;
+						break;
+					case 2:
+						if (option_background > 0) option_background--;
+						break;
+					case 3:
+						change_undoSize = -1;						
 						break;
 				}
 				break;
 			case 4: // Right
 				switch (optMenu.GetSel()) {
 					case 0:
-						change_undoSize = 1;
-						break;
-					case 1:
-						if (option_background < maxBackground) option_background++;
-						break;
-					case 2:
 						if (!option_soundOn) {
 							ToggleSound();
 							PlaySound(5); // Play sound again here, since the sound in the menu selection was muted.
 						}
 						break;
-					case 3:
+					case 1:
 						option_musicOn = true;
+						break;
+					case 2:
+						if (option_background < maxBackground) option_background++;
+						break;
+					case 3:
+						change_undoSize = 1;
 						break;
 				}
 				break;
@@ -393,9 +388,7 @@ int PauseMenu() {
 		
 		Render(3);
 		pauseMenu.Display();
-		SDL_UpdateRect(screenSurface, 0, 0, 0, 0);
-		
-		LimitFPS();
+		UpdateScreen();
 	}
 }
 
@@ -433,9 +426,7 @@ int EndOfLevelMenu() {
 		
 		Render(0);
 		theMenu.Display();
-		SDL_UpdateRect(screenSurface, 0, 0, 0, 0);
-		
-		LimitFPS();
+		UpdateScreen();
 	}
 }
 
@@ -455,6 +446,7 @@ int ReplayPauseMenu() {
 	
 	pauseMenu.Move(SCREEN_W / 2, 100);
 	pauseMenu.AutoArrange(1);
+	pauseMenu.SpaceItems(2);
 	
 	int action;
 	
@@ -475,9 +467,7 @@ int ReplayPauseMenu() {
 		
 		Render(3);
 		pauseMenu.Display();
-		SDL_UpdateRect(screenSurface, 0, 0, 0, 0);
-		
-		LimitFPS();
+		UpdateScreen();
 	}
 
 }
@@ -575,7 +565,7 @@ int SelectLevelMenu() {
 		lvlMenu.Display();
 		
 		// Update the screen
-		SDL_UpdateRect(screenSurface, 0, 0, 0, 0);
+		UpdateScreen();
 		
 		
 		

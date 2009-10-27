@@ -842,10 +842,16 @@ void Render (char flag) {
 
 	/** Screen Update ****/
 	if (flag != 0 && flag != 3) {
-		// Tell SDL to update the whole screenSurface
-		SDL_UpdateRect(screenSurface, 0, 0, 0, 0);
-		LimitFPS();
+		UpdateScreen();
 	}
+}
+
+
+
+void UpdateScreen() {
+	// Tell SDL to update the whole screenSurface
+	SDL_UpdateRect(screenSurface, 0, 0, 0, 0);
+	LimitFPS();
 }
 
 

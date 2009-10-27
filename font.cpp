@@ -123,7 +123,7 @@ void LoadFont(const char *file) {
 			if (font[i].yOffset != -1) break;
 		}
 		*/
-		
+
 		font[i].surf = MakeSurface(FONT_W, FONT_H);
 		SDL_UnlockSurface(fontSurf);
 		ApplySurface(-leftSide, sourceOffset, fontSurf, font[i].surf);

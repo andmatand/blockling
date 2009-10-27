@@ -115,9 +115,9 @@ int main(int argc, char** argv) {
 void Init() {
 	
 	/*** Graphics ***/
-	LoadTileset("default");
 	LoadFont("font.bmp");
-	
+	LoadTileset("default");
+
 	
 	/*** Sound ***/
 	LoadSound("pickup.wav", 0);
@@ -131,7 +131,6 @@ void Init() {
 	LoadSound("win.wav", 8);
 	
 	/*** Keyboard ***/
-
 	// Default Game keyboard layout
 	gameKeys[0].sym = SDLK_ESCAPE;	// Quit
 	gameKeys[0].mod = KMOD_NONE;	// modifier
