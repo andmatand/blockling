@@ -21,7 +21,7 @@
 
 
 /*** Function Prototypes ***/
-void DrawText(int x, int y, char *text, int spacing, uint r, uint g, uint b);
+void DrawText(int x, int y, char *text, int spacing, int color);
 int GetTextW(char *text, int spacing);
 
 
@@ -31,17 +31,12 @@ int GetTextW(char *text, int spacing);
 const uint FONT_ARRAY_SIZE = (122 - 33) + 1;
 const int FONT_H = 16;
 const int FONT_W = 16;
-const uint TEXT_NORMAL_R = 220;
-const uint TEXT_NORMAL_G = 220;
-const uint TEXT_NORMAL_B = 220;
-const uint TEXT_HIGHLIGHT_R = 251;
-const uint TEXT_HIGHLIGHT_G = 177;
-const uint TEXT_HIGHLIGHT_B = 17;
+const uint NUM_FONT_COLORS = 4; // Three colors, plus the shadow color (0)
 
 
 typedef struct {
 	uint w;
-	SDL_Surface * surf;
+	SDL_Surface * surf[NUM_FONT_COLORS];
 } letter;
 
 // Global struct which holds all available letters in the font

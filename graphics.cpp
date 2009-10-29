@@ -806,7 +806,7 @@ void Render (char flag) {
 	else {
 		levelTextX -= FPS * 2;
 		if (levelTextX < 10) levelTextX = 10;
-		DrawText(levelTextX, SCREEN_H - FONT_H - 4, message, 0, 220, 220, 220);
+		DrawText(levelTextX, SCREEN_H - FONT_H - 4, message, 0, 1);
 		
 		// Determine position of "Replay"
 		i = levelTextX + GetTextW(message, 0) + FONT_W;
@@ -818,8 +818,7 @@ void Render (char flag) {
 		if (SDL_GetTicks() >= replayFlashTimer + 1000) replayFlashTimer = SDL_GetTicks();
 		if (SDL_GetTicks() < replayFlashTimer + 500) {
 			sprintf(message, "Replay");
-			//DrawText((SCREEN_W / 2) - (GetTextW(message, 0) / 2), SCREEN_H - FONT_H - 4, message, 0, TEXT_NORMAL_R, TEXT_NORMAL_G, TEXT_NORMAL_B);
-			DrawText(i, SCREEN_H - FONT_H - 4, message, 0, TEXT_NORMAL_R, TEXT_NORMAL_G, TEXT_NORMAL_B);
+			DrawText(i, SCREEN_H - FONT_H - 4, message, 0, 1);
 		}
 	}
 
@@ -833,7 +832,7 @@ void Render (char flag) {
 			timerPos += FPS;
 			if (timerPos > 76) timerPos = 76;
 		}
-		DrawText(SCREEN_W - timerPos, 380, message, 0, 220, 220, 220);
+		DrawText(SCREEN_W - timerPos, 380, message, 0, 1);
 	}
 	else {
 		timerPos = 0;

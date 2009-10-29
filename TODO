@@ -1,10 +1,25 @@
+-Change font routine so that each letter has 3 surfaces, one of each
+color, so as to avoid that slow real-time palette changing
+
 -Add timer on/off option
--Move the camera-movement code into a function so it can be called also from the Load Level menu
--Add tab support to DrawText (for control setup menu.  It would look nice if they were aligned better.)
--Maybe: Holding down shift with arrows makes player walk as far as possible
+
+-Move the camera-movement code into a function so it can be called also
+
+from the Load Level menu
+
+-Add tab support to DrawText (for control setup menu; it would look nice
+if they were aligned better.)
+
+-Maybe: Holding down shift with arrows makes player walk as far as
+possible
+
 -Spinach/other items?
+
 -Speech
+
 -Save/load settings to a file
+
+
 
 ==Bugs==
 -Undo memory of 1 does not work

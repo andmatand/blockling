@@ -232,7 +232,6 @@ void menu::MoveItem(uint item, int xPos, int yPos) {
 
 
 void menu::Display() {
-	uint r, g, b;
 	int x; // Keeps track of text cursor x position
 	char arrow[2];
 	static bool arrowFlash = true;
@@ -244,24 +243,13 @@ void menu::Display() {
 	}
 
 	if (title != NULL) {
-		DrawText(titleX, titleY, title, titleLetterSpacing, 255, 255, 255);
+		DrawText(titleX, titleY, title, titleLetterSpacing, 3);
 	}
 	for (uint i = 0; i < numItems; i++) {
-		if (i == static_cast<uint>(sel)) {
-			r = TEXT_HIGHLIGHT_R;
-			g = TEXT_HIGHLIGHT_G;
-			b = TEXT_HIGHLIGHT_B;
-		}
-		else {
-			
-			r = TEXT_NORMAL_R;
-			g = TEXT_NORMAL_G;
-			b = TEXT_NORMAL_B;
-		}
-		
 		// Draw the item's text
 		if (items[i].GetText() != NULL) {
-			DrawText(items[i].GetX(), items[i].GetY(), items[i].GetText(), 0, r, g, b);
+			DrawText(items[i].GetX(), items[i].GetY(), items[i].GetText(), 0,
+				(i == static_cast<uint>(sel)) ? 2 : 1);
 		}
 	
 		
@@ -271,14 +259,14 @@ void menu::Display() {
 				x = items[i].GetX() - (FONT_W * 2);
 				
 				sprintf(arrow, "<");
-				DrawText(x, items[i].GetY(), arrow, 0, r, g, b);
+				DrawText(x, items[i].GetY(), arrow, 0, 2);
 			}
 		
 			if (arrowFlash && items[i].GetRightArrow()) {
 				x = items[i].GetX() + GetTextW(items[i].GetText(), 0) + FONT_W;
 				
 				sprintf(arrow, ">");
-				DrawText(x, items[i].GetY(), arrow, 0, r, g, b);
+				DrawText(x, items[i].GetY(), arrow, 0, 2);
 			}
 		}
 	}	

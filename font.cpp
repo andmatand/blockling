@@ -44,6 +44,7 @@ int GetTextW(char *text, int spacing) {
 		switch (c) {
 			case -1: // Space (32)
 				lW += FONT_W + spacing;
+				break;
 			default:
 				lW += font[c].w;
 				
@@ -68,6 +69,10 @@ void LoadFont(const char *file) {
 	// The surface holding the big long list of characters
 	SDL_Surface *fontSurf = FillSurface(fullPath, 0);
 	
+	// For holding the rgb values for pre-rendering differently-colored letters
+	SDL_Color palette[256];
+	uint r, g, b;
+	
 	// For finding the left and right side of each character (to determine width)
 	int leftSide;
 	int rightSide;
@@ -78,7 +83,6 @@ void LoadFont(const char *file) {
 	for (int y = 0; y < fontSurf->h; y += FONT_H) {
 		// Lock the surface (for subsequent GetPixel calls)
 		SDL_LockSurface(fontSurf);
-		
 				
 		/*** Determine the letter's width ***/
 		// Find left side
@@ -124,9 +128,49 @@ void LoadFont(const char *file) {
 		}
 		*/
 
-		font[i].surf = MakeSurface(FONT_W, FONT_H);
 		SDL_UnlockSurface(fontSurf);
-		ApplySurface(-leftSide, sourceOffset, fontSurf, font[i].surf);
+		
+		/*** Blit this character and pre-render different color versions of it **/
+		for (uint j = 0; j < NUM_FONT_COLORS; j++) {
+			// Prepare a surface for this color of the character
+			font[i].surf[j] = MakeSurface(FONT_W, FONT_H);
+			
+			// Blit the temporary fontSurf onto this letter's surface
+			ApplySurface(-leftSide, sourceOffset, fontSurf, font[i].surf[j]);
+			
+			// Get the rgb values for this color
+			switch (j) {
+				case 0: // Shadow
+					r = 0;
+					g = 0;
+					b = 0;
+					break;
+				case 1: // Normal text
+					r = 220;
+					g = 220;
+					b = 220;
+					break;
+				case 2: // Highlighted text
+					r = 251;
+					g = 177;
+					b = 17;
+					break;
+				case 3: // Title
+					r = 255;
+					g = 255;
+					b = 255;
+			}
+			
+			// Set the palette of the surface
+			for (uint k = 0; k < 256; k++) {
+				palette[k].r = static_cast<Uint8>(r);
+				palette[k].g = static_cast<Uint8>(g);
+				palette[k].b = static_cast<Uint8>(b);
+			}
+			
+			// Change the palette of the surface
+			SDL_SetPalette(font[i].surf[j], SDL_LOGPAL, palette, 0, 256);
+		}
 		
 		i++;
 		if (i > FONT_ARRAY_SIZE - 1) break;
@@ -141,34 +185,23 @@ void LoadFont(const char *file) {
 
 void UnloadFont() {
 	for (uint i = 0; i < FONT_ARRAY_SIZE; i++) {
-		SDL_FreeSurface(font[i].surf);
+		for (uint j = 0; j < NUM_FONT_COLORS; j++) {
+			SDL_FreeSurface(font[i].surf[j]);
+		}
 	}
 }
 
 
 
 
-void DrawText(int x, int y, char *text, int spacing, uint r, uint g, uint b) {
+void DrawText(int x, int y, char *text, int spacing, int color) {
 	int x2 = x;
-
-	// Set shadow palette
-	SDL_Color shadowPalette[256];
-	for (uint i = 0; i < 256; i++) {
-		shadowPalette[i].r = 0;
-		shadowPalette[i].g = 0;
-		shadowPalette[i].b = 0;
-	}
-
-
-	// Set text palette
-	SDL_Color palette[256];
-	for (uint i = 0; i < 256; i++) {
-		palette[i].r = static_cast<Uint8>(r);
-		palette[i].g = static_cast<Uint8>(g);
-		palette[i].b = static_cast<Uint8>(b);
-	}
-
 	int c;
+
+	// Guard against invalid color values
+	if (color < 0) color = 0;
+	if (color > static_cast<int>(NUM_FONT_COLORS) - 1) color = NUM_FONT_COLORS - 1;
+	
 	for (uint i = 0; i < static_cast<uint>(strlen(text)); i++) {
 		c = text[i];
 		
@@ -187,14 +220,13 @@ void DrawText(int x, int y, char *text, int spacing, uint r, uint g, uint b) {
 		switch (c) {
 			case -1: // Space (32)
 				x2 += FONT_W + spacing;
+				break;
 			default:
-				// Draw "shadow"
-				SDL_SetPalette(font[c].surf, SDL_LOGPAL, shadowPalette, 0, 256);
-				ApplySurface(x2 + 2, y + 2, font[c].surf, screenSurface);
+				// Blit "shadow" character
+				ApplySurface(x2 + 2, y + 2, font[c].surf[0], screenSurface);
 				
-				// Draw text
-				SDL_SetPalette(font[c].surf, SDL_LOGPAL, palette, 0, 256);
-				ApplySurface(x2, y, font[c].surf, screenSurface);
+				// Blit the correct color version of the character
+				ApplySurface(x2, y, font[c].surf[color], screenSurface);
 				
 				x2 += (font[c].w + 2) + spacing;
 				break;

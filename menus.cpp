@@ -242,7 +242,7 @@ int OptionsMenu(bool inGame) {
 		// If the undo option is selected
 		if (inGame && optMenu.GetSel() == 3) {
 			sprintf(text, "This setting will not take effect\nuntil a new level is loaded");
-			DrawText((SCREEN_W / 2) - (GetTextW(text, 0) / 2), 300, text, 0, 200, 200, 200);
+			DrawText((SCREEN_W / 2) - (GetTextW(text, 0) / 2), 300, text, 0, 1);
 		}
 		UpdateScreen();
 		
