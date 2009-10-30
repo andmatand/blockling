@@ -165,7 +165,7 @@ int MainMenu() {
 int OptionsMenu(bool inGame) {
 	int numItems = 6;
 	menu optMenu(numItems); // Create the menu object
-	char text[64]; // For temporarily holding menu items' text as it is formed
+	char text[65]; // For temporarily holding menu items' text as it is formed
 	
 	uint maxUndoSize = 500;
 	char change_undoSize;
@@ -241,7 +241,7 @@ int OptionsMenu(bool inGame) {
 		optMenu.Display();
 		// If the undo option is selected
 		if (inGame && optMenu.GetSel() == 3) {
-			sprintf(text, "This setting will not take effect\nuntil a new level is loaded");
+			sprintf(text, "[This setting will not take effect\nuntil a new level is loaded]");
 			DrawText((SCREEN_W / 2) - (GetTextW(text, 0) / 2), 300, text, 0, 1);
 		}
 		UpdateScreen();
@@ -498,10 +498,9 @@ int SelectLevelMenu() {
 		if (refreshLevel) {
 			while (true) {
 				// Load Level
-				if (LoadLevel(currentLevel, false) == false) {
+				if (LoadLevel(currentLevel) == false) {
 					numLevels = currentLevel;
 					fprintf(stderr, "Error: Loading level %d failed.\n", currentLevel);
-					CollectLevelGarbage();
 					
 					if (currentLevel <= 0) break;
 					currentLevel--;
@@ -516,7 +515,7 @@ int SelectLevelMenu() {
 					numLevels = currentLevel + 1;
 				}
 				
-				/*** Do Telepads (including teleportation animation) ***/
+				/*** Turn off all the status lights on the telepads ***/
 				for (i = 0; i < numTelepads; i++) {
 					telepads[i].NeedsToTeleport();
 				}
@@ -608,9 +607,11 @@ int SelectLevelMenu() {
 				}
 				break;
 			case -1: // Esc
+				CollectLevelGarbage();
 				return -1;
 				break;
 			case -2: // Close window
+				CollectLevelGarbage();
 				return -2;
 				break;
 		}

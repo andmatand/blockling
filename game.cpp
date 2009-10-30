@@ -21,6 +21,8 @@
 
 
 void CollectLevelGarbage() {
+	printf("Collecting Level Garbage...\n");
+	
 	delete [] bricks; bricks = NULL;
 	delete [] blocks; blocks = NULL;
 	delete [] telepads; telepads = NULL;
@@ -99,11 +101,10 @@ int Game() {
 		if (stickyPlayer || showingReplay || currentLevel != oldLevel || restartLevel) {
 			// Load Level without a menu
 			while (true) {
-				if (LoadLevel(currentLevel, (stickyPlayer ? true : false)) == false) {
+				if (LoadLevel(currentLevel) == false) {
 					fprintf(stderr, "Error: Loading level %d failed.\n", currentLevel);
 	
 					currentLevel = 0;
-					CollectLevelGarbage();
 					continue;
 				}
 				break;
@@ -868,7 +869,10 @@ FILE * OpenLevel(uint level) {
 
 
 
-bool LoadLevel(uint level, bool zing) {
+bool LoadLevel(uint level) {
+	// Free memory used by previous level
+	CollectLevelGarbage();
+	
 	// Zero all game object count variables
 	numBlocks = 0;
 	numPlayers = 0;
@@ -969,7 +973,7 @@ bool LoadLevel(uint level, bool zing) {
 	}
 	
 	
-	/*** Check Level for Errors ***/
+	/** Check Level for Errors ******/
 	
 	// Check for telepad errors
 	for (uint i = 0; i < numTelepads; i++) {
@@ -999,10 +1003,11 @@ bool LoadLevel(uint level, bool zing) {
 		return false;
 	}
 	
-	
 
-	// Position level according to size, and initialize variables
-	// according to number of objects
+
+
+	/** Position level according to size, and initialize variables
+	    according to number of objects **/
 
 	x = -(width / 2);
 	x += (abs(x) % TILE_W); // Align to grid
@@ -1283,16 +1288,17 @@ bool LoadLevel(uint level, bool zing) {
 	SetCameraTargetBlock(0);
 	CenterCamera(1);
 	
-	if (zing) {
+	if (stickyPlayer) {
 		// Position cameraX so that the level is just offscreen to the right
 		cameraX = -SCREEN_W - (levelW / 2);
-	}
 
-	if (stickyPlayer) {
 		// Make cameraY line up with where the sticky player needs to be
 		cameraY = blocks[0].GetY() - stickyPlayerY;
 		
 		blocks[0].SetFace(4); // Scared
+	}
+	else {
+		CenterCamera(-1); // Instantly move camera and zero camera speed
 	}
 	
 	return true;

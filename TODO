@@ -1,5 +1,5 @@
--Change font routine so that each letter has 3 surfaces, one of each
-color, so as to avoid that slow real-time palette changing
+-Make level file syntax error messages appear onscreen, which will be 
+helpful for users making custom levels.
 
 -Add timer on/off option
 

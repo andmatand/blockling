@@ -22,7 +22,7 @@
 /** Function Prototypes ****/
 int Game ();
 void Undo(char action);
-bool LoadLevel(uint level, bool zing);
+bool LoadLevel(uint level);
 FILE * OpenLevel(uint level);
 
 
