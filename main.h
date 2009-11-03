@@ -56,7 +56,7 @@ const char FONT_PATH[] = "font/";
 const char MUSIC_PATH[] = "music/";
 const char SOUND_PATH[] = "sound/";
 const char LEVEL_PATH[] = "levels/";
-#ifdef WINDOZE
+#ifdef _WIN32
 	const char TEMP_PATH[] = "./";
 #else
 	const char TEMP_PATH[] = "/tmp/";

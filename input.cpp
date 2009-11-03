@@ -37,7 +37,7 @@ void GlobalInput(SDL_Event event) {
 					
 				// Toggle fullscreen
 				case SDLK_f:
-					#ifdef WINDOZE
+					#ifdef _WIN32
 						printf("Windows fullscreen toggle\n");
 						//SDL_FreeSurface(screenSurface);
 						screenSurface = SDL_SetVideoMode(screenSurface->w,
