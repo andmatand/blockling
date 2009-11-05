@@ -136,13 +136,15 @@ class menu {
 		int sel;		// Currently selected item
 		int x, y;		// Position of the entire menu
 		int titleX, titleY;	// Position of the title (influenced by AutoArrange's type)
+		uint arrowTimer;	// Timer for flashing arrows
 };
 
 // Constructor
 menu::menu(uint numberOfItems):
 	title(NULL),
 	titleLetterSpacing(4),
-	sel(0)
+	sel(0),
+	arrowTimer(0)
 {
 	numItems = numberOfItems;
 	items = new menuItem[numItems];
@@ -235,12 +237,19 @@ void menu::Display() {
 	int x; // Keeps track of text cursor x position
 	char arrow[2];
 	static bool arrowFlash = true;
-	static uint arrowTimer = 0;
 	
-	if (SDL_GetTicks() >= arrowTimer + 500) {
-		arrowFlash = (arrowFlash ? false : true);
+	// Make the arrow flash, staying on longer than off
+	if (SDL_GetTicks() <= arrowTimer + 700) {
+		arrowFlash = true;
+	}
+	else {
+		arrowFlash = false;
+	}
+	if (SDL_GetTicks() >= arrowTimer + 1000) {
+		arrowFlash = false;
 		arrowTimer = SDL_GetTicks();
 	}
+
 
 	if (title != NULL) {
 		DrawText(titleX, titleY, title, titleLetterSpacing, 3);
@@ -279,18 +288,25 @@ int menu::Input() {
 	
 	switch (key) {
 		case 1: // Up
-			
 			sel--;
+			arrowTimer = SDL_GetTicks();
 			break;
 		case 2: // Down
 			sel++;
+			arrowTimer = SDL_GetTicks();
 			break;
 		case 3: // Left
-			if (items[sel].GetLeftArrow()) PlaySound(5);
+			if (items[sel].GetLeftArrow()) {
+				PlaySound(5);
+				arrowTimer = SDL_GetTicks();
+			}
 			return 3;
 			break;
 		case 4: // Right
-			if (items[sel].GetRightArrow()) PlaySound(5);
+			if (items[sel].GetRightArrow()) {
+				PlaySound(5);
+				arrowTimer = SDL_GetTicks();
+			}
 			return 4;
 			break;
 		case 5: // Enter
@@ -299,15 +315,19 @@ int menu::Input() {
 			break;
 		case 6: // Home
 			sel = 0;
+			arrowTimer = SDL_GetTicks();
 			break;
 		case 7: // End
 			sel = numItems - 1;
+			arrowTimer = SDL_GetTicks();
 			break;
 		case 10: // Page Up
 			sel -= 7;
+			arrowTimer = SDL_GetTicks();
 			break;
 		case 11: // Page Down
 			sel += 7;
+			arrowTimer = SDL_GetTicks();
 			break;
 		case 8: // Esc
 			PlaySound(7);

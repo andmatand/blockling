@@ -42,22 +42,22 @@ int ControlSetupMenu(bool inGame) {
 			// Determine text
 			switch (i) {
 				case 0:
-					sprintf(tempString, "Move Left");
+					sprintf(tempString, "Move Left:\t");
 					break;
 				case 1:
-					sprintf(tempString, "Move Right");
+					sprintf(tempString, "Move Right:\t");
 					break;
 				case 2:
-					sprintf(tempString, "Pick Up Block");
+					sprintf(tempString, "Pick Up Block:");
 					break;
 				case 3:
-					sprintf(tempString, "Drop Block");
+					sprintf(tempString, "Drop Block:\t");
 					break;
 				case 4:
-					sprintf(tempString, "Push Block");
+					sprintf(tempString, "Push Block:\t");
 					break;
 			}
-			sprintf(text, "%s: %s",
+			sprintf(text, "%s\t%s",
 				tempString,
 				(gettingKey && csMenu.GetSel() == static_cast<int>(i)) ? "Press a key..." : KeyName(option_playerKeys[i].sym)
 				);
@@ -76,6 +76,13 @@ int ControlSetupMenu(bool inGame) {
 				DrawBackground();
 			}
 			csMenu.AutoArrange(static_cast<char>(inGame ? 1 : 0));
+			
+			// Cheatingly position the items at a fixed x, if using the inGame text centering
+			if (inGame) {
+				for (i = 0; i < NUM_PLAYER_KEYS; i++) {
+					csMenu.MoveItem(i, (SCREEN_W / 2) - (FONT_W * 10), csMenu.GetItemY(i));
+				}
+			}
 			csMenu.SpaceItems(numItems - 2);
 			csMenu.Display();
 			UpdateScreen();
@@ -163,7 +170,7 @@ int MainMenu() {
 
 
 int OptionsMenu(bool inGame) {
-	int numItems = 6;
+	int numItems = 7;
 	menu optMenu(numItems); // Create the menu object
 	char text[65]; // For temporarily holding menu items' text as it is formed
 	
@@ -177,8 +184,8 @@ int OptionsMenu(bool inGame) {
 	/** Set static menu items **/
 	optMenu.Move(inGame ? SCREEN_W / 2 : 75, 100);
 	optMenu.SetTitle("OPTIONS");
-	optMenu.NameItem(4, "Control Setup");
-	optMenu.NameItem(5, "Done");
+	optMenu.NameItem(5, "Control Setup");
+	optMenu.NameItem(6, "Done");
 
 	while (true) {
 		/** Set dynamic menu items' text *****************/
@@ -200,6 +207,15 @@ int OptionsMenu(bool inGame) {
 		optMenu.SetLeftArrow(1,	(option_musicOn > 0));
 		optMenu.SetRightArrow(1, (option_musicOn < 1));
 
+		// Determine Timer on/off text
+		sprintf(text, "Game Timer: ");
+		strcat(text, (option_timerOn ? "ON" : "OFF"));
+		optMenu.NameItem(2, text);
+
+		optMenu.SetLeftArrow(2,	(option_timerOn > 0));
+		optMenu.SetRightArrow(2, (option_timerOn < 1));
+
+
 		// Determine Background text
 		sprintf(text, "Background: ");
 		switch (option_background) {
@@ -213,19 +229,19 @@ int OptionsMenu(bool inGame) {
 				strcat(text, "SCROLLING");
 				break;
 		}
-		optMenu.NameItem(2, text);
+		optMenu.NameItem(3, text);
 
-		optMenu.SetLeftArrow(2, (option_background > 0));
-		optMenu.SetRightArrow(2, (option_background < maxBackground));
+		optMenu.SetLeftArrow(3, (option_background > 0));
+		optMenu.SetRightArrow(3, (option_background < maxBackground));
 
 
 		// Determine Undo text
 		sprintf(text, "Undo Memory: %d move", option_undoSize);
 		if (option_undoSize != 1) strcat(text, "s");
-		optMenu.NameItem(3, text);
+		optMenu.NameItem(4, text);
 		
-		optMenu.SetLeftArrow(3,	(option_undoSize > 0));
-		optMenu.SetRightArrow(3, (option_undoSize < maxUndoSize));
+		optMenu.SetLeftArrow(4,	(option_undoSize > 0));
+		optMenu.SetRightArrow(4, (option_undoSize < maxUndoSize));
 		
 
 		
@@ -238,6 +254,7 @@ int OptionsMenu(bool inGame) {
 		}
 		optMenu.AutoArrange(static_cast<char>(inGame ? 1 : 0));
 		optMenu.SpaceItems(5);
+		optMenu.SpaceItems(6);
 		optMenu.Display();
 		// If the undo option is selected
 		if (inGame && optMenu.GetSel() == 3) {
@@ -258,19 +275,27 @@ int OptionsMenu(bool inGame) {
 						ToggleSound();
 						break;
 					case 1:
-						(option_musicOn) ? option_musicOn = false : option_musicOn = true;
+						option_musicOn = (option_musicOn ? false : true);
 						break;
 					case 2:
-						if (option_background < maxBackground) option_background++;
+						option_timerOn = (option_timerOn ? false : true);
 						break;
 					case 3:
+						if (option_background < maxBackground) {
+							option_background++;
+						}
+						else {
+							option_background = 0;
+						}
+						break;
+					case 4:
 						change_undoSize = 1;
 						if (option_undoSize == maxUndoSize) option_undoSize = 0;
 						break;
-					case 4:
+					case 5:
 						if (ControlSetupMenu(inGame) == -2) return -2;
 						break;
-					case 5:
+					case 6:
 						return -1;
 						break;
 				}
@@ -284,9 +309,12 @@ int OptionsMenu(bool inGame) {
 						option_musicOn = false;
 						break;
 					case 2:
-						if (option_background > 0) option_background--;
+						option_timerOn = false;
 						break;
 					case 3:
+						if (option_background > 0) option_background--;
+						break;
+					case 4:
 						change_undoSize = -1;						
 						break;
 				}
@@ -303,9 +331,12 @@ int OptionsMenu(bool inGame) {
 						option_musicOn = true;
 						break;
 					case 2:
-						if (option_background < maxBackground) option_background++;
+						option_timerOn = true;
 						break;
 					case 3:
+						if (option_background < maxBackground) option_background++;
+						break;
+					case 4:
 						change_undoSize = 1;
 						break;
 				}

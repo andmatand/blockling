@@ -824,20 +824,21 @@ void Render (char flag) {
 
 
 	/** Draw Timer ****/
-	if (levelTimeRunning) {
-		int min = static_cast<int>(levelTime / 60);
-		int sec = levelTime % 60;
-		sprintf(message, "%02d:%02d", min, sec);
-		if (timerPos < 76) {
-			timerPos += FPS;
-			if (timerPos > 76) timerPos = 76;
+	if (option_timerOn) {
+		if (levelTimeRunning) {
+			int min = static_cast<int>(levelTime / 60);
+			int sec = levelTime % 60;
+			sprintf(message, "%02d:%02d", min, sec);
+			if (timerPos < 76) {
+				timerPos += FPS;
+				if (timerPos > 76) timerPos = 76;
+			}
+			DrawText(SCREEN_W - timerPos, 380, message, 0, 1);
 		}
-		DrawText(SCREEN_W - timerPos, 380, message, 0, 1);
+		else {
+			timerPos = 0;
+		}
 	}
-	else {
-		timerPos = 0;
-	}
-
 
 	/** Screen Update ****/
 	if (flag != 0 && flag != 3) {

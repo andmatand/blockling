@@ -23,6 +23,8 @@
 int GetTextW(char *text, int spacing) {
 	if (text == NULL) return 0;
 	
+	//const int tW = FONT_W * 4; // Tab Width
+	
 	int w = 0;
 	int lW = 0; // The current line's width
 	int c;
@@ -33,6 +35,19 @@ int GetTextW(char *text, int spacing) {
 		// Line break
 		if (c == '\n') {
 			lW = 0;
+			
+			// Go to next character
+			continue;
+		}
+
+		// Tab
+		if (c == '\t') {
+			// AAAHHH!  I don't know how to figure out the width
+			// of text with a tab in it, unless we have the starting x,
+			// so I'll just cheat by making the Control Setup menu
+			// have a constant x position.
+			
+			//x2 = (tW * static_cast<int>(x2 / tW)) + tW;
 			
 			// Go to next character
 			continue;
@@ -195,6 +210,7 @@ void UnloadFont() {
 
 
 void DrawText(int x, int y, char *text, int spacing, int color) {
+	const int tW = FONT_W * 4; // Tab Width
 	int x2 = x;
 	int c;
 
@@ -209,6 +225,14 @@ void DrawText(int x, int y, char *text, int spacing, int color) {
 		if (c == '\n') {
 			y += FONT_H + 2;
 			x2 = x;
+			
+			// Go to next character
+			continue;
+		}
+		
+		// Tab
+		if (c == '\t') {
+			x2 = (tW * static_cast<int>(x2 / tW)) + tW;
 			
 			// Go to next character
 			continue;
