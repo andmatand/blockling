@@ -1,5 +1,5 @@
 /*
- *   graphics.h
+ *   settings.cpp
  *	  
  *   Copyright 2009 Andrew Anderson <billamonster.com>
  *	  
@@ -20,19 +20,6 @@
  */
 
 
-void ApplySurface(int x, int y, SDL_Surface* source, SDL_Surface* destination);
-void CenterCamera(char instant);
-void DrawBackground();
-SDL_Surface* FillSurface(const char *file, bool transparent);
-Uint32 GetPixel(SDL_Surface *surface, int x, int y);
-void LimitFPS();
-void LoadTileset(const char *tilesetDir);
-bool LockSurface(SDL_Surface *surf);
-SDL_Surface* MakeSurface(int width, int height);
-void PutPixel(SDL_Surface *surface, int x, int y, Uint32 pixel);
-void Render(char flag);
-void SetCameraTargetBlock(uint b);
-SDL_Surface* TileSurface(char *path, const char *file, bool transparent);
-void UnlockSurface(SDL_Surface *surf);
-void UnloadTileset();
-void UpdateScreen();
+void SaveSettings() {
+	
+}

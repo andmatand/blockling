@@ -26,8 +26,6 @@ typedef unsigned int uint;
 
 /******* INCLUDES (part 1) *******/
 #include <iostream>
-#include <string>
-#include <sstream>
 #include <ctime>
 #include <SDL/SDL.h>
 #include <SDL/SDL_mixer.h>
@@ -48,14 +46,14 @@ const unsigned char NUM_ITEM_TYPES = 1;
 const unsigned char NUM_LEVEL_SETS = 3;
 const unsigned char TELEPAD_H = 4;
 const char GAME_TITLE[] = "BLOCKMAN";
-const std::string TILE_BASE_DIR = "data/tiles/";
-const std::string DEFAULT_TILESET_DIR = "default";
-const std::string DEFAULT_LEVELSET_DIR = "default";
 const char DATA_PATH[] = "data/";
 const char FONT_PATH[] = "font/";
 const char MUSIC_PATH[] = "music/";
 const char SOUND_PATH[] = "sound/";
 const char LEVEL_PATH[] = "levels/";
+const char TILE_PATH[] = "data/tiles/";
+const char DEFAULT_TILESET[] = "default";
+const char DEFAULT_LEVELSET[] = "default";
 #ifdef _WIN32
 	const char TEMP_PATH[] = "./";
 #else
@@ -117,6 +115,7 @@ uint option_undoSize;
 bool option_soundOn;
 bool option_musicOn;
 uint option_levelSet;
+bool option_replayOn;
 int option_replaySpeed;
 char option_background;
 bool option_timerOn;

@@ -61,24 +61,36 @@ SDL_Surface* FillSurface(const char *file, bool transparent) {
 
 
 
-SDL_Surface* TileSurface(std::string path, const char *file, bool transparent) {
-	std::string filename = file;
-	const char *openPath = (path + filename).c_str();
+SDL_Surface* TileSurface(char *path, const char *filename, bool transparent) {
+	// Form the full path (path + filename)
+	char *fullPath;
+	fullPath = new char[strlen(path) + strlen(filename) + 1];
+	sprintf(fullPath, "%s%s", path, filename);
 	
-	// If the file does not exist in this path, default to DEFAULT_TILESET_DIR
-	FILE *fp = fopen(openPath, "r");
-	if (!fp) {
-		fprintf(stderr, "Error: %s does not exist in this tileset's directory (%s); using the default tile instead.\n", file, path.c_str());
-		path = TILE_BASE_DIR + DEFAULT_TILESET_DIR + "/";
+	// Check if the requested file exists in this path
+	FILE *fp = fopen(fullPath, "r");
+	if (!fp) { // If it doesn't exist
+		fprintf(stderr, "Error: %s does not exist in this tileset's directory (%s); using the default tile instead.\n", filename, path);
+		
+		// Change the fullPath to the default tile path + the filename
+		delete [] fullPath;
+		fullPath = new char[strlen(TILE_PATH) + strlen(DEFAULT_TILESET) + 1 + strlen(filename) + 1];
+		sprintf(fullPath, "%s%s/%s", TILE_PATH, DEFAULT_TILESET, filename);
 	}
-	else {
+	else { // If it does exist
 		fclose(fp);
 	}
 	
-	// Add filename to end of path
-	path += filename;
-
-	return FillSurface(path.c_str(), transparent);
+	// Copy fullPath to a stack variable, instead of being on the
+	// heap, so we can exit the function without having to clean up
+	// the memory in the calling function.
+	char temp[strlen(fullPath) + 1];
+	sprintf(temp, "%s", fullPath);
+	
+	// Free the memory used by fullPath
+	delete [] fullPath;
+	
+	return FillSurface(temp, transparent);
 }
 
 
@@ -146,13 +158,7 @@ void CenterCamera(char override) {
 		return; // Exit the function, avoiding any automatic camera movement
 	}
 	
-	// If camera mode is "manual"
-	if (option_cameraMode == 1) {
-		if (override == 0 && stickyPlayer == false) {
-			// Exit the function unless this is a camera override movement
-			return;
-		}
-	}
+
 	
 	
 	// If the camera is not currently in a movement
@@ -284,6 +290,15 @@ void CenterCamera(char override) {
 		cameraY = targetY;
 		
 		return;
+	}
+	
+	// If camera mode is "manual"
+	if (option_cameraMode == 1) {
+		if (override == 0 && stickyPlayer == false) {
+			// Don't move the camera unless this is an override (e.g. loading a new level)
+			targetX = cameraX;
+			targetY = cameraY;
+		}
 	}
 	
 	// Adjust camera X and Y velocities to move towards target X and Y
@@ -476,15 +491,15 @@ SDL_Surface* brick::GetSurface() {
 // Loads the tiles of the currently selected tileset, defaulting back
 // to the default tileset for (and only for) any tiles not found in
 // the tilesetDir.
-void LoadTileset(std::string tilesetDir) {
+void LoadTileset(const char *tilesetDir) {
 	
 	/*** Free all old surfaces ***/
 	UnloadTileset();
 
 	/*** Load new tile bmps into surfaces ***/
 	// Set the path
-	std::string path;
-	path = TILE_BASE_DIR + tilesetDir + "/";
+	char path[strlen(TILE_PATH) + strlen(tilesetDir) + 2];
+	sprintf(path, "%s%s/", TILE_PATH, tilesetDir);
 	
 	bgSurface = TileSurface(path, "bg.bmp", 0);
 	bgW = bgSurface->w;

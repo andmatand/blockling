@@ -116,7 +116,7 @@ void Init() {
 	
 	/*** Graphics ***/
 	LoadFont("font.bmp");
-	LoadTileset("default");
+	LoadTileset(DEFAULT_TILESET);
 
 	
 	/*** Sound ***/
@@ -171,6 +171,7 @@ void Init() {
 	option_musicOn = true;
 	option_undoSize = 300;
 	option_levelSet = 0;
+	option_replayOn = true;
 	option_replaySpeed = 2;
 	option_background = 2;
 	option_timerOn = true;
