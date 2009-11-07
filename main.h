@@ -120,7 +120,7 @@ uint option_levelSet;
 int option_replaySpeed;
 char option_background;
 bool option_timerOn;
-
+char option_cameraMode;
 
 
 /******* HEADER INCLUDES *******/

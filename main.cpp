@@ -166,7 +166,7 @@ void Init() {
 	currentLevel = 0;
 	
 	
-	// Default Options
+	// Default Options (put settings file loader here)
 	option_soundOn = true;
 	option_musicOn = true;
 	option_undoSize = 300;
@@ -174,6 +174,7 @@ void Init() {
 	option_replaySpeed = 2;
 	option_background = 2;
 	option_timerOn = true;
+	option_cameraMode = 0;
 }
 
 

@@ -1,8 +1,3 @@
--Make level file syntax error messages appear onscreen, which will be 
-helpful for users making custom levels.
-
--Add camera: auto/manual option
-
 -Move the camera-movement code into a function so it can be called also
 from the Load Level menu
 
@@ -18,4 +13,3 @@ possible
 
 
 ==Bugs==
--Undo memory of 1 does not work

@@ -136,8 +136,8 @@ void CenterCamera(char override) {
 
 		if (cameraY + SCREEN_H < levelY)
 			cameraY = levelY - SCREEN_H;
-		if (cameraY > levelY + levelH)
-			cameraY = levelY + levelH;
+		if (cameraY > levelY + levelH + (FONT_H + (FONT_H / 2)))
+			cameraY = levelY + levelH + (FONT_H + (FONT_H / 2));
 		
 		cameraXVel = 0;
 		cameraYVel = 0;
@@ -146,6 +146,13 @@ void CenterCamera(char override) {
 		return; // Exit the function, avoiding any automatic camera movement
 	}
 	
+	// If camera mode is "manual"
+	if (option_cameraMode == 1) {
+		if (override == 0 && stickyPlayer == false) {
+			// Exit the function unless this is a camera override movement
+			return;
+		}
+	}
 	
 	
 	// If the camera is not currently in a movement
@@ -248,9 +255,9 @@ void CenterCamera(char override) {
 		// and showing us useless empty space.	
 		if (levelH > SCREEN_H - (yMargin * 2) - TILE_H) {
 			// If the camera is showing too much space to below the level (and one extra tile for text)
-			if (targetY + (SCREEN_H - 1) > levelY + (levelH - 1) + yMargin + TILE_H) {
+			if (targetY + (SCREEN_H - 1) > levelY + (levelH - 1) + yMargin + (FONT_H + (FONT_H / 2))) {
 				// Move the level as far down as it *should* go.
-				targetY = levelY + (levelH - 1) + yMargin + TILE_H - (SCREEN_H - 1);
+				targetY = levelY + (levelH - 1) + yMargin + (FONT_H + (FONT_H / 2)) - (SCREEN_H - 1);
 			}
 			
 			// If the camera is too far above the level

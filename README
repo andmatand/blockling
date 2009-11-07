@@ -82,17 +82,26 @@ From examining those existing levels, you will likely come to an understanding
 as to the format of a level file, but I shall here offer a complete listing of
 each character's meaning:
 
-    .     Indicates a blank tile.  Plain spaces (i.e. " ") are ignored.
-    @     Inidicates the player.
-    X     Indicates a block.
+    .     a blank tile.  Plain spaces (i.e. " ") are ignored.
+    @     the player
+    X     a block
+    0     a piece of land.  Based on the tile's position relative to other
+          tiles, it may automatically assume a different appearance (e.g.
+          bricks, grass, etc.)
+    1     manually specifies a land tile with the appearance of bricks
+    2     manually specifies a land tile with the appearance of grass
     a-z   Lowercase letter pairs indicate telepad pairs.  These need not start
           with "a" or proceed in alphabetical order, but each letter much have
-          exactly one mate (e.g. if a "q" is found, there must be another "q"
-          somewhere within the level)
-    *     Indicates the level's exit.
-    #     Indicates that the rest of this line is a comment and will not be
-          parsed.
-    (LF)  A Unix linebreak indicates a new row of tiles in the level.
+          exactly one mate (e.g. if a "q" is present, there must be one other
+          "q" somewhere within the level)
+    *     the level's exit.
+    ^     a spike
+    #     indicates that the rest of this line is a comment and will not be
+          parsed
+    (LF)  A Unix linebreak indicates a new row of tiles in the level.  On 
+          Windows systems, a Windows linebreak (CR + LF) may be used, since it
+          also contains the LF character.  You don't need to understand what
+          this means =)
 
 Additionally, note the following caveats:
 

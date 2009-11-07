@@ -937,6 +937,7 @@ char * LoadLevel(uint level) {
 					numTorches ++;
 				case '0':
 				case '1':
+				case '2':
 					numBricks ++;
 					break;
 				case 'x':
@@ -1123,9 +1124,10 @@ char * LoadLevel(uint level) {
 					torches[numTorches].SetX(x);
 					torches[numTorches].SetY(y);
 					numTorches ++;
-					bricks[numBricks].SetType(0); // Wall
-					// Proceed down to next case
-				case '0': // brick (type automatically selected)
+					bricks[numBricks].SetType(0); // Make sure the brick
+					                              //we're about to make is a "wall" brick
+					// Proceed down to next case (put a brick behind the torch)
+				case '0': // normal brick (type automatically selected)
 					bricks[numBricks].SetX(x);
 					bricks[numBricks].SetY(y);
 					numBricks ++;
@@ -1134,6 +1136,12 @@ char * LoadLevel(uint level) {
 					bricks[numBricks].SetX(x);
 					bricks[numBricks].SetY(y);
 					bricks[numBricks].SetType(0);
+					numBricks ++;
+					break;
+				case '2': // grass brick (manual override)
+					bricks[numBricks].SetX(x);
+					bricks[numBricks].SetY(y);
+					bricks[numBricks].SetType(-2);
 					numBricks ++;
 					break;
 				case 'X': // block
@@ -1194,11 +1202,10 @@ char * LoadLevel(uint level) {
 	
 	/*** Change brick types based on their placement next to other bricks ***/
 	int leftBrick, rightBrick, topBrick, bottomBrick;
-	// Do "wall" bricks
+	// Make vertical bricks into "wall" bricks
 	for (uint i = 0; i < numBricks; i++) {
 		// Only change bricks that have not yet been set
-		if (bricks[i].GetType() != -1)
-			continue;
+		if (bricks[i].GetType() != -1) continue;
 		
 		// Find surrounding bricks, and ignore them if they are of type 0 (wall)
 		leftBrick = BrickNumber(bricks[i].GetX() - TILE_W, bricks[i].GetY(), TILE_W, TILE_H);
@@ -1230,7 +1237,7 @@ char * LoadLevel(uint level) {
 	
 	// Do "land" bricks
 	for (uint i = 0; i < numBricks; i++) {
-		if (bricks[i].GetType() == -1) {
+		if (bricks[i].GetType() < 0) {
 			leftBrick = BrickNumber(bricks[i].GetX() - TILE_W, bricks[i].GetY(), TILE_W, TILE_H);
 			// Ignore wall bricks (because they aren't "connected" to land bricks)
 			if (leftBrick >= 0) {
@@ -1456,8 +1463,10 @@ void Undo(char action) {
 
 			
 			// Instantly move camera back to player
-			SetCameraTargetBlock(0);
-			CenterCamera(-1);
+			if (option_cameraMode == 0) { // If the camera is set to "auto"
+				SetCameraTargetBlock(0);
+				CenterCamera(-1);
+			}
 			
 			
 			#ifdef DEBUG_UNDO
