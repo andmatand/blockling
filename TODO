@@ -1,15 +1,10 @@
 -Make level file syntax error messages appear onscreen, which will be 
 helpful for users making custom levels.
 
--Add timer on/off option
-
 -Add camera: auto/manual option
 
 -Move the camera-movement code into a function so it can be called also
 from the Load Level menu
-
--Add tab support to DrawText (for control setup menu; it would look nice
-if they were aligned better.)
 
 -Maybe: Holding down shift with arrows makes player walk as far as
 possible

@@ -172,7 +172,7 @@ int MainMenu() {
 int OptionsMenu(bool inGame) {
 	int numItems = 7;
 	menu optMenu(numItems); // Create the menu object
-	char text[65]; // For temporarily holding menu items' text as it is formed
+	char text[70]; // For temporarily holding menu items' text as it is formed
 	
 	uint maxUndoSize = 500;
 	char change_undoSize;
@@ -257,8 +257,8 @@ int OptionsMenu(bool inGame) {
 		optMenu.SpaceItems(6);
 		optMenu.Display();
 		// If the undo option is selected
-		if (inGame && optMenu.GetSel() == 3) {
-			sprintf(text, "[This setting will not take effect\nuntil a new level is loaded]");
+		if (inGame && optMenu.GetSel() == 4) {
+			sprintf(text, "Note: This setting will not take effect\nuntil a new level is loaded.");
 			DrawText((SCREEN_W / 2) - (GetTextW(text, 0) / 2), 300, text, 0, 1);
 		}
 		UpdateScreen();
@@ -511,12 +511,13 @@ int SelectLevelMenu() {
 	uint i;
 	int numItems = 2;
 	menu lvlMenu(numItems); // Create the menu object
-	char text[32]; // For temporarily holding menu items' text as it is formed
+	char text[512]; // For temporarily holding menu items' text as it is formed
 	int bottomY = SCREEN_H - FONT_H - 4;
 	
 	FILE *testFile;
 	bool refreshLevel = true;
 	uint numLevels = 999;
+	char *levelError = NULL;
 	
 	int action;
 	
@@ -529,14 +530,19 @@ int SelectLevelMenu() {
 		if (refreshLevel) {
 			while (true) {
 				// Load Level
-				if (LoadLevel(currentLevel) == false) {
+				delete [] levelError;
+				levelError = LoadLevel(currentLevel);
+				
+				// If the level could not be loaded
+				sprintf(text, "!");
+				if (levelError != NULL && strcmp(levelError, text) == 0) {
 					numLevels = currentLevel;
-					fprintf(stderr, "Error: Loading level %d failed.\n", currentLevel);
 					
 					if (currentLevel <= 0) break;
 					currentLevel--;
 					continue;
 				}
+				
 				
 				testFile = OpenLevel(currentLevel + 1);
 				if (testFile != NULL) {
@@ -547,8 +553,10 @@ int SelectLevelMenu() {
 				}
 				
 				/*** Turn off all the status lights on the telepads ***/
-				for (i = 0; i < numTelepads; i++) {
-					telepads[i].NeedsToTeleport();
+				if (levelError == NULL) {
+					for (i = 0; i < numTelepads; i++) {
+						telepads[i].NeedsToTeleport();
+					}
 				}
 				
 				break;
@@ -584,7 +592,14 @@ int SelectLevelMenu() {
 		
 		
 		/** Render *****************/
-		Render(3);
+		if (levelError == NULL) {
+			Render(3);
+		}
+		else {
+			DrawBackground();
+			sprintf(text, "Syntax errors exist in the level file:\n\n%s\nPlease fix the errors and try\nselecting the level again.", levelError);
+			DrawText(FONT_W * 3, FONT_H * 3, text, 0, 1);
+		}
 		lvlMenu.AutoArrange(static_cast<char>(1));
 		
 		// Position the menu items to be stacked at the bottom of the screen
@@ -607,6 +622,7 @@ int SelectLevelMenu() {
 				switch (lvlMenu.GetSel()) {
 					case 0:
 					case 1:
+						delete [] levelError;
 						return lvlMenu.GetSel();
 						break;
 				}
@@ -639,10 +655,12 @@ int SelectLevelMenu() {
 				break;
 			case -1: // Esc
 				CollectLevelGarbage();
+				delete [] levelError;
 				return -1;
 				break;
 			case -2: // Close window
 				CollectLevelGarbage();
+				delete [] levelError;
 				return -2;
 				break;
 		}

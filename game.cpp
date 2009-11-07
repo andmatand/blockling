@@ -99,9 +99,9 @@ int Game() {
 		physicsStarted = false;
 
 		if (stickyPlayer || showingReplay || currentLevel != oldLevel || restartLevel) {
-			// Load Level without a menu
+			// Load Level without a menu (e.g. from in-game "Next Level" or "Restart Level")
 			while (true) {
-				if (LoadLevel(currentLevel) == false) {
+				if (LoadLevel(currentLevel) != NULL) {
 					fprintf(stderr, "Error: Loading level %d failed.\n", currentLevel);
 	
 					currentLevel = 0;
@@ -860,8 +860,10 @@ FILE * OpenLevel(uint level) {
 	char filename[256];
 	sprintf(filename, "%s%s%s/%s", DATA_PATH, LEVEL_PATH, levelSet, levelFile);
 
+	#ifdef DEBUG
 	printf("\nLoading level %d...\n", level);
 	printf("filename: \"%s\"\n", filename);
+	#endif
 
 	return fopen(filename, "rb");
 }
@@ -869,7 +871,12 @@ FILE * OpenLevel(uint level) {
 
 
 
-bool LoadLevel(uint level) {
+char * LoadLevel(uint level) {
+	char *errorMsg = new char[256]; // For holding error messages
+	errorMsg[0] = '\0';
+	char temp[256]; // For assembling strings of error messages
+	temp[0] = '\0';
+	
 	// Free memory used by previous level
 	CollectLevelGarbage();
 	
@@ -888,7 +895,9 @@ bool LoadLevel(uint level) {
 	FILE *f;
 	f = OpenLevel(level);
 	if (f == NULL) {
-		return false;
+		// Signal that the file could not be opened
+		sprintf(errorMsg, "!");
+		return errorMsg;
 	}
 
 	/** Read the file for the first time, to get info about level (width, height, numBlocks, numBricks, etc.) ****/
@@ -978,29 +987,31 @@ bool LoadLevel(uint level) {
 	// Check for telepad errors
 	for (uint i = 0; i < numTelepads; i++) {
 		if (telepadMates[i] != 1) {
-			fprintf(stderr, "Level data syntax error: Telepad '%c' should have 1 mate, but it has %d mates.\n", telepadLetter[i], telepadMates[i]);
+			sprintf(temp, "-Telepad '%c' should have 1 mate, but\nit has %d mates.\n", telepadLetter[i], telepadMates[i]);
+			strcat(errorMsg, temp);
 			syntaxError = true;
+			break; // Only report one telepad error at a time, so the string doesn't overflow
 		}
 	}
 
 	// Check for missing exit
 	if (numExits != 1) {
-		fprintf(stderr, "Level data syntax error: There must be exactly 1 level exit, but there are %d.\n", numExits);
-		syntaxError = true;	
+		sprintf(temp, "-There must be exactly 1 level exit,\nbut there are %d.\n", numExits);
+		strcat(errorMsg, temp);
+		syntaxError = true;
 	}
 	
 	// Check for missing player
 	if (numPlayers == 0) {
-		fprintf(stderr, "Level data syntax error: There must be at least one player.\n");
-		syntaxError = true;	
+		sprintf(temp, "-There must be at least one player.\n");
+		strcat(errorMsg, temp);
+		syntaxError = true;
 	}
 	
 	// Don't load the level if there are syntax errors
 	if (syntaxError == true) {
-		fprintf(stderr, "Syntax errors exist in the level data, so it can't be loaded.  Sorry =)\n");
-		
 		fclose(f);
-		return false;
+		return errorMsg;
 	}
 	
 
@@ -1301,7 +1312,7 @@ bool LoadLevel(uint level) {
 		CenterCamera(-1); // Instantly move camera and zero camera speed
 	}
 	
-	return true;
+	return NULL;
 }
 
 
@@ -1398,7 +1409,7 @@ void Undo(char action) {
 	
 	// Load state
 	if (action == 1) {
-		if (! (undoStart == undoEnd && undoSlot == undoEnd)) {
+		if (!(undoStart == undoEnd && undoSlot == undoEnd) || maxUndo == 1) {
 			PlaySound(4);
 			
 			#ifdef DEBUG2

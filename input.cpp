@@ -44,8 +44,8 @@ void GlobalInput(SDL_Event event) {
 								screenSurface->h,
 								screenSurface->format->BitsPerPixel,
 								SDL_HWSURFACE
-									| (screenSurface->flags & (SDL_FULLSCREEN ? 0 : SDL_FULLSCREEN))
-									| SDL_GL_DOUBLEBUFFER
+									//| (screenSurface->flags & (SDL_FULLSCREEN ? 0 : SDL_FULLSCREEN))
+									| SDL_FULLSCREEN
 									| SDL_ANYFORMAT
 									);
 					#else

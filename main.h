@@ -112,7 +112,6 @@ bool stickyPlayer;
 int stickyPlayerX, stickyPlayerY; // The screen coordinates
 int stickyPlayerOrigX, stickyPlayerOrigY; // The player's game coordinates
 
-
 // Options
 uint option_undoSize;
 bool option_soundOn;
@@ -121,6 +120,7 @@ uint option_levelSet;
 int option_replaySpeed;
 char option_background;
 bool option_timerOn;
+
 
 
 /******* HEADER INCLUDES *******/

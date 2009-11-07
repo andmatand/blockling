@@ -239,7 +239,7 @@ void menu::Display() {
 	static bool arrowFlash = true;
 	
 	// Make the arrow flash, staying on longer than off
-	if (SDL_GetTicks() <= arrowTimer + 700) {
+	if (SDL_GetTicks() <= arrowTimer + 750) {
 		arrowFlash = true;
 	}
 	else {
