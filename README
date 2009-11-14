@@ -76,7 +76,9 @@ III. CREATING YOUR OWN LEVELS
 =============================
 Levels can be easily created using a simple text editor.  Perhaps the easiest
 way to begin is by examining some existing levels.  The game's default levels
-may be found in the "levels/default/" directory within the data directory:
+may be found in the "levels/default/" directory within the data directory.
+
+Where is the data directory?
 
   - If the game is not "installed" and you are just running it from a folder,
     the data directory is located in the same directory that this readme file
@@ -92,14 +94,15 @@ From examining those existing levels, you will likely come to an understanding
 as to the format of a level file, but I shall here offer a complete listing of
 each character's meaning:
 
-    .     a blank tile.  Plain spaces (i.e. " ") are ignored.
+    .     a blank tile.  Note: Regular spaces (i.e. " ") are ignored.
     @     the player
     X     a block
-    0     a piece of land.  Based on the tile's position relative to other
-          tiles, it may automatically assume a different appearance (e.g.
+    0     a piece of land.  Note: Based on the tile's position relative to other
+          tiles, it may automatically assume a different visual appearance (e.g.
           bricks, grass, etc.)
     1     manually specifies a land tile with the appearance of bricks
     2     manually specifies a land tile with the appearance of grass
+    T     a torch.  Note: a "wall" tile will automatically be placed behind it.
     a-z   Lowercase letter pairs indicate telepad pairs.  These need not start
           with "a" or proceed in alphabetical order, but each letter much have
           exactly one mate (e.g. if a "q" is present, there must be one other
