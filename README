@@ -78,6 +78,9 @@ Levels can be easily created using a simple text editor.  Perhaps the easiest
 way to begin is by examining some existing levels.  The game's default levels
 may be found in the "levels/default/" directory within the data directory:
 
+  - If the game is not "installed" and you are just running it from a folder,
+    the data directory is located in the same directory that this readme file
+    is in.
   - On Unix systems, the data directory is probably "/usr/games/blockman/data/"
   - On Windows systems, this data directory is probably
     "%systemroot%\Program Files\Blockman\data\".
@@ -107,8 +110,8 @@ each character's meaning:
           parsed
     (LF)  A Unix linebreak indicates a new row of tiles in the level.  On 
           Windows systems, a Windows linebreak (CR + LF) may be used, since it
-          also contains the LF character.  You don't need to understand what
-          this means =)
+          also contains the LF character.  Don't worry; you don't need to
+          understand what this means.  Just push Enter =)
 
 Additionally, note the following caveats:
 
