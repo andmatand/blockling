@@ -116,8 +116,11 @@ int Game() {
 			switch (SelectLevelMenu()) {
 				case 0:
 					break;
-				case -1:
+				case -1: // Esc
 					return -1;
+					break;
+				case -2: // Close window
+					return -2;
 					break;
 			}
 		}
