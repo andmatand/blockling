@@ -110,7 +110,7 @@ each character's meaning:
     *     the level's exit.
     ^     a spike
     #     indicates that the rest of this line is a comment and will not be
-          parsed
+          parsed.  You can type whatever you want here (e.g. your name)
     (LF)  A Unix linebreak indicates a new row of tiles in the level.  On 
           Windows systems, a Windows linebreak (CR + LF) may be used, since it
           also contains the LF character.  Don't worry; you don't need to
@@ -134,3 +134,6 @@ game.  Since the game loads levels afresh from disk each time they are
 reloaded, this can be accomplished by running the game and displaying the level
 upon which you are working, and reloading it whenever you save a change.  The
 F5 keyboard shortcut is particularly handy for quick reloading.
+
+If the game finds any syntax errors in your file, it will let you know with a
+(hopefully) helpful on-screen message.
