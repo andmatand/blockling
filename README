@@ -1,7 +1,7 @@
 Please distribute this file with Blockman:
 
 The source code of Blockman is available from:
-http://www.billamonster.com/blockman
+http://www.billamonster.com/blockman (not yet)
 
 Blockman is free software.  It is distributed under the terms of the GNU 
 General Public License:
@@ -39,10 +39,9 @@ and I was pleased overall with the result, except for one big problem: I had
 written the whole thing in QBasic.  Becuase my code was much too large for the
 simple QBasic interpreter, not only was I forced to stop adding to it, but I
 was unable to compile it into an executable, thus making it impossible to 
-distribute to others in any practical way.  Don't use QBasic, folks (not that
-anyone does anymore anyway).
+distribute to others in any practical way.  
 
-Many years later, I discovered Linux (*applause*).  
+Many years later, I discovered Linux and C++, and here is the result.
 
 
 
@@ -62,6 +61,14 @@ DOWN	Set down a block
 LEFT    Move left
 RIGHT   Move right
 ENTER   Push a block
+
+CAMERA CONTROLS
+---------------
+w  up
+a  left
+s  down
+d  right
+
 
 
 
