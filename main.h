@@ -23,6 +23,7 @@
 //#define DEBUG
 
 typedef unsigned int uint;
+typedef unsigned char uchar;
 
 /******* INCLUDES (part 1) *******/
 #include <iostream>
@@ -54,6 +55,8 @@ const char LEVEL_PATH[] = "levels/";
 const char TILE_PATH[] = "data/tiles/";
 const char DEFAULT_TILESET[] = "default";
 const char DEFAULT_LEVELSET[] = "default";
+const char SETTINGS_PATH[] = "./";
+const char SETTINGS_FILE[] = ".blockmanrc";
 #ifdef _WIN32
 	const char TEMP_PATH[] = "./";
 #else
@@ -110,16 +113,6 @@ bool stickyPlayer;
 int stickyPlayerX, stickyPlayerY; // The screen coordinates
 int stickyPlayerOrigX, stickyPlayerOrigY; // The player's game coordinates
 
-// Options
-uint option_undoSize;
-bool option_soundOn;
-bool option_musicOn;
-uint option_levelSet;
-bool option_replayOn;
-int option_replaySpeed;
-char option_background;
-bool option_timerOn;
-char option_cameraMode;
 
 
 /******* HEADER INCLUDES *******/
@@ -136,7 +129,7 @@ void DeInit();
 #include "menus.h"	// Needs sound.h
 #include "physics.h"
 #include "replay.h"
-
+#include "settings.h"
 
 
 
@@ -287,3 +280,4 @@ telepad **undoTelepads = NULL;	// Needs telepad class
 #include "menus.cpp"
 #include "physics.cpp"
 #include "sound.cpp"
+#include "settings.cpp"

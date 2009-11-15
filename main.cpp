@@ -95,7 +95,7 @@ int main(int argc, char** argv) {
 		if (quitProgram) break;	
 	}
 	
-	
+	SaveSettings();
 	DeInit();
 
 	// Wait for sound to finish playing
