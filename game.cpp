@@ -868,7 +868,7 @@ FILE * OpenLevel(uint level) {
 	printf("filename: \"%s\"\n", filename);
 	#endif
 
-	return fopen(filename, "rb");
+	return fopen(filename, "r");
 }
 
 

@@ -138,10 +138,10 @@ void Init() {
 	gameKeys[1].sym = SDLK_u;	// Undo
 	gameKeys[1].mod = KMOD_NONE;	// modifier
 	
-	//gameKeys[2].sym = SDLK_LEFT;	// Move camera left
-	//gameKeys[2].mod = KMOD_LSHIFT;	// modifier
-	gameKeys[2].sym = SDLK_a;	// Move camera left
-	gameKeys[2].mod = KMOD_NONE;	// modifier
+	gameKeys[2].sym = SDLK_LEFT;	// Move camera left
+	gameKeys[2].mod = KMOD_LSHIFT;	// modifier
+	//gameKeys[2].sym = SDLK_a;	// Move camera left
+	//gameKeys[2].mod = KMOD_NONE;	// modifier
 
 	//gameKeys[3].sym = SDLK_RIGHT;	// Move camera right
 	//gameKeys[3].mod = KMOD_LSHIFT;	// modifier
@@ -166,7 +166,7 @@ void Init() {
 	currentLevel = 0;
 	
 	
-	// Default Options (put settings file loader here)
+	// Set the default settings
 	option_soundOn = true;
 	option_musicOn = true;
 	option_undoSize = 300;
@@ -176,6 +176,9 @@ void Init() {
 	option_background = 2;
 	option_timerOn = true;
 	option_cameraMode = 0;
+	
+	// Load any options found in the settings file
+	LoadSettings();
 }
 
 
