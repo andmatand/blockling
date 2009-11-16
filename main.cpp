@@ -138,10 +138,10 @@ void Init() {
 	gameKeys[1].sym = SDLK_u;	// Undo
 	gameKeys[1].mod = KMOD_NONE;	// modifier
 	
-	gameKeys[2].sym = SDLK_LEFT;	// Move camera left
-	gameKeys[2].mod = KMOD_LSHIFT;	// modifier
-	//gameKeys[2].sym = SDLK_a;	// Move camera left
-	//gameKeys[2].mod = KMOD_NONE;	// modifier
+	//gameKeys[2].sym = SDLK_LEFT;	// Move camera left
+	//gameKeys[2].mod = KMOD_LSHIFT;	// modifier
+	gameKeys[2].sym = SDLK_a;	// Move camera left
+	gameKeys[2].mod = KMOD_NONE;	// modifier
 
 	//gameKeys[3].sym = SDLK_RIGHT;	// Move camera right
 	//gameKeys[3].mod = KMOD_LSHIFT;	// modifier
