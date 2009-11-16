@@ -765,7 +765,7 @@ void Render (char flag) {
 	
 	/*** BLOCKS ***/
 	// Deactivate stickyPlayer when he's lined up in the new level's position.
-	if (flag != 3 && blocks[0].GetX() - cameraX <= stickyPlayerX && blocks[0].GetY() - cameraY == stickyPlayerY) {
+	if (stickyPlayer && flag != 3 && blocks[0].GetX() - cameraX <= stickyPlayerX && blocks[0].GetY() - cameraY == stickyPlayerY) {
 		stickyPlayer = false;
 		blocks[0].SetFace(0); // normal
 	}
