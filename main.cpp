@@ -130,41 +130,11 @@ void Init() {
 	LoadSound("menu_back.wav", 7);
 	LoadSound("win.wav", 8);
 	
-	/*** Keyboard ***/
-	// Default Game keyboard layout
-	gameKeys[0].sym = SDLK_ESCAPE;	// Quit
-	gameKeys[0].mod = KMOD_NONE;	// modifier
-	
-	gameKeys[1].sym = SDLK_u;	// Undo
-	gameKeys[1].mod = KMOD_NONE;	// modifier
-	
-	//gameKeys[2].sym = SDLK_LEFT;	// Move camera left
-	//gameKeys[2].mod = KMOD_LSHIFT;	// modifier
-	gameKeys[2].sym = SDLK_a;	// Move camera left
-	gameKeys[2].mod = KMOD_NONE;	// modifier
-
-	//gameKeys[3].sym = SDLK_RIGHT;	// Move camera right
-	//gameKeys[3].mod = KMOD_LSHIFT;	// modifier
-	gameKeys[3].sym = SDLK_d;	// Move camera right
-	gameKeys[3].mod = KMOD_NONE;	// modifier
-	
-	//gameKeys[4].sym = SDLK_UP;	// Move camera up
-	//gameKeys[4].mod = KMOD_LSHIFT;	// modifier
-	gameKeys[4].sym = SDLK_w;	// Move camera up
-	gameKeys[4].mod = KMOD_NONE;	// modifier
-	
-	//gameKeys[5].sym = SDLK_DOWN;	// Move camera down
-	//gameKeys[5].mod = KMOD_LSHIFT;	// modifier
-	gameKeys[5].sym = SDLK_s;	// Move camera down
-	gameKeys[5].mod = KMOD_NONE;	// modifier
-
-	gameKeys[6].sym = SDLK_F5;	// Restart Level
-	gameKeys[6].mod = KMOD_NONE;	// modifier
-
-	ResetDefaultKeys();
-	
 	currentLevel = 0;
 	
+	
+	// Default Game keyboard layout
+	ResetDefaultKeys();
 	
 	// Set the default settings
 	option_soundOn = true;
@@ -176,7 +146,7 @@ void Init() {
 	option_background = 2;
 	option_timerOn = true;
 	option_cameraMode = 0;
-	
+
 	// Load any options found in the settings file
 	LoadSettings();
 }

@@ -370,7 +370,38 @@ void RefreshPlayerKeys() {
 
 
 void ResetDefaultKeys() {
-	// Default Player keyboard layout
+	/** Default Game Keys ****/
+	gameKeys[0].sym = SDLK_ESCAPE;	// Quit
+	gameKeys[0].mod = KMOD_NONE;	// modifier
+	
+	gameKeys[1].sym = SDLK_u;	// Undo
+	gameKeys[1].mod = KMOD_NONE;	// modifier
+	
+	//gameKeys[2].sym = SDLK_LEFT;	// Move camera left
+	//gameKeys[2].mod = KMOD_LSHIFT;	// modifier
+	gameKeys[2].sym = SDLK_a;	// Move camera left
+	gameKeys[2].mod = KMOD_NONE;	// modifier
+
+	//gameKeys[3].sym = SDLK_RIGHT;	// Move camera right
+	//gameKeys[3].mod = KMOD_LSHIFT;	// modifier
+	gameKeys[3].sym = SDLK_d;	// Move camera right
+	gameKeys[3].mod = KMOD_NONE;	// modifier
+	
+	//gameKeys[4].sym = SDLK_UP;	// Move camera up
+	//gameKeys[4].mod = KMOD_LSHIFT;	// modifier
+	gameKeys[4].sym = SDLK_w;	// Move camera up
+	gameKeys[4].mod = KMOD_NONE;	// modifier
+	
+	//gameKeys[5].sym = SDLK_DOWN;	// Move camera down
+	//gameKeys[5].mod = KMOD_LSHIFT;	// modifier
+	gameKeys[5].sym = SDLK_s;	// Move camera down
+	gameKeys[5].mod = KMOD_NONE;	// modifier
+
+	gameKeys[6].sym = SDLK_F5;	// Restart Level
+	gameKeys[6].mod = KMOD_NONE;	// modifier
+
+
+	/** Default Player keys ****/
 	option_playerKeys[0].sym = SDLK_LEFT;		// Move player left
 	option_playerKeys[1].sym = SDLK_RIGHT;		// Move player right
 	option_playerKeys[2].sym = SDLK_UP;		// Pick up block

@@ -21,24 +21,24 @@
 
 
 int ControlSetupMenu(bool inGame) {
-	int numItems = NUM_PLAYER_KEYS + 2;
+	int numItems = NUM_PLAYER_KEYS + 4 + 2;
 	menu csMenu(numItems); // Create the menu object
 	char text[256]; // For temporarily holding menu items' text as it is formed
-	char tempString[14];
+	char tempString[32];
 	
-	uint i;
+	int i;
 	int action;
 	bool gettingKey = false;
 	
 	/** Set static menu items **/
-	csMenu.Move(inGame ? SCREEN_W / 2 : 75, 100);
+	csMenu.Move(inGame ? SCREEN_W / 2 : 75, FONT_H * 5);
 	csMenu.SetTitle("CONTROL SETUP");
 	csMenu.NameItem(numItems - 2, "Reset To Defaults");
 	csMenu.NameItem(numItems - 1, "Done");
 
 	while (true) {
 		/** Set dynamic menu items' text *****************/
-		for (i = 0; i < NUM_PLAYER_KEYS; i++) {
+		for (i = 0; i < numItems - 2; i++) {
 			// Determine text
 			switch (i) {
 				case 0:
@@ -56,10 +56,24 @@ int ControlSetupMenu(bool inGame) {
 				case 4:
 					sprintf(tempString, "Push Block:\t");
 					break;
+				case 5:
+					sprintf(tempString, "Move Camera Left:");
+					break;
+				case 6:
+					sprintf(tempString, "Move Camera Right:");
+					break;
+				case 7:
+					sprintf(tempString, "Move Camera Up:\t");
+					break;
+				case 8:
+					sprintf(tempString, "Move Camera Down:");
+					break;
 			}
 			sprintf(text, "%s\t%s",
 				tempString,
-				(gettingKey && csMenu.GetSel() == static_cast<int>(i)) ? "Press a key..." : KeyName(option_playerKeys[i].sym)
+				(gettingKey && csMenu.GetSel() == static_cast<int>(i)) ?
+					"Press a key..." :
+					(i < static_cast<int>(NUM_PLAYER_KEYS) ? KeyName(option_playerKeys[i].sym) : KeyName(gameKeys[i - 3].sym))
 				);
 
 			// Set it
@@ -79,7 +93,7 @@ int ControlSetupMenu(bool inGame) {
 			
 			// Cheatingly position the items at a fixed x, if using the inGame text centering
 			if (inGame) {
-				for (i = 0; i < NUM_PLAYER_KEYS; i++) {
+				for (i = 0; i < numItems - 2; i++) {
 					csMenu.MoveItem(i, (SCREEN_W / 2) - (FONT_W * 10), csMenu.GetItemY(i));
 				}
 			}
@@ -91,7 +105,12 @@ int ControlSetupMenu(bool inGame) {
 				while (SDL_PollEvent(&event)) {
 					if (event.type == SDL_KEYDOWN) {
 						if (event.key.keysym.sym != SDLK_ESCAPE) {
-							option_playerKeys[csMenu.GetSel()].sym = event.key.keysym.sym;
+							if (csMenu.GetSel() < static_cast<int>(NUM_PLAYER_KEYS)) {
+								option_playerKeys[csMenu.GetSel()].sym = event.key.keysym.sym;
+							}
+							else {
+								gameKeys[csMenu.GetSel() - 3].sym = event.key.keysym.sym;
+							}
 						}
 						gettingKey = false;
 						break;
@@ -140,7 +159,7 @@ int MainMenu() {
 	mainMenu.NameItem(1, "Options");
 	mainMenu.NameItem(2, "Quit");
 	
-	mainMenu.Move(75, 100);
+	mainMenu.Move(75, FONT_H * 7);
 	mainMenu.AutoArrange(0);
 	
 	int action;
@@ -184,7 +203,7 @@ int OptionsMenu(bool inGame) {
 	int action;
 	
 	/** Set static menu items **/
-	optMenu.Move(inGame ? SCREEN_W / 2 : 75, 100);
+	optMenu.Move(inGame ? SCREEN_W / 2 : 75, FONT_H * 7);
 	optMenu.SetTitle("OPTIONS");
 	optMenu.NameItem(6, "Control Setup");
 	optMenu.NameItem(7, "Done");
