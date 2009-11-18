@@ -443,6 +443,12 @@ const char* KeyName(SDLKey sym) {
 		case SDLK_SPACE:
 			return "SPACE";
 			break;
+		case SDLK_INSERT:
+			return "INSERT";
+			break;
+		case SDLK_DELETE:
+			return "DELETE";
+			break;
 		case SDLK_HOME:
 			return "HOME";
 			break;

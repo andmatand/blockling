@@ -44,13 +44,15 @@ Many years later, I discovered Linux and C++, and here is the result.
 
 
 == II. CONTROLS =======
-Esc     Menu
-F1      Help (not yet implemented)
-F2      Toggle Music
-F3      Toggle Sound
-F5      Restart the current level
-U       Undo
-F       Toggle Fullscreen (doesn't work in Windows yet)
+Esc        Menu
+F1         Help (not yet implemented)
+F2         Toggle Music
+F3         Toggle Sound
+F5         Restart the current level
+U          Undo
+F          Toggle Fullscreen (doesn't work in Windows yet)
+PAGE UP / 
+PAGE DOWN  Change tile set
 
 -- CUSTOMIZABLE GAME CONTROLS --
 UP      Pick up a block
