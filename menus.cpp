@@ -203,7 +203,7 @@ int OptionsMenu(bool inGame) {
 	int action;
 	
 	/** Set static menu items **/
-	optMenu.Move(inGame ? SCREEN_W / 2 : 75, FONT_H * 7);
+	optMenu.Move(inGame ? SCREEN_W / 2 : 75, FONT_H * 6);
 	optMenu.SetTitle("OPTIONS");
 	optMenu.NameItem(6, "Control Setup");
 	optMenu.NameItem(7, "Done");
