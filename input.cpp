@@ -82,7 +82,7 @@ void GameInput(bool inReplay) {
 		}
 		else if (gameKeys[i].on == -1) {
 			// Initial delay                          (Make the camera controls [keys 0 - 4] instant)
-			if (SDL_GetTicks() >= gameKeys[i].timer + ((i <= 4) ? 0 : 200)) {
+			if (SDL_GetTicks() >= gameKeys[i].timer + ((i <= 3) ? 0 : 200)) {
 				gameKeys[i].on = 2; // will be seen by game as On
 				gameKeys[i].timer = SDL_GetTicks();
 			}

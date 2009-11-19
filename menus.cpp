@@ -32,7 +32,7 @@ int ControlSetupMenu(bool inGame) {
 	SDLKey keySym;
 	
 	/** Set static menu items **/
-	csMenu.Move(inGame ? SCREEN_W / 2 : 75, FONT_H * 5);
+	csMenu.Move(inGame ? SCREEN_W / 2 : 75, FONT_H * 4);
 	csMenu.SetTitle("CONTROL SETUP");
 	csMenu.NameItem(numItems - 2, "Reset To Defaults");
 	csMenu.NameItem(numItems - 1, "Done");

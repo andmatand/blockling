@@ -319,7 +319,10 @@ int Game() {
 				}
 				
 				// No more Esc
-				gameKeys[0].on = 0;
+				//gameKeys[0].on = 0;
+				
+				// Clear any keys that may have been held when Esc was pressed
+				TurnOffAllKeys();
 				
 				// Make the time spent in the menu undetectable to the timer incrementer
 				levelTimeTick = SDL_GetTicks() - j;
