@@ -124,6 +124,11 @@ void SaveSettings() {
 		fputs(line, f);
 	}
 	
+	// Write the current level
+	sprintf(line, "currentLevel=%d\n", currentLevel);
+	fputs(line, f);
+	
+	
 	fclose(f);
 }
 
@@ -211,6 +216,9 @@ void LoadSettings() {
 		}
 		else if (strcmp(name, "cameraMode") == 0) {
 			option_cameraMode = static_cast<uchar>(uintVal);
+		}
+		else if (strcmp(name, "currentLevel") == 0) {
+			currentLevel = static_cast<uchar>(uintVal);
 		}
 		else {
 			// Get the number on the end of the setting name

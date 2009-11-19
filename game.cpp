@@ -179,7 +179,7 @@ int Game() {
 			GameInput(showingReplay ? true : false);
 						
 			// Handle Restart Level key
-			if (gameKeys[6].on == 1) {
+			if (gameKeys[5].on == 1) {
 				showingReplay = false;
 				stickyPlayer = false;
 				restartLevel = true;
@@ -233,8 +233,8 @@ int Game() {
 			}
 
 
-			/*** Pause Menu (when Esc is pushed) ***/
-			if (gameKeys[0].on > 0) {
+			/*** Pause Menu (when Quit button [Esc] is pushed) ***/
+			if (gameKeys[6].on > 0) {
 				PlaySound(6); // Menu ENTER sound
 				
 				j = SDL_GetTicks() - levelTimeTick;
@@ -333,25 +333,25 @@ int Game() {
 				cameraYVel *= .85f;
 				
 				// Move camera left
-				if (gameKeys[2].on > 0) {
+				if (gameKeys[0].on > 0) {
 					cameraXVel -= 2;
 					manualCameraTimer = SDL_GetTicks();
 				}
 				
 				// Move camera right
-				if (gameKeys[3].on > 0) {
+				if (gameKeys[1].on > 0) {
 					cameraXVel += 2;
 					manualCameraTimer = SDL_GetTicks();
 				}
 				
 				// Move camera up
-				if (gameKeys[4].on > 0) {
+				if (gameKeys[2].on > 0) {
 					cameraYVel -= 2;
 					manualCameraTimer = SDL_GetTicks();
 				}
 
 				// Move camera down
-				if (gameKeys[5].on > 0) {
+				if (gameKeys[3].on > 0) {
 					cameraYVel += 2;
 					manualCameraTimer = SDL_GetTicks();
 				}
@@ -385,7 +385,7 @@ int Game() {
 				}
 				
 				// Undo
-				if (gameKeys[1].on > 0) {
+				if (gameKeys[4].on > 0) {
 					if (recordingReplay) neatoReplay->SaveKey(5); // Save the keypress in the replay
 					if (showingReplay) replayKeyWorked = true;
 					

@@ -131,8 +131,7 @@ void Init() {
 	LoadSound("win.wav", 8);
 	
 	currentLevel = 0;
-	
-	
+		
 	// Default Game keyboard layout
 	ResetDefaultKeys();
 	

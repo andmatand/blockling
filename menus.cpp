@@ -73,7 +73,7 @@ int ControlSetupMenu(bool inGame) {
 				tempString,
 				(gettingKey && csMenu.GetSel() == static_cast<int>(i)) ?
 					"Press a key..." :
-					(i < static_cast<int>(NUM_PLAYER_KEYS) ? KeyName(option_playerKeys[i].sym) : KeyName(gameKeys[i - 3].sym))
+					(i < static_cast<int>(NUM_PLAYER_KEYS) ? KeyName(option_playerKeys[i].sym) : KeyName(gameKeys[i - 5].sym))
 				);
 
 			// Set it
@@ -109,7 +109,7 @@ int ControlSetupMenu(bool inGame) {
 								option_playerKeys[csMenu.GetSel()].sym = event.key.keysym.sym;
 							}
 							else {
-								gameKeys[csMenu.GetSel() - 3].sym = event.key.keysym.sym;
+								gameKeys[csMenu.GetSel() - 5].sym = event.key.keysym.sym;
 							}
 						}
 						gettingKey = false;

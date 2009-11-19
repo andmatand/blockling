@@ -81,8 +81,8 @@ void GameInput(bool inReplay) {
 			gameKeys[i].on = -1; // will be seen by game as Off
 		}
 		else if (gameKeys[i].on == -1) {
-			// Initial delay
-			if (SDL_GetTicks() >= gameKeys[i].timer + ((i >= 2 && i <= 5) ? 0 : 200)) {
+			// Initial delay                          (Make the camera controls [keys 0 - 4] instant)
+			if (SDL_GetTicks() >= gameKeys[i].timer + ((i <= 4) ? 0 : 200)) {
 				gameKeys[i].on = 2; // will be seen by game as On
 				gameKeys[i].timer = SDL_GetTicks();
 			}
@@ -370,34 +370,35 @@ void RefreshPlayerKeys() {
 
 void ResetDefaultKeys() {
 	/** Default Game Keys ****/
-	gameKeys[0].sym = SDLK_ESCAPE;	// Quit
+	//gameKeys[0].sym = SDLK_LEFT;	// Move camera left
+	//gameKeys[0].mod = KMOD_LSHIFT;	// modifier
+	gameKeys[0].sym = SDLK_a;	// Move camera left
 	gameKeys[0].mod = KMOD_NONE;	// modifier
-	
-	gameKeys[1].sym = SDLK_u;	// Undo
+
+	//gameKeys[1].sym = SDLK_RIGHT;	// Move camera right
+	//gameKeys[1].mod = KMOD_LSHIFT;	// modifier
+	gameKeys[1].sym = SDLK_d;	// Move camera right
 	gameKeys[1].mod = KMOD_NONE;	// modifier
 	
-	//gameKeys[2].sym = SDLK_LEFT;	// Move camera left
+	//gameKeys[2].sym = SDLK_UP;	// Move camera up
 	//gameKeys[2].mod = KMOD_LSHIFT;	// modifier
-	gameKeys[2].sym = SDLK_a;	// Move camera left
+	gameKeys[2].sym = SDLK_w;	// Move camera up
 	gameKeys[2].mod = KMOD_NONE;	// modifier
-
-	//gameKeys[3].sym = SDLK_RIGHT;	// Move camera right
+	
+	//gameKeys[3].sym = SDLK_DOWN;	// Move camera down
 	//gameKeys[3].mod = KMOD_LSHIFT;	// modifier
-	gameKeys[3].sym = SDLK_d;	// Move camera right
+	gameKeys[3].sym = SDLK_s;	// Move camera down
 	gameKeys[3].mod = KMOD_NONE;	// modifier
-	
-	//gameKeys[4].sym = SDLK_UP;	// Move camera up
-	//gameKeys[4].mod = KMOD_LSHIFT;	// modifier
-	gameKeys[4].sym = SDLK_w;	// Move camera up
+
+	gameKeys[4].sym = SDLK_u;	// Undo
 	gameKeys[4].mod = KMOD_NONE;	// modifier
-	
-	//gameKeys[5].sym = SDLK_DOWN;	// Move camera down
-	//gameKeys[5].mod = KMOD_LSHIFT;	// modifier
-	gameKeys[5].sym = SDLK_s;	// Move camera down
+
+	gameKeys[5].sym = SDLK_F5;	// Restart Level
 	gameKeys[5].mod = KMOD_NONE;	// modifier
 
-	gameKeys[6].sym = SDLK_F5;	// Restart Level
+	gameKeys[6].sym = SDLK_ESCAPE;	// Quit
 	gameKeys[6].mod = KMOD_NONE;	// modifier
+	
 
 
 	/** Default Player keys ****/
