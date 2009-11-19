@@ -43,10 +43,9 @@ void GlobalInput(SDL_Event event) {
 						screenSurface = SDL_SetVideoMode(screenSurface->w,
 								screenSurface->h,
 								screenSurface->format->BitsPerPixel,
-								SDL_HWSURFACE
-									//| (screenSurface->flags & (SDL_FULLSCREEN ? 0 : SDL_FULLSCREEN))
-									| SDL_FULLSCREEN
-									| SDL_ANYFORMAT
+								SDL_HWSURFACE |
+									((screenSurface->flags & SDL_FULLSCREEN) ? 0 : SDL_FULLSCREEN) |
+									SDL_ANYFORMAT
 									);
 					#else
 						printf("fullscreen toggle: %d\n", SDL_WM_ToggleFullScreen(screenSurface));
