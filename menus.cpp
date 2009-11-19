@@ -21,7 +21,7 @@
 
 
 int ControlSetupMenu(bool inGame) {
-	int numItems = NUM_PLAYER_KEYS + 4 + 2;
+	int numItems = NUM_PLAYER_KEYS + 4 + 1 + 2;
 	menu csMenu(numItems); // Create the menu object
 	char text[256]; // For temporarily holding menu items' text as it is formed
 	char tempString[32];
@@ -29,6 +29,7 @@ int ControlSetupMenu(bool inGame) {
 	int i;
 	int action;
 	bool gettingKey = false;
+	SDLKey keySym;
 	
 	/** Set static menu items **/
 	csMenu.Move(inGame ? SCREEN_W / 2 : 75, FONT_H * 5);
@@ -68,13 +69,28 @@ int ControlSetupMenu(bool inGame) {
 				case 8:
 					sprintf(tempString, "Move Camera Down:");
 					break;
+				case 9:
+					sprintf(tempString, "Undo:");
+					break;
 			}
-			sprintf(text, "%s\t%s",
+			
+			
+			if (i < static_cast<int>(NUM_PLAYER_KEYS)) {
+				keySym = option_playerKeys[i].sym;
+			}
+			else if (i < static_cast<int>(NUM_PLAYER_KEYS) + 5) {
+				keySym = gameKeys[i - 5].sym;
+			}
+			
+			// Store this menu item's string in the text variable
+			sprintf(
+				text,
+				"%s\t%s",
 				tempString,
 				(gettingKey && csMenu.GetSel() == static_cast<int>(i)) ?
 					"Press a key..." :
-					(i < static_cast<int>(NUM_PLAYER_KEYS) ? KeyName(option_playerKeys[i].sym) : KeyName(gameKeys[i - 5].sym))
-				);
+					KeyName(keySym)
+			);
 
 			// Set it
 			csMenu.NameItem(i, text);
