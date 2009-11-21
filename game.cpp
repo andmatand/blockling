@@ -83,7 +83,7 @@ int Game() {
 	bool replaySkipSleep = false;
 	int currentReplayKey;
 	bool replayKeyWorked;
-	menu *replayMenu;
+	menu *replayMenu = NULL;
 	uint frameNumber; // counts frames for doing frameskipping for fast replays
 	
 	// Replay object pointer
@@ -838,10 +838,12 @@ int Game() {
 				}
 				
 				// Draw speed selection menu
-				replayMenu->NameItem(0, s);
-				replayMenu->AutoArrange(1);
-				replayMenu->MoveItem(0, replayMenu->GetItemX(0), SCREEN_H - FONT_H - 4);
-				replayMenu->Display();
+				if (wonLevel == 0) {
+					replayMenu->NameItem(0, s);
+					replayMenu->AutoArrange(1);
+					replayMenu->MoveItem(0, replayMenu->GetItemX(0), SCREEN_H - FONT_H - 4);
+					replayMenu->Display();
+				}
 			}
 			if (showingReplay == false || frameNumber == 0) {
 				Render(4);

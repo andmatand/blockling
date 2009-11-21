@@ -386,21 +386,7 @@ void telepad::Teleport() {
 		
 		// Move multiple squares at a time, and always proportionate to the
 		// load size (so it will always appear to be the same speed)
-		uint numLoops = sH / squareSize;
-		if (showingReplay) {
-			switch (option_replaySpeed) {
-				case 0:
-					numLoops = 1;
-					break;
-				case 2:
-					numLoops = sH / (squareSize / 2);
-					break;
-				case 3:
-					numLoops = squareSize * sH;
-					break;
-			}
-		}
-		for (uint i = 0; i < numLoops; i++) {
+		for (uint i = 0; i < sH / squareSize; i++) {
 			// Check if we've moved all the pixels over
 			numPixels = 0;
 			for (uint j = 0; j < (sH * TILE_W) / squareSize; j++) {
