@@ -20,6 +20,8 @@
  */
 
 
+
+//#define DEBUG_REPLAY
 /******** replayStep *********/
 // A replayStep is one or more repititions of the same "action" (i.e.
 // keypress).  Physically, it takes up one line when written to a replay
@@ -463,7 +465,7 @@ void replay::PushKey(int k) {
 
 	// Undo
 	if (k == 5) {
-		gameKeys[1].on = 1;
+		gameKeys[4].on = 1;
 	}
 	// Regular Key
 	else if (k >= 0 && k <= 4) {

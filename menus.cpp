@@ -532,19 +532,22 @@ int EndOfLevelMenu() {
 
 
 int ReplayPauseMenu() {
-	int numItems = 4;
+	int numItems = 6;
 	
 	menu pauseMenu(numItems);
 	
 	pauseMenu.SetTitle("REPLAY PAUSED");
 	pauseMenu.NameItem(0, "Resume");
 	pauseMenu.NameItem(1, "Take Control From Here");
-	pauseMenu.NameItem(2, "Next Level");
-	pauseMenu.NameItem(3, "Quit Game");
+	pauseMenu.NameItem(2, "Restart");
+	pauseMenu.NameItem(3, "Options");
+	pauseMenu.NameItem(4, "Next Level");
+	pauseMenu.NameItem(5, "Quit Game");
 	
 	pauseMenu.Move(SCREEN_W / 2, 100);
 	pauseMenu.AutoArrange(1);
-	pauseMenu.SpaceItems(2);
+	pauseMenu.SpaceItems(3);
+	pauseMenu.SpaceItems(4);
 	
 	int action;
 	
@@ -553,7 +556,19 @@ int ReplayPauseMenu() {
 		
 		switch (action) {
 			case 1: // Enter
-				return pauseMenu.GetSel();
+				switch (pauseMenu.GetSel()) {
+					case 3: // Options
+						OptionsMenu(true);
+						
+						// Sync the in-game player keymap with the preferences,
+						// in case they changed.
+						RefreshPlayerKeys();
+						break;
+					default:
+						return pauseMenu.GetSel();
+						break;
+				}
+				
 				break;
 			case -1: // Esc
 				return -1;

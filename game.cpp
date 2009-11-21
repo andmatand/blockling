@@ -98,6 +98,14 @@ int Game() {
 		levelTimeRunning = false;
 		physicsStarted = false;
 
+		// Don't sync the real undo memory size with the
+		// (possibly changed) option if we are doing a replay
+		// which needs to keep the same conditions as the
+		// original playthrough.
+		if (showingReplay == false) {
+			maxUndo = option_undoSize;
+		}
+
 		if (stickyPlayer || showingReplay || currentLevel != oldLevel || restartLevel) {
 			// Load Level without a menu (e.g. from in-game "Next Level" or "Restart Level")
 			while (true) {
@@ -258,13 +266,18 @@ int Game() {
 							
 							showingReplay = false;
 							break;
-						case 2: // Next Level
+						case 2: // Restart the replay
+							stickyPlayer = false;
+							showingReplay = true;
+							restartLevel = true;
+							break;
+						case 4: // Next Level
 							showingReplay = false;
 							currentLevel += 1;
 							break;
 						case -2: // Close Window
 							returnVal = -2;
-						case 3: // Quit Game
+						case 5: // Quit Game
 							showingReplay = false;
 							quitGame = true;
 							break;
@@ -377,7 +390,7 @@ int Game() {
 				
 				if (showingReplay) {
 					// Turn undo key off
-					gameKeys[1].on = 0;
+					gameKeys[4].on = 0;
 
 					// If the next key in the replay is Undo, press that
 					// here (not inside the normal keypressing scope which
@@ -1056,7 +1069,6 @@ char * LoadLevel(uint level) {
 	torches = new torch[numTorches];
 	spikes = new spike[numSpikes];
 
-	maxUndo = option_undoSize;
 	
 	undoBlocks = new block*[maxUndo];
 	for (uint i = 0; i < maxUndo; i++) {
