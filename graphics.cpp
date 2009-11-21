@@ -662,7 +662,7 @@ void DrawBackground() {
 	static uint bgTimer = 0;
 	
 	// Move background offset X and Y (to scroll it)
-	if (option_background == 2 && SDL_GetTicks() > bgTimer + 60) {
+	if (option_background == 2) {; //&& SDL_GetTicks() > bgTimer + 60) {
 		bgX += 1;
 		if (bgX >= bgW) bgX = 0;
 		

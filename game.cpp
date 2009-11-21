@@ -83,6 +83,8 @@ int Game() {
 	bool replaySkipSleep = false;
 	int currentReplayKey;
 	bool replayKeyWorked;
+	menu *replayMenu;
+	uint frameNumber; // counts frames for doing frameskipping for fast replays
 	
 	// Replay object pointer
 	replay *neatoReplay = NULL;
@@ -173,6 +175,11 @@ int Game() {
 			
 			// Disable recording
 			recordingReplay = false;
+			
+			// Create the speed selection menu
+			replayMenu = new menu(1);
+			replayMenu->SetTitle("");
+			replayMenu->Move(SCREEN_W / 2, 0);
 		}
 		else if (recordingReplay) {
 			// Create the replay object
@@ -204,7 +211,7 @@ int Game() {
 						blockYGravity = blockYSpeed;
 
 						// Sleeping preserved
-						replaySkipSleep = false;
+						//replaySkipSleep = false;
 						
 						break;
 					case 1:
@@ -214,7 +221,7 @@ int Game() {
 						blockYGravity = blockYSpeed;
 
 						// Sleeping preserved
-						replaySkipSleep = false;
+						//replaySkipSleep = false;
 						
 						break;
 					case 2:
@@ -224,22 +231,21 @@ int Game() {
 						blockYGravity = blockYSpeed;
 
 						// Sleeping skipped
-						replaySkipSleep = true;
+						//replaySkipSleep = true;
 						
 						break;
 					case 3:
 						// Maximum-speed physics
-						blockXSpeed = TILE_W;
-						blockYSpeed = TILE_H;
+						//blockXSpeed = TILE_W;
+						//blockYSpeed = TILE_H;
 						blockYGravity = blockYSpeed;
 
 						// Sleeping skipped
-						replaySkipSleep = true;
+						//replaySkipSleep = true;
 						
 						break;
 				}
 			}
-
 
 			/*** Pause Menu (when Quit button [Esc] is pushed) ***/
 			if (gameKeys[6].on > 0) {
@@ -787,7 +793,59 @@ int Game() {
 			}
 			
 			/** Render **/
-			Render(4);
+			if (showingReplay) {
+				
+				// Skip frames depending on playback speed of replay
+				// (and determine menu text)
+				frameNumber++;
+				replayMenu->SetLeftArrow(0, 1);
+				replayMenu->SetRightArrow(0, 1);
+				switch (option_replaySpeed) {
+					case 0: // Slow motion
+						sprintf(s, "SLOW");
+						replayMenu->SetLeftArrow(0, 0);
+
+						frameNumber = 0; // Show every frame
+						break;
+					case 1: // Normal speed
+						sprintf(s, "REALTIME");
+
+						frameNumber = 0; // Show every frame
+						break;
+					case 2: // 2x
+						sprintf(s, "2x");
+
+						// Skip every second frame
+						if (frameNumber >= 2) {
+							frameNumber = 0;
+						}
+						break;
+					case 3: // 4x
+						sprintf(s, "4x");
+
+						if (frameNumber >= 4) {
+							frameNumber = 0;
+						}
+						break;
+					case 4: // 8x
+						sprintf(s, "8x");
+						replayMenu->SetRightArrow(0, 0);
+
+						if (frameNumber >= 8) {
+							frameNumber = 0;
+						}
+						break;
+				}
+				
+				// Draw speed selection menu
+				replayMenu->NameItem(0, s);
+				replayMenu->AutoArrange(1);
+				replayMenu->MoveItem(0, replayMenu->GetItemX(0), SCREEN_H - FONT_H - 4);
+				replayMenu->Display();
+			}
+			if (showingReplay == false || frameNumber == 0) {
+				Render(4);
+			}
 
 			/*** Stuff for when the player reached the exit ***/
 			if (wonLevel == 3 && SDL_GetTicks() > wonLevelTimer + 1000) {
@@ -850,6 +908,9 @@ int Game() {
 			if (remove(replayTempFile) != 0) {
 				fprintf(stderr, "File error: Could not delete %s\n", replayTempFile);
 			}
+			
+			delete replayMenu;
+			replayMenu = NULL;
 		}
 
 	} // Back to top of while loop to load next level

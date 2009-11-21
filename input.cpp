@@ -630,7 +630,7 @@ void ReplayInput(SDL_Event event) {
 					if (option_replaySpeed > 0) option_replaySpeed--;
 					break;
 				case SDLK_RIGHT:
-					if (option_replaySpeed < 3) option_replaySpeed++;
+					if (option_replaySpeed < 4) option_replaySpeed++;
 					break;
 				default:
 					break;
