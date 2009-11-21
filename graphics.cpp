@@ -698,7 +698,6 @@ void Render (char flag) {
 	static uint torchTimer = 0;
 	static uint doorFrame, doorFramePause;
 	static uint timerPos;
-	static uint replayFlashTimer = 0;
 	static int levelTextX = 10;
 	uint i;
 	
@@ -838,11 +837,8 @@ void Render (char flag) {
 	
 	/** Draw Replay Notification ****/
 	if (showingReplay) {
-		if (SDL_GetTicks() >= replayFlashTimer + 1000) replayFlashTimer = SDL_GetTicks();
-		if (SDL_GetTicks() < replayFlashTimer + 500) {
-			sprintf(message, "Replay");
-			DrawText(i, SCREEN_H - FONT_H - 4, message, 0, 1);
-		}
+		sprintf(message, "Replay");
+		DrawText(i, SCREEN_H - FONT_H - 4, message, 0, 1);
 	}
 
 
