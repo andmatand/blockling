@@ -163,10 +163,7 @@ int Game() {
 
 
 		/*** Initialze replay ***/
-		// Add: "if this option is enabled"
-		if (option_replayOn) {
-			recordingReplay = true;
-		}
+		recordingReplay = (option_replayOn ? true : false);	
 		replayKeyWorked = false;
 	
 		if (showingReplay) {

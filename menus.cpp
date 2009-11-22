@@ -205,7 +205,7 @@ int MainMenu() {
 
 
 int OptionsMenu(bool inGame) {
-	int numItems = 8;
+	int numItems = 9;
 	menu optMenu(numItems); // Create the menu object
 	char text[70]; // For temporarily holding menu items' text as it is formed
 	
@@ -219,10 +219,10 @@ int OptionsMenu(bool inGame) {
 	int action;
 	
 	/** Set static menu items **/
-	optMenu.Move(inGame ? SCREEN_W / 2 : 75, FONT_H * 6);
+	optMenu.Move(inGame ? SCREEN_W / 2 : 75, FONT_H * 5);
 	optMenu.SetTitle("OPTIONS");
-	optMenu.NameItem(6, "Control Setup");
-	optMenu.NameItem(7, "Done");
+	optMenu.NameItem(7, "Control Setup");
+	optMenu.NameItem(8, "Done");
 
 	while (true) {
 		/** Set dynamic menu items' text *****************/
@@ -252,6 +252,14 @@ int OptionsMenu(bool inGame) {
 		optMenu.SetLeftArrow(2,	(option_timerOn > 0));
 		optMenu.SetRightArrow(2, (option_timerOn < 1));
 
+		// Determine Timer on/off text
+		sprintf(text, "Replays: ");
+		strcat(text, (option_replayOn ? "ON" : "OFF"));
+		optMenu.NameItem(3, text);
+
+		optMenu.SetLeftArrow(3,	(option_replayOn > 0));
+		optMenu.SetRightArrow(3, (option_replayOn < 1));
+
 
 		// Determine Camera Setting text
 		sprintf(text, "Camera: ");
@@ -263,10 +271,10 @@ int OptionsMenu(bool inGame) {
 				strcat(text, "MANUAL");
 				break;
 		}
-		optMenu.NameItem(3, text);
+		optMenu.NameItem(4, text);
 
-		optMenu.SetLeftArrow(3, (option_cameraMode > 0));
-		optMenu.SetRightArrow(3, (option_cameraMode < maxCameraMode));
+		optMenu.SetLeftArrow(4, (option_cameraMode > 0));
+		optMenu.SetRightArrow(4, (option_cameraMode < maxCameraMode));
 
 
 		// Determine Background text
@@ -282,19 +290,19 @@ int OptionsMenu(bool inGame) {
 				strcat(text, "SCROLLING");
 				break;
 		}
-		optMenu.NameItem(4, text);
+		optMenu.NameItem(5, text);
 
-		optMenu.SetLeftArrow(4, (option_background > 0));
-		optMenu.SetRightArrow(4, (option_background < maxBackground));
+		optMenu.SetLeftArrow(5, (option_background > 0));
+		optMenu.SetRightArrow(5, (option_background < maxBackground));
 
 
 		// Determine Undo text
 		sprintf(text, "Undo Memory: %d move", option_undoSize);
 		if (option_undoSize != 1) strcat(text, "s");
-		optMenu.NameItem(5, text);
+		optMenu.NameItem(6, text);
 		
-		optMenu.SetLeftArrow(5,	(option_undoSize > 0));
-		optMenu.SetRightArrow(5, (option_undoSize < maxUndoSize));
+		optMenu.SetLeftArrow(6,	(option_undoSize > 0));
+		optMenu.SetRightArrow(6, (option_undoSize < maxUndoSize));
 		
 
 		
@@ -306,11 +314,11 @@ int OptionsMenu(bool inGame) {
 			DrawBackground();
 		}
 		optMenu.AutoArrange(static_cast<char>(inGame ? 1 : 0));
-		optMenu.SpaceItems(6);
 		optMenu.SpaceItems(7);
+		optMenu.SpaceItems(8);
 		optMenu.Display();
-		// If the undo option is selected
-		if (inGame && optMenu.GetSel() == 5) {
+		// If the "replays" or "undo" options are selected
+		if (inGame && (optMenu.GetSel() == 3 || optMenu.GetSel() == 6)) {
 			sprintf(text, "Note: This setting will not take effect\nuntil a new level is loaded.");
 			DrawText((SCREEN_W / 2) - (GetTextW(text, 0) / 2), FONT_H * 20, text, 0, 1);
 		}
@@ -334,6 +342,9 @@ int OptionsMenu(bool inGame) {
 						option_timerOn = (option_timerOn ? false : true);
 						break;
 					case 3:
+						option_replayOn = (option_replayOn ? false : true);
+						break;
+					case 4:
 						if (option_cameraMode < maxCameraMode) {
 							option_cameraMode++;
 						}
@@ -341,7 +352,7 @@ int OptionsMenu(bool inGame) {
 							option_cameraMode = 0;
 						}
 						break;
-					case 4:
+					case 5:
 						if (option_background < maxBackground) {
 							option_background++;
 						}
@@ -349,14 +360,14 @@ int OptionsMenu(bool inGame) {
 							option_background = 0;
 						}
 						break;
-					case 5:
+					case 6:
 						change_undoSize = 1;
 						if (option_undoSize == maxUndoSize) option_undoSize = 0;
 						break;
-					case 6:
+					case 7:
 						if (ControlSetupMenu(inGame) == -2) return -2;
 						break;
-					case 7:
+					case 8:
 						return -1;
 						break;
 				}
@@ -373,12 +384,15 @@ int OptionsMenu(bool inGame) {
 						option_timerOn = false;
 						break;
 					case 3:
-						if (option_cameraMode > 0) option_cameraMode--;
+						option_replayOn = false;
 						break;
 					case 4:
-						if (option_background > 0) option_background--;
+						if (option_cameraMode > 0) option_cameraMode--;
 						break;
 					case 5:
+						if (option_background > 0) option_background--;
+						break;
+					case 6:
 						change_undoSize = -1;						
 						break;
 				}
@@ -398,12 +412,15 @@ int OptionsMenu(bool inGame) {
 						option_timerOn = true;
 						break;
 					case 3:
-						if (option_cameraMode < maxCameraMode) option_cameraMode++;
+						option_replayOn = true;
 						break;
 					case 4:
-						if (option_background < maxBackground) option_background++;
+						if (option_cameraMode < maxCameraMode) option_cameraMode++;
 						break;
 					case 5:
+						if (option_background < maxBackground) option_background++;
+						break;
+					case 6:
 						change_undoSize = 1;
 						break;
 				}
