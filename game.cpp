@@ -80,7 +80,6 @@ int Game() {
 	// Replay variables
 	bool recordingReplay = false;
 	showingReplay = false;
-	bool replaySkipSleep = false;
 	int currentReplayKey;
 	bool replayKeyWorked;
 	menu *replayMenu = NULL;
@@ -206,40 +205,12 @@ int Game() {
 						blockXSpeed = 1;
 						blockYSpeed = 1;
 						blockYGravity = blockYSpeed;
-
-						// Sleeping preserved
-						//replaySkipSleep = false;
-						
 						break;
-					case 1:
+					default:
 						// Normal-speed physics
 						blockXSpeed = TILE_W / 2;
 						blockYSpeed = TILE_H / 2;
 						blockYGravity = blockYSpeed;
-
-						// Sleeping preserved
-						//replaySkipSleep = false;
-						
-						break;
-					case 2:
-						// Normal-speed physics
-						blockXSpeed = TILE_W / 2;
-						blockYSpeed = TILE_H / 2;
-						blockYGravity = blockYSpeed;
-
-						// Sleeping skipped
-						//replaySkipSleep = true;
-						
-						break;
-					case 3:
-						// Maximum-speed physics
-						//blockXSpeed = TILE_W;
-						//blockYSpeed = TILE_H;
-						blockYGravity = blockYSpeed;
-
-						// Sleeping skipped
-						//replaySkipSleep = true;
-						
 						break;
 				}
 			}
@@ -398,8 +369,8 @@ int Game() {
 					// If the next key in the replay is Undo, press that
 					// here (not inside the normal keypressing scope which
 					// requires that the player be on solid ground)
-					if (neatoReplay->GetNextKey(replaySkipSleep) == 5) {
-						neatoReplay->PushNextKey(replaySkipSleep);
+					if (neatoReplay->GetNextKey() == 5) {
+						neatoReplay->PushNextKey();
 					}
 				}
 				
@@ -434,7 +405,7 @@ int Game() {
 						}
 						
 						if (physicsStarted) {
-							currentReplayKey = neatoReplay->GetNextKey(replaySkipSleep);
+							currentReplayKey = neatoReplay->GetNextKey();
 							//printf("currentReplayKey = %d\n", currentReplayKey);
 						
 							// Push the next key if it's okay

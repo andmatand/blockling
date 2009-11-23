@@ -128,8 +128,8 @@ void DeInit();
 #include "sound.h"
 #include "menus.h"	// Needs sound.h
 #include "physics.h"
-#include "replay.h"
 #include "settings.h"
+#include "replay.h"
 
 
 

@@ -284,7 +284,6 @@ void CenterCamera(char override) {
 			cameraXVel = 0;
 			cameraYVel = 0;
 		}
-		printf("\ncameraY = %d\n targetY = %d\n", cameraY, targetY);
 	
 		cameraX = targetX;
 		cameraY = targetY;

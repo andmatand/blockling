@@ -106,9 +106,9 @@ class replay {
 		/*** Read ***/
 		void FillBuffer(); // Parses the replay file and loads a chunk of data into the replayStep array
 		//char * GetFilename() const { return filename; };
-		char GetNextKey(bool skipSleep);
+		char GetNextKey();
 		void PushKey(int k);
-		void PushNextKey(bool skipSleep);
+		void PushNextKey();
 		void DecrementKey();
 		
 		/*** Other ***/
@@ -370,8 +370,8 @@ void replay::SaveKey(char key) {
 	// as the previous key, OR if the previous key has been pushed the maximum number of times
 	if (pos == 0 || key != steps[pos - 1].GetKey() || maxNum) {
 		#ifdef DEBUG_REPLAY
-		printf("[replay] pos = %d\n", pos);
-		printf("[replay] New key (%d) was pressed.\n", key);
+			printf("[replay] pos = %d\n", pos);
+			printf("[replay] New key (%d) was pressed.\n", key);
 		#endif
 		
 		// Update the current level timer position
@@ -415,39 +415,41 @@ void replay::SaveKey(char key) {
 
 
 
-char replay::GetNextKey(bool skipSleep) {
-	while (true) {
-		// Check for the flag set by FillBuffer to signal EOF
-		if (steps[pos].GetKey() == 100) {
-			return 100;
-		}
-		
-		// If we've finished pushing the key the required number of times
-		if (steps[pos].GetNum() == 0) {
-			// Adjust the timer according to the timestamp
-			if (timestamps[pos] != 0) {
+char replay::GetNextKey() {
+	// Check for the flag set by FillBuffer to signal EOF
+	if (steps[pos].GetKey() == 100) {
+		return 100;
+	}
+	
+	// If we've finished pushing the key the required number of times
+	if (steps[pos].GetNum() == 0) {
+		// Adjust the timer according to the timestamp
+		if (timestamps[pos] != 0) {
+			#ifdef DEBUG_REPLAY
 				printf("Setting levelTime to %d\n", timestamps[pos]);
-				levelTime = timestamps[pos];
-				levelTimeTick = SDL_GetTicks();
-			}
-
-			// If this is the last step in the buffer
-			if (pos == bufferSize - 1) {
-				// Read more steps from the file
-				FillBuffer();
-			}
-			else {
-				// Otherwise, Go to the next step
-				pos++;
-			}
+			#endif
 			
+			levelTime = timestamps[pos];
+			levelTimeTick = SDL_GetTicks();
 		}
-		
-		if (skipSleep && steps[pos].GetKey() == -1) {
-			steps[pos].SetNum(0);
+
+		// If this is the last step in the buffer
+		if (pos == bufferSize - 1) {
+			// Read more steps from the file
+			FillBuffer();
 		}
 		else {
-			break;
+			// Otherwise, Go to the next step
+			pos++;
+		}
+
+		// Lengthen sleeps if replay is in slow motion
+		if (option_replaySpeed == 0 && steps[pos].GetKey() == -1) {
+			printf("STEP %d: Lengethed sleep length from %d to ", pos, steps[pos].GetNum());
+			
+			steps[pos].SetNum(steps[pos].GetNum() * (TILE_W / 2));
+			
+			printf("%d\n", steps[pos].GetNum());
 		}
 	}
 	
@@ -476,13 +478,13 @@ void replay::PushKey(int k) {
 
 
 // Press the next key in the replay file
-void replay::PushNextKey(bool skipSleep) {
+void replay::PushNextKey() {
 	// Check for the flag set by FillBuffer to signal EOF
 	if (steps[pos].GetKey() == 100) {
 		return;
 	}
 
-	int k = GetNextKey(skipSleep);
+	int k = GetNextKey();
 	
 	/*** Turn the correct key on ***/
 	PushKey(k);
