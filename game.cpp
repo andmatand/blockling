@@ -819,7 +819,7 @@ int Game() {
 
 			/*** Stuff for when the player reached the exit ***/
 			if (wonLevel == 3 && SDL_GetTicks() > wonLevelTimer + 1000) {
-				if (recordingReplay || showingReplay) {
+				if ((recordingReplay && option_replayOn) || showingReplay) {
 					// Show menu asking what to do next
 					switch (EndOfLevelMenu()) {
 						case -1: // Esc
