@@ -1,5 +1,3 @@
--Add replays on/off option
-
 -Move the camera-movement code into a function so it can be called also
 from the Load Level menu
 
@@ -12,6 +10,8 @@ possible
 
 -In-game help
 
+-Replay saving code needs to be rewritten to account for multiple
+ players (replays do not currently work on levels with > 1 player)
 
 
 ==Bugs==

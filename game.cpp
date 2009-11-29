@@ -187,7 +187,13 @@ int Game() {
 
 		/******* GAME LOOP *******/
 		while (quitGame == false && selectingLevel == false && restartLevel == false) {
-			GameInput(showingReplay ? true : false);
+			
+			// Handle Window Close
+			if (GameInput(showingReplay ? true : false) == -2) {
+				quitGame = true;
+				returnVal = -2;
+				break;
+			}
 						
 			// Handle Restart Level key
 			if (gameKeys[5].on == 1) {
@@ -252,7 +258,6 @@ int Game() {
 						case -2: // Close Window
 							returnVal = -2;
 						case 5: // Quit Game
-							showingReplay = false;
 							quitGame = true;
 							break;
 					}
@@ -399,7 +404,7 @@ int Game() {
 					
 					/*** Perform next keypress from replay file ***/
 					if (showingReplay) {
-						// Turn all playerKeys off
+						// Turn all playerKeys off (for player 0)
 						for (uint j = 0; j < NUM_PLAYER_KEYS; j++) {
 							playerKeys[j].on = 0;
 						}
@@ -636,9 +641,11 @@ int Game() {
 				}
 
 				// For each player:
-				// If player is not floating and there is no block on his head, make him rise
+				// If player is not floating and there is
+				// no block on his head, and he is not on
+				// a spike, make him rise
 				for (i = 0; i < numPlayers; i++) {
-					if (blocks[i].GetType() >= 10 && blocks[i].GetH() < TILE_H && BlockNumber(blocks[i].GetX(), blocks[i].GetY() - 1, blocks[i].GetW(), 1) < 0) {
+					if (blocks[i].GetType() >= 10 && blocks[i].GetH() < TILE_H && BlockNumber(blocks[i].GetX(), blocks[i].GetY() - 1, blocks[i].GetW(), 1) < 0 && BoxContents(blocks[i].GetX(), blocks[i].GetY() + blocks[i].GetH(), blocks[i].GetW(), 1) != -3) {
 						b = blocks[i].GetY(); 			// Save old y position
 						blocks[i].SetYMoving(-blockYSpeed);	// Set the block to move up
 						if (blocks[i].GetYMoving() < -2) blocks[i].SetYMoving(-2);
@@ -671,7 +678,8 @@ int Game() {
 				// Is player on a spike?
 				if (BoxContents(blocks[i].GetX(), blocks[i].GetY() + blocks[i].GetH(), blocks[i].GetW(),1) == -3) {
 					blocks[i].SetFace(4); // scared mouth
-					blocks[i].SetDir(2); // Facing the camer
+					blocks[i].SetDir(2); // Face the camera
+					if (blocks[i].GetH() > TILE_H - 2) blocks[i].SetH(blocks[i].GetH() - 2);
 				}
 				
 				// If the player just finished walking into the exit (with the door open)
@@ -831,7 +839,6 @@ int Game() {
 							showingReplay = true;
 							break;
 						case -2: // Close window
-							showingReplay = false;
 							quitGame = true;
 							returnVal = -2;
 							break;
@@ -866,12 +873,13 @@ int Game() {
 		// Collect garbage for global object pointers
 		CollectLevelGarbage();
 
-		// Collect garbage for replay
+		// Collect garbage for replay (post-record)
 		if (recordingReplay) {
 			neatoReplay->DeInitWrite();
 		}
 
-		if (showingReplay == false) {
+		// Collect garbage for replay (post-play)
+		if (showingReplay == false || quitGame) {
 			delete neatoReplay;
 			neatoReplay = NULL;
 			
@@ -938,7 +946,7 @@ char * LoadLevel(uint level) {
 	numTorches = 0;
 	numSpikes = 0;
 	
-
+	int numFirstPlayers = 0;
 
 	bool syntaxError = false;
 	
@@ -973,7 +981,12 @@ char * LoadLevel(uint level) {
 				case '#': // Comment
 					restOfLineIsComment = true;
 					break;
-				case '@': // player
+				case '@': // First Player
+					numFirstPlayers ++;
+					numPlayers ++;
+					numBlocks ++;
+					break;
+				case 'A': // Unintelligent NPC
 					numPlayers ++;
 					numBlocks ++;
 					break;
@@ -1038,7 +1051,7 @@ char * LoadLevel(uint level) {
 	// Check for telepad errors
 	for (uint i = 0; i < numTelepads; i++) {
 		if (telepadMates[i] != 1) {
-			sprintf(temp, "-Telepad '%c' should have 1 mate, but\nit has %d mates.\n", telepadLetter[i], telepadMates[i]);
+			sprintf(temp, "-Telepad '%c' should have 1 mate, but\n it has %d mates.\n", telepadLetter[i], telepadMates[i]);
 			strcat(errorMsg, temp);
 			syntaxError = true;
 			break; // Only report one telepad error at a time, so the string doesn't overflow
@@ -1047,14 +1060,14 @@ char * LoadLevel(uint level) {
 
 	// Check for missing exit
 	if (numExits != 1) {
-		sprintf(temp, "-There must be exactly 1 level exit,\nbut there are %d.\n", numExits);
+		sprintf(temp, "-There must be exactly 1 level exit,\n but there are %d.\n", numExits);
 		strcat(errorMsg, temp);
 		syntaxError = true;
 	}
 	
-	// Check for missing player
-	if (numPlayers == 0) {
-		sprintf(temp, "-There must be at least one player.\n");
+	// Check for != 1 first player
+	if (numFirstPlayers != 1) {
+		sprintf(temp, "-There must be exactly one first\n player (@), but there are %d.\n", numFirstPlayers);
 		strcat(errorMsg, temp);
 		syntaxError = true;
 	}
@@ -1158,6 +1171,12 @@ char * LoadLevel(uint level) {
 					blocks[numPlayers].SetX(x);
 					blocks[numPlayers].SetY(y);
 					blocks[numPlayers].SetType(10);
+					numPlayers ++;
+					break;
+				case 'A': // Unintelligent NPC
+					blocks[numPlayers].SetX(x);
+					blocks[numPlayers].SetY(y);
+					blocks[numPlayers].SetType(11);
 					numPlayers ++;
 					break;
 				case '*': // exit
@@ -1367,6 +1386,12 @@ char * LoadLevel(uint level) {
 	else {
 		CenterCamera(-1); // Instantly move camera and zero camera speed
 	}
+	
+	// Seed the random number generator with the same number every
+	// time, so that random NPC behavior will be consistent every
+	// time the level is played, and the game will thus remain a
+	// "puzzle" game, and not a game of chance.
+	srand(47);
 	
 	return NULL;
 }

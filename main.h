@@ -76,6 +76,7 @@ SDL_Surface *telepadSurface[NUM_TELEPAD_STATES];
 SDL_Surface *exitSurface[NUM_EXIT_FRAMES];
 SDL_Surface *bgSurface;
 SDL_Surface *playerSurface[NUM_PLAYER_SURFACES];
+SDL_Surface *player2Surface[NUM_PLAYER_SURFACES];
 
 int blockXSpeed;
 int blockYSpeed;

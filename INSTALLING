@@ -1,0 +1,9 @@
+Dependencies
+------------
+  You will need the development versions of:
+    * SDL 1.2 or newer (older versions may work, but are untested)
+    * SDL_mixer 1.2 or newer (older versions may work, but are untested)
+
+Compiling with GCC
+------------------
+    * Type "make"

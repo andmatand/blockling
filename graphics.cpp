@@ -393,11 +393,17 @@ void CenterCamera(char override) {
 // Returns correct surface for the block's/player's current face & direction.
 SDL_Surface* block::GetSurface() {
 	switch (type) {
+		// Regular block
 		case 0:
 			return blockSurface;
 			break;
+		// First Player
 		case 10:
 			return playerSurface[GetSurfaceIndex()];
+			break;
+		// NPC
+		case 11:
+			return player2Surface[GetSurfaceIndex()];
 			break;
 		default:
 			return NULL;
@@ -513,8 +519,56 @@ void LoadTileset(const char *tilesetDir) {
 	
 	// Player surfaces
 	for (uint i = 0; i < NUM_PLAYER_SURFACES; i++) {
-		n = sprintf(fn, "player%d_%d.bmp", a, b);
+		sprintf(fn, "player%d_%d.bmp", a, b);
 		playerSurface[i] = TileSurface(path, fn, 1);
+		
+		#ifdef DEBUG
+		std::cout << "Loading " << fn << "\n";
+		#endif
+		
+		b++;
+		if (b > (NUM_PLAYER_SURFACES / 3) - 1) {
+			b = 0;
+			a++;
+		}
+	}
+
+
+
+	/** Make NPC surfaces by changing the palette of the player tiles ****/
+
+	// For holding the rgb values for changing palette
+	SDL_Color palette[256];
+	//uint r, g, b;
+
+	a = 0;
+	b = 0;
+	for (uint i = 0; i < NUM_PLAYER_SURFACES; i++) {
+		sprintf(fn, "player%d_%d.bmp", a, b);
+		player2Surface[i] = TileSurface(path, fn, 1);
+		
+		// Set the palette of the dark color
+		//for (uint k = 0; k <= 200; k++) {
+			palette[172].r = static_cast<Uint8>(59);
+			palette[172].g = static_cast<Uint8>(59);
+			palette[172].b = static_cast<Uint8>(177);
+		//}
+
+		// Set the palette of the light color
+		//for (uint k = 201; k <= 255; k++) {
+			palette[244].r = static_cast<Uint8>(142);
+			palette[244].g = static_cast<Uint8>(142);
+			palette[244].b = static_cast<Uint8>(217);
+		//}
+
+		//for (uint k = 0; k < 256; k++) {
+		//	palette[k].r = static_cast<Uint8>(255);
+		//	palette[k].g = static_cast<Uint8>(255);
+		//	palette[k].b = static_cast<Uint8>(255);
+		//}
+		
+		// Change the palette of the surface
+		SDL_SetPalette(player2Surface[i], SDL_LOGPAL, palette, 0, 256);
 		
 		#ifdef DEBUG
 		std::cout << "Loading " << fn << "\n";

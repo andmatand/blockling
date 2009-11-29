@@ -36,20 +36,22 @@ void GlobalInput(SDL_Event event) {
 					break;
 					
 				// Toggle fullscreen
-				case SDLK_f:
-					#ifdef _WIN32
-						printf("Windows fullscreen toggle\n");
-						//SDL_FreeSurface(screenSurface);
-						screenSurface = SDL_SetVideoMode(screenSurface->w,
-								screenSurface->h,
-								screenSurface->format->BitsPerPixel,
-								SDL_HWSURFACE |
-									((screenSurface->flags & SDL_FULLSCREEN) ? 0 : SDL_FULLSCREEN) |
-									SDL_ANYFORMAT
-									);
-					#else
-						printf("fullscreen toggle: %d\n", SDL_WM_ToggleFullScreen(screenSurface));
-					#endif
+				case SDLK_RETURN:
+					if (event.key.keysym.mod & KMOD_LALT || event.key.keysym.mod & KMOD_RALT) {
+						#ifdef _WIN32
+							printf("Windows fullscreen toggle\n");
+							//SDL_FreeSurface(screenSurface);
+							screenSurface = SDL_SetVideoMode(screenSurface->w,
+									screenSurface->h,
+									screenSurface->format->BitsPerPixel,
+									SDL_HWSURFACE |
+										((screenSurface->flags & SDL_FULLSCREEN) ? 0 : SDL_FULLSCREEN) |
+										SDL_ANYFORMAT
+										);
+						#else
+							printf("fullscreen toggle: %d\n", SDL_WM_ToggleFullScreen(screenSurface));
+						#endif
+					}
 					break;
 				
 				default:
@@ -63,7 +65,7 @@ void GlobalInput(SDL_Event event) {
 
 
 
-void GameInput(bool inReplay) {
+int GameInput(bool inReplay) {
 	// Reset all Players's keys to 0 and let SDL_EnableKeyRepeat handle repeat rate
 	/*
 	for (uint i = 0; i < NUM_PLAYER_KEYS; i++) {
@@ -231,7 +233,7 @@ void GameInput(bool inReplay) {
 				break;
 
 			case SDL_QUIT:
-				gameKeys[0].on = 1;
+				return -2;
 				break;
 		}
 	}
@@ -239,9 +241,82 @@ void GameInput(bool inReplay) {
 	
 	
 	// Add NPC access to playerKeys here
-
+	NPCInput();
+	
+	return 0;
 }
 
+
+
+
+
+// Move the Non-Playable Characters around
+void NPCInput() {
+	uint i;
+	char key;
+	
+	// Turn off all NPC keys
+	for (i = 1; i < numPlayers; i++) {
+		for (uint j = i * NUM_PLAYER_KEYS; j < (i + 1) * NUM_PLAYER_KEYS; j++) {
+			playerKeys[j].on = 0;
+		}
+	}
+	
+
+	for (i = 1; i < numPlayers; i++) {
+		key = -1;
+		switch (blocks[i].GetType()) {
+			// Slow random movement
+			case 11:
+				if (rand() % 20 == 0) {
+					if (rand() % 2 == 0) {
+						// Left
+						key = 0;
+					}
+					else {
+						// Right
+						key = 1;
+					}
+				}
+				break;
+		}
+		
+		// Don't step off ledges if we can't get back up
+		if (blocks[i].GetDir() == key) { // If this button will cause him to walk and not just change directions
+			printf("NPC: Checking for ledge...\n");
+			
+			int x;
+			if (blocks[i].GetDir() == 0) {	// Facing left
+				x = blocks[i].GetX() - TILE_W;
+			}
+			else { 				// Facing right
+				x = blocks[i].GetX() + blocks[i].GetW();
+			}
+			
+			// If there will not be ground immediately below him at the new X position
+			if (BoxContents(x, blocks[i].GetY() + blocks[i].GetH(), TILE_W, TILE_H) == -1) {
+				
+				// If there is not a floating telepad on the current Y that he can step on instead of ground
+				if (BoxContents(x, blocks[i].GetY(), TILE_W, TILE_H) != -4) {
+					printf("NPC: I am at (%d, %d) \n", blocks[i].GetX(), blocks[i].GetY());
+					printf("NPC: Checking box (%d, %d) \n", x, blocks[i].GetY() + blocks[i].GetH() + TILE_H);
+					printf("NPC: Box Contents: %d\n", BoxContents(x, blocks[i].GetY() + blocks[i].GetH() + TILE_H, TILE_W, TILE_H));
+					
+					// If there is not something to stand on one space over and two spaces down
+					if (BoxContents(x, blocks[i].GetY() + blocks[i].GetH() + TILE_H, TILE_W, 1) >= -1) {
+						// Cancel the keypress
+						key = -1;
+					}
+				}
+			}
+		}
+		
+		// Push whatever key was determined
+		if (key >= 0) {
+			playerKeys[(i * NUM_PLAYER_KEYS) + key].on = 1;
+		}
+	}
+}
 
 
 
@@ -275,7 +350,10 @@ char MenuInput() {
 				switch (event.key.keysym.sym) {
 					case SDLK_KP_ENTER:
 					case SDLK_RETURN:
-						return 5;
+						if (!(event.key.keysym.mod & KMOD_ALT)) {
+							return 5;
+						}
+						break;
 					case SDLK_UP:
 						keyDown = 1;
 						break;
@@ -413,9 +491,13 @@ void ResetDefaultKeys() {
 
 void TurnOffAllKeys() {
 	uint i;
+	
+	// Turns off only player 0's keys
 	for (i = 0; i < NUM_PLAYER_KEYS; i++) {
 		playerKeys[i].on = 0;
 	}
+	
+	// Turns off all game keys
 	for (i = 0; i < NUM_GAME_KEYS; i++) {
 		gameKeys[i].on = 0;
 	}
