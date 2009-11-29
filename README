@@ -41,38 +41,33 @@ distribute to others in any practical way.
 
 Many years later, I discovered Linux and C++, and here is the result.
 
+-Andrew Anderson (www.billamonster.com)
+
 
 
 == II. CONTROLS =======
-Esc        Menu
-F1         Help (not yet implemented)
-F2         Toggle Music
-F3         Toggle Sound
-F5         Restart the current level
-U          Undo
-F          Toggle Fullscreen
+Esc          Menu
+F1           Help (not yet implemented)
+F2           Toggle Music
+F3           Toggle Sound
+F5           Restart the current level
+U            Undo
+Alt + Enter  Toggle Fullscreen
 PAGE UP / 
-PAGE DOWN  Change tile set
+PAGE DOWN    Change tile set
 
--- CUSTOMIZABLE GAME CONTROLS --
+-- GAME CONTROLS (Customizable) --
 UP      Pick up a block
 DOWN	Set down a block
 LEFT    Move left
 RIGHT   Move right
 ENTER   Push a block
 
--- CAMERA CONTROLS --
+-- CAMERA CONTROLS (Customizable) --
 w  Move camera up
 a  Move camera left
 s  Move camera down
 d  Move camera right
-
--- REPLAY CONTROLS (these only work during a replay) --
-LEFT   Slow down the replay
-RIGHT  Speed up the replay
-
-Note: There are 4 speeds for replays (SLOW, REALTIME, FAST, TURBO).  The default
-is FAST.
 
 
 
@@ -99,6 +94,7 @@ each character's meaning:
 
     .     a blank tile.  Note: Regular spaces (i.e. " ") are ignored.
     @     the player
+    A     a non-playable character (AI level: mostly random)
     X     a block
     0     a piece of land.  Note: Based on the tile's position relative to other
           tiles, it may automatically assume a different visual appearance (e.g.
