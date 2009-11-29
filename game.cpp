@@ -805,9 +805,16 @@ int Game() {
 						break;
 					case 4: // 8x
 						sprintf(s, "8x");
-						replayMenu->SetRightArrow(0, 0);
 
 						if (frameNumber >= 8) {
+							frameNumber = 0;
+						}
+						break;
+					case 5: // 16x
+						sprintf(s, "16x");
+						replayMenu->SetRightArrow(0, 0);
+
+						if (frameNumber >= 16) {
 							frameNumber = 0;
 						}
 						break;
