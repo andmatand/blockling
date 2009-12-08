@@ -100,7 +100,7 @@ int ControlSetupMenu(bool inGame) {
 		/** Render *****************/
 		do {
 			if (inGame) {
-				Render(3);
+				Render(0b00001000);
 			}
 			else {
 				DrawBackground();
@@ -308,7 +308,7 @@ int OptionsMenu(bool inGame) {
 		
 		/** Render *****************/
 		if (inGame) {
-			Render(3);
+			Render(0b00001000);
 		}
 		else {
 			DrawBackground();
@@ -501,7 +501,7 @@ int PauseMenu() {
 				break;
 		}
 		
-		Render(3);
+		Render(0b00001000);
 		pauseMenu.Display();
 		UpdateScreen();
 	}
@@ -539,7 +539,7 @@ int EndOfLevelMenu() {
 				break;
 		}
 		
-		Render(0);
+		Render(0b00001110);
 		theMenu.Display();
 		UpdateScreen();
 	}
@@ -595,7 +595,7 @@ int ReplayPauseMenu() {
 				break;
 		}
 		
-		Render(3);
+		Render(0b00001000);
 		pauseMenu.Display();
 		UpdateScreen();
 	}
@@ -692,7 +692,7 @@ int SelectLevelMenu() {
 		
 		/** Render *****************/
 		if (levelError == NULL) {
-			Render(3);
+			Render(0b00001010);
 		}
 		else {
 			DrawBackground();

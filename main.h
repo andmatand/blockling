@@ -20,7 +20,7 @@
  */
 
 
-//#define DEBUG
+#define DEBUG
 
 typedef unsigned int uint;
 typedef unsigned char uchar;
@@ -105,6 +105,7 @@ char wonLevel;	// 0 = No player has won level yet
 int exitX, exitY;
 
 int cameraX, cameraY;
+float cameraXVel, cameraYVel;
 int cameraTargetX, cameraTargetY; // Camera will follow this position
 uint manualCameraTimer; // For making sure camera will not automatically move if it has been manually moved recently
 int levelX, levelY, levelW, levelH; // Used to provide info for camera to know how far to move

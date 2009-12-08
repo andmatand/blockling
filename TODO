@@ -15,3 +15,5 @@ possible
 
 
 ==Bugs==
+-Teleportation animation lags behind camera movements
+-In Windows, controlls aren't written to settings file

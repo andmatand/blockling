@@ -71,10 +71,11 @@ int Game() {
 	bool pushedKey;
 	bool quitGame = false;
 	bool restartLevel;
-	float cameraXVel, cameraYVel;
+	uint oldLevel = currentLevel;
 	uint wonLevelTimer = 0;
 
-	uint oldLevel = currentLevel;
+	cameraXVel = 0;
+	cameraYVel = 0;
 	stickyPlayer = false;
 
 	// Replay variables
@@ -147,8 +148,6 @@ int Game() {
 		
 		// Reset manual camera movement
 		manualCameraTimer = 0;
-		cameraXVel = 0;
-		cameraYVel = 0;
 	
 		// Reset keys
 		for (i = 0; i < NUM_GAME_KEYS; i++) {
@@ -189,7 +188,7 @@ int Game() {
 		while (quitGame == false && selectingLevel == false && restartLevel == false) {
 			
 			// Handle Window Close
-			if (GameInput(showingReplay ? true : false) == -2) {
+			if (GameInput(showingReplay ? 1 : 0) == -2) {
 				quitGame = true;
 				returnVal = -2;
 				break;
@@ -318,47 +317,6 @@ int Game() {
 				
 				// Make the time spent in the menu undetectable to the timer incrementer
 				levelTimeTick = SDL_GetTicks() - j;
-			}
-			
-			
-			
-			/** Manual Camera Movement **/
-			if (physicsStarted) {
-				cameraXVel *= .85f;
-				cameraYVel *= .85f;
-				
-				// Move camera left
-				if (gameKeys[0].on > 0) {
-					cameraXVel -= 2;
-					manualCameraTimer = SDL_GetTicks();
-				}
-				
-				// Move camera right
-				if (gameKeys[1].on > 0) {
-					cameraXVel += 2;
-					manualCameraTimer = SDL_GetTicks();
-				}
-				
-				// Move camera up
-				if (gameKeys[2].on > 0) {
-					cameraYVel -= 2;
-					manualCameraTimer = SDL_GetTicks();
-				}
-
-				// Move camera down
-				if (gameKeys[3].on > 0) {
-					cameraYVel += 2;
-					manualCameraTimer = SDL_GetTicks();
-				}
-				
-				// Enforce maximum camera velocity limitations
-				if (cameraXVel > TILE_W) cameraXVel = TILE_W;
-				if (cameraXVel < -TILE_W) cameraXVel = -TILE_W;
-				if (cameraYVel > TILE_H) cameraYVel = TILE_H;
-				if (cameraYVel < -TILE_H) cameraYVel = -TILE_H;
-				
-				cameraX += static_cast<int>(cameraXVel);
-				cameraY += static_cast<int>(cameraYVel);
 			}
 			
 			
@@ -730,7 +688,7 @@ int Game() {
 				if (blocks[i].GetWon() == 1) {
 					blocks[i].SetFace(1); // open mouth
 					while (wonLevel < 2) {
-						Render(1);
+						Render(0b00001111);
 					}
 					
 					blocks[i].SetWon(2); // player can now finish walking into the door
@@ -829,7 +787,10 @@ int Game() {
 				}
 			}
 			if (showingReplay == false || frameNumber == 0) {
-				Render(4);
+				Render(0b00000111);
+			}
+			else {
+				CenterCamera(0);
 			}
 
 			/*** Stuff for when the player reached the exit ***/
@@ -873,7 +834,7 @@ int Game() {
 					blocks[0].SetFace(4); // Scared
 				
 				CenterCamera(2);
-				Render(2);
+				Render(0b00001101);
 			}
 		}
 		

@@ -132,8 +132,62 @@ void SetCameraTargetBlock(uint b) {
 
 
 
+
+
+
+void MoveCamera() {
+	// Move camera left
+	if (gameKeys[0].on > 0) {
+		cameraXVel -= 2;
+		manualCameraTimer = SDL_GetTicks();
+	}
+	
+	// Move camera right
+	if (gameKeys[1].on > 0) {
+		cameraXVel += 2;
+		manualCameraTimer = SDL_GetTicks();
+	}
+	
+	// Move camera up
+	if (gameKeys[2].on > 0) {
+		cameraYVel -= 2;
+		manualCameraTimer = SDL_GetTicks();
+	}
+
+	// Move camera down
+	if (gameKeys[3].on > 0) {
+		cameraYVel += 2;
+		manualCameraTimer = SDL_GetTicks();
+	}
+	
+	// Exit the function if we aren't currently moving the camera with the keys
+	if (SDL_GetTicks() > manualCameraTimer + 2000)
+		return;
+
+	// Enforce maximum camera velocity limitations
+	//if (cameraXVel > TILE_W) cameraXVel = TILE_W;/
+	//if (cameraXVel < -TILE_W) cameraXVel = -TILE_W;
+	//if (cameraYVel > TILE_H) cameraYVel = TILE_H;
+	//if (cameraYVel < -TILE_H) cameraYVel = -TILE_H;
+	
+	//if (cameraXVel > -.5 && cameraXVel < .5) cameraXVel = 0;
+	//if (cameraYVel > -.5 && cameraYVel < .5) cameraYVel = 0;
+	
+	cameraX += static_cast<int>(cameraXVel);
+	cameraY += static_cast<int>(cameraYVel);
+
+	cameraXVel *= .85f;
+	cameraYVel *= .85f;
+}
+
+
+
+
+
+
+
+
 void CenterCamera(char override) {
-	static int cameraXVel = 0, cameraYVel = 0;
 	static char currentMovement = 0;
 	int maxXVel;
 	int maxYVel;
@@ -151,8 +205,8 @@ void CenterCamera(char override) {
 		if (cameraY > levelY + levelH + (FONT_H + (FONT_H / 2)))
 			cameraY = levelY + levelH + (FONT_H + (FONT_H / 2));
 		
-		cameraXVel = 0;
-		cameraYVel = 0;
+		//cameraXVel = 0;
+		//cameraYVel = 0;
 		//currentMovement = 2; // Re-center the camera quickly
 		
 		return; // Exit the function, avoiding any automatic camera movement
@@ -201,8 +255,8 @@ void CenterCamera(char override) {
 	// Width and height of tracking box.  The camera will only bother
 	// moving if the target moves outside of this "box" in the middle
 	// of the screen.
-	int boxW = 10 * TILE_W;
-	int boxH = 5 * TILE_H;
+	int boxW = SCREEN_W / 4;
+	int boxH = SCREEN_H / 5;
 	
 	// How much space to show beyond the edges of the level
 	int xMargin = TILE_W * 1;
@@ -310,23 +364,23 @@ void CenterCamera(char override) {
 
 	// Enforce maximum velocity limitations, slowing down smoothly
 	if (cameraXVel > maxXVel) {
-		cameraXVel = maxXVel;
+		cameraXVel = static_cast<float>(maxXVel);
 		//cameraXVel =- 2;
 		//if (cameraXVel < 0) cameraXVel = 0;
 	}
 	if (cameraXVel < -maxXVel) {
-		cameraXVel = -maxXVel;
+		cameraXVel = static_cast<float>(-maxXVel);
 		//cameraXVel += 2;
 		//if (cameraXVel > 0) cameraXVel = 0;	
 	}
 
 	if (cameraYVel > maxYVel) {
-		cameraYVel = maxYVel;
+		cameraYVel = static_cast<float>(maxYVel);
 		//cameraYVel =- 2;
 		//if (cameraYVel < 0) cameraYVel = 0;
 	}
 	if (cameraYVel < -maxYVel) {
-		cameraYVel = -maxYVel;
+		cameraYVel = static_cast<float>(-maxYVel);
 		//cameraYVel += 2;
 		//if (cameraYVel > 0) cameraYVel = 0;	
 	}
@@ -337,7 +391,7 @@ void CenterCamera(char override) {
 		int xStoppingDistance = 0; // How much distance it will take for the camera to come to
 		                          // a complete stop if it starts slowing down now.
 		
-		for (uint i = abs(cameraXVel); i > 0; i--) {
+		for (uint i = abs(static_cast<uint>(cameraXVel)); i > 0; i--) {
 			xStoppingDistance += i;
 		}
 		
@@ -356,7 +410,7 @@ void CenterCamera(char override) {
 		int yStoppingDistance = 0; // How much distance it will take for the camera to come to
 		                          // a complete stop if it starts slowing down now.
 		
-		for (uint i = abs(cameraYVel); i > 0; i--) {
+		for (uint i = abs(static_cast<uint>(cameraYVel)); i > 0; i--) {
 			yStoppingDistance += i;
 		}
 		
@@ -382,10 +436,17 @@ void CenterCamera(char override) {
 	
 	
 	// Actually move the camera
-	cameraX += cameraXVel;
-	cameraY += cameraYVel;
+	cameraX += static_cast<int>(cameraXVel);
+	cameraY += static_cast<int>(cameraYVel);
 	
 }
+
+
+
+
+
+
+
 
 
 
@@ -742,12 +803,12 @@ void DrawBackground() {
 }
 
 
-// flag	0 = No screen update (drawing only)
-//      1 = normal
-//      2 = no CenterCamera
-//	3 = combination of 0 and 2, + no ambient animations
-//	4 = no background
-void Render (char flag) {
+// flags
+// 0b00000001 = screen update
+// 0b00000010 = process camera movements
+// 0b00000100 = ambient animations
+// 0b00001000 = draw background
+void Render (const char flag) {
 	static uint torchTimer = 0;
 	static uint doorFrame, doorFramePause;
 	static uint timerPos;
@@ -757,12 +818,13 @@ void Render (char flag) {
 
 	//if (LockSurface(screenSurface) == false) return;
 
-	if (flag != 2 && flag != 3)
+	if (flag & 0b00000010) {
+		MoveCamera();
 		CenterCamera(0);
-	
-	
+	}
+		
 	/*** Background ***/
-	if (flag != 4) {
+	if (flag & 0b00001000) {
 		DrawBackground();
 	}
 	
@@ -801,7 +863,7 @@ void Render (char flag) {
 	
 	/*** TORCHES ***/
 	// Change flames
-	if (flag != 3 && SDL_GetTicks() > torchTimer + 5) {
+	if ((flag & 0b00000100) && SDL_GetTicks() > torchTimer + 5) {
 		for (i = 0; i < numTorches; i++) {
 			torches[i].FlickerFlame();
 	    	}
@@ -809,7 +871,6 @@ void Render (char flag) {
 	}
 	// Draw torches
 	for (i = 0; i < numTorches; i++) {
-		
 		ApplySurface(torches[i].GetX() + 1 - cameraX, torches[i].GetY() - cameraY, torchSurface[torches[i].GetFlame()], screenSurface);
 	}
 	
@@ -818,7 +879,7 @@ void Render (char flag) {
 	
 	/*** BLOCKS ***/
 	// Deactivate stickyPlayer when he's lined up in the new level's position.
-	if (stickyPlayer && flag != 3 && blocks[0].GetX() - cameraX <= stickyPlayerX && blocks[0].GetY() - cameraY == stickyPlayerY) {
+	if (stickyPlayer && (flag & 0b00000100) && blocks[0].GetX() - cameraX <= stickyPlayerX && blocks[0].GetY() - cameraY == stickyPlayerY) {
 		stickyPlayer = false;
 		blocks[0].SetFace(0); // normal
 	}
@@ -834,7 +895,7 @@ void Render (char flag) {
 
 	for (i = 0; i < numBlocks; i++) {
 		if (blocks[i].GetType() >= 0) {
-			if (flag != 3) blocks[i].Animate();
+			if (flag & 0b00000100) blocks[i].Animate();
 			
 			if (i != 0 || !stickyPlayer) {
 				ApplySurface(blocks[i].GetX() - cameraX, blocks[i].GetY() - cameraY, blocks[i].GetSurface(), screenSurface);
@@ -848,13 +909,13 @@ void Render (char flag) {
 		ApplySurface(
 			telepads[i].GetX1() - cameraX,
 			telepads[i].GetY1() - cameraY,
-			telepads[i].GetSurface(flag != 3 ? true : false),
+			telepads[i].GetSurface((flag & 0b00000100) ? true : false),
 			screenSurface);
 		
 		ApplySurface(
 			telepads[i].GetX2() - cameraX,
 			telepads[i].GetY2() - cameraY,
-			telepads[i].GetSurface(flag != 3 ? true : false),
+			telepads[i].GetSurface((flag & 0b00000100) ? true : false),
 			screenSurface);
 	}
 
@@ -905,7 +966,7 @@ void Render (char flag) {
 				timerPos += FPS;
 				if (timerPos > 76) timerPos = 76;
 			}
-			DrawText(SCREEN_W - timerPos, 380, message, 0, 1);
+			DrawText(SCREEN_W - timerPos, SCREEN_H - FONT_H - 4, message, 0, 1);
 		}
 		else {
 			timerPos = 0;
@@ -913,7 +974,7 @@ void Render (char flag) {
 	}
 
 	/** Screen Update ****/
-	if (flag != 0 && flag != 3) {
+	if ((flag & 0b00000001)) {
 		UpdateScreen();
 	}
 }

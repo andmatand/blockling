@@ -20,7 +20,8 @@
  */
 
 /*** Function Prototypes ***/
-int GameInput(bool inReplay);
+void CameraInput(SDL_Event event);
+int GameInput(char mode);
 char MenuInput();
 void NPCInput();
 void ReplayInput(SDL_Event event);

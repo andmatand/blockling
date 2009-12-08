@@ -65,26 +65,17 @@ void GlobalInput(SDL_Event event) {
 
 
 
-int GameInput(bool inReplay) {
-	// Reset all Players's keys to 0 and let SDL_EnableKeyRepeat handle repeat rate
-	/*
-	for (uint i = 0; i < NUM_PLAYER_KEYS; i++) {
-		playerKeys[i].on = 0;
-	}
-	// And Game keys
-	for (uint i = 0; i < NUM_GAME_KEYS; i++) {
-		gameKeys[i].on = 0;
-	}
-	*/
-
-	/** Handle repeat rate of Game Keys ****/
-	for (uint i = 0; i < NUM_GAME_KEYS; i++) {
+// Mode:
+// 0 = normal game input
+// 1 = replay input (only game keys & replay input)
+int GameInput(char mode) {
+	for (uint i = 4; i < NUM_GAME_KEYS; i++) {
 		if (gameKeys[i].on == 1) {
 			gameKeys[i].on = -1; // will be seen by game as Off
 		}
 		else if (gameKeys[i].on == -1) {
-			// Initial delay                          (Make the camera controls [keys 0 - 4] instant)
-			if (SDL_GetTicks() >= gameKeys[i].timer + ((i <= 3) ? 0 : 200)) {
+			// Initial delay
+			if (SDL_GetTicks() >= gameKeys[i].timer + 200) {
 				gameKeys[i].on = 2; // will be seen by game as On
 				gameKeys[i].timer = SDL_GetTicks();
 			}
@@ -131,30 +122,23 @@ int GameInput(bool inReplay) {
 
 	while (SDL_PollEvent(&event)) {
 		GlobalInput(event);
-		if (inReplay) ReplayInput(event);
+		CameraInput(event);
+		if (mode == 1) ReplayInput(event);
 		
 		switch (event.type) {
 			case SDL_KEYDOWN:
-				/** Turn on Game Keys **/
-				for (uint i = 0; i < NUM_GAME_KEYS; i++) {
+				/** Turn on Game Keys (minus the camera keys) **/
+				for (uint i = 4; i < NUM_GAME_KEYS; i++) {
 					if (event.key.keysym.sym == gameKeys[i].sym && (gameKeys[i].mod == KMOD_NONE || event.key.keysym.mod & gameKeys[i].mod)) {
 						if (gameKeys[i].on == 0) {
 							gameKeys[i].on = 1;
 							gameKeys[i].timer = SDL_GetTicks();
-							
-							/*
-							// Make camera controls smoother by turning off LEFT when RIGHT is pushed, etc.
-							if (i == 2) gameKeys[3].on = 0;
-							if (i == 3) gameKeys[2].on = 0;
-							if (i == 4) gameKeys[5].on = 0;
-							if (i == 5) gameKeys[4].on = 0;
-							*/
 						}
 					}
 				}
 
 				/** Turn on Player Keys **/
-				if (inReplay == false) {
+				if (mode == 0) {
 					for (uint i = 0; i < NUM_PLAYER_KEYS; i++) {
 						if (event.key.keysym.sym == playerKeys[i].sym) {
 							if (playerKeys[i].on == 0) {
@@ -175,8 +159,8 @@ int GameInput(bool inReplay) {
 				break;
 
 			case SDL_KEYUP:		
-				/** Turn off Game Keys **/
-				for (uint i = 0; i < NUM_GAME_KEYS; i++) {
+				/** Turn off Game Keys (minus the camera keys) **/
+				for (uint i = 4; i < NUM_GAME_KEYS; i++) {
 					if (event.key.keysym.sym == gameKeys[i].sym) {
 						gameKeys[i].on = 0;
 					}
@@ -322,6 +306,38 @@ void NPCInput() {
 
 
 
+void CameraInput(SDL_Event event) {
+	if (!physicsStarted) return;
+		
+	switch (event.type) {
+		case SDL_KEYDOWN:
+			// Turn on camera keys (first four gamekeys)
+			for (uint i = 0; i < 4; i++) {
+				if (event.key.keysym.sym == gameKeys[i].sym && (gameKeys[i].mod == KMOD_NONE || event.key.keysym.mod & gameKeys[i].mod)) {
+					if (gameKeys[i].on == 0) {
+						gameKeys[i].on = 1;
+						gameKeys[i].timer = SDL_GetTicks();
+					}
+				}
+			}
+
+			break;
+		case SDL_KEYUP:
+			// Turn off camera keys (first four gamekeys)
+			for (uint i = 0; i < 4; i++) {
+				if (event.key.keysym.sym == gameKeys[i].sym) {
+					gameKeys[i].on = 0;
+				}
+			}
+
+			break;
+	}
+}
+
+
+
+
+
 // Return values:
 //	0 No key
 //	1 Up
@@ -345,6 +361,7 @@ char MenuInput() {
 	
 	while (SDL_PollEvent(&event)) {
 		GlobalInput(event);
+		CameraInput(event);
 		switch (event.type) {
 			case SDL_KEYDOWN:
 				switch (event.key.keysym.sym) {

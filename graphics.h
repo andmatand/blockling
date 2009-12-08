@@ -28,6 +28,7 @@ Uint32 GetPixel(SDL_Surface *surface, int x, int y);
 void LimitFPS();
 void LoadTileset(const char *tilesetDir);
 bool LockSurface(SDL_Surface *surf);
+void ManualCameraMovement();
 SDL_Surface* MakeSurface(int width, int height);
 void PutPixel(SDL_Surface *surface, int x, int y, Uint32 pixel);
 void Render(char flag);
