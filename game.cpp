@@ -70,7 +70,7 @@ int Game() {
 	char s[11];
 	bool pushedKey;
 	bool quitGame = false;
-	bool restartLevel;
+	bool restartLevel = false;
 	uint oldLevel = currentLevel;
 	uint wonLevelTimer = 0;
 
@@ -175,6 +175,8 @@ int Game() {
 			replayMenu = new menu(1);
 			replayMenu->SetTitle("");
 			replayMenu->Move(SCREEN_W / 2, 0);
+			
+			frameNumber = 0;
 		}
 		else if (recordingReplay) {
 			// Create the replay object
@@ -1236,19 +1238,24 @@ char * LoadLevel(uint level) {
 	}
 	fclose(f);
 	
-	/*** Change brick types based on their placement next to other bricks ***/
+	/** Change brick types based on their placement next to other bricks ****/
 	int leftBrick, rightBrick, topBrick, bottomBrick;
 	// Make vertical bricks into "wall" bricks
 	for (uint i = 0; i < numBricks; i++) {
 		// Only change bricks that have not yet been set
 		if (bricks[i].GetType() != -1) continue;
 		
-		// Find surrounding bricks, and ignore them if they are of type 0 (wall)
+		/** Find surrounding bricks, and ignore them if they are of type 0 (wall) ****/
+		
 		leftBrick = BrickNumber(bricks[i].GetX() - TILE_W, bricks[i].GetY(), TILE_W, TILE_H);
-		if (bricks[leftBrick].GetType() == 0) leftBrick = -1; // Pretend like this brick isn't here
+		if (leftBrick > -1) {
+			if (bricks[leftBrick].GetType() == 0) leftBrick = -1; // Pretend like this brick isn't here
+		}
 		
 		rightBrick = BrickNumber(bricks[i].GetX() + TILE_W, bricks[i].GetY(), TILE_W, TILE_H);
-		if (bricks[rightBrick].GetType() == 0) rightBrick = -1; // Pretend like this brick isn't here
+		if (rightBrick > -1) {
+			if (bricks[rightBrick].GetType() == 0) rightBrick = -1; // Pretend like this brick isn't here
+		}
 		
 		topBrick = BrickNumber(bricks[i].GetX(), bricks[i].GetY() - TILE_H, TILE_W, TILE_H);
 		//if (bricks[topBrick].GetType() == 0) topBrick = -1; // Pretend like this brick isn't here
@@ -1256,10 +1263,10 @@ char * LoadLevel(uint level) {
 		bottomBrick = BrickNumber(bricks[i].GetX(), bricks[i].GetY() + TILE_H, TILE_W, TILE_H);
 		//if (bricks[bottomBrick].GetType() == 0) bottomBrick = -1; // Pretend like this brick isn't here
 		
-		// If (there is a brick above this brick
-		// OR there is a brick below this brick)
-		// AND there is no brick to the left
-		// AND there is no brick to the right
+		/** If (there is a brick above this brick
+		    OR there is a brick below this brick)
+		    AND there is no brick to the left
+		    AND there is no brick to the right **/
 		if ((topBrick >= 0
 			|| bottomBrick >= 0)
 			&& leftBrick == -1

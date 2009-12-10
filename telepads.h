@@ -25,6 +25,8 @@ class telepad {
 	public:
 		// Constructor
 		telepad():
+			occupant1(-1),
+			occupant2(-1),
 			teleporting(false),
 			ba(NULL),
 			sourceSurf(NULL),

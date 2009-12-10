@@ -171,8 +171,7 @@ void menu::SetTitle(const char *aTitle) {
 	char tempTitle[strlen(aTitle) + 1];
 	strcpy(tempTitle, aTitle);
 
-	title = new char[strlen(tempTitle) + 1];
-	strcpy(title, tempTitle);
+	this->SetTitle(tempTitle);
 }
 void menu::SetTitle(char *aTitle) {
 	// Clean up old text data

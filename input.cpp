@@ -458,6 +458,7 @@ char MenuInput() {
 void RefreshPlayerKeys() {
 	for (uint i = 0; i < NUM_PLAYER_KEYS; i++) {
 	 	playerKeys[i].sym = option_playerKeys[i].sym;
+	 	playerKeys[i].timer = 0;
 	}
 }
 

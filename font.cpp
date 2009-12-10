@@ -246,6 +246,8 @@ void DrawText(int x, int y, char *text, int spacing, int color) {
 				x2 += FONT_W + spacing;
 				break;
 			default:
+				//printf("printing font character #%d (%c)\n", c, c + 33);
+				
 				// Blit "shadow" character
 				ApplySurface(x2 + 2, y + 2, font[c].surf[0], screenSurface);
 				

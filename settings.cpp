@@ -149,16 +149,20 @@ void LoadSettings() {
 		return;
 	}
 	
-	char line[17];
-	char name[12];
+	char line[32];
+	char name[13];
 	char value[4]; // string form of the value
-	uint uintVal;  // uint form of the value
+	uint uintVal = 0;  // uint form of the value
 	uint midpoint; // position of '=' in the string
-	uchar n;       // parsed key number (e.g. 3 at end of "gameKeySym3")
-	char c[2];
+	uchar n;       // holds string position when filling string, and parsed key number (e.g. 3 at end of "gameKeySym3")
+	char c[2];     // holds one character
 	
 	while (!feof(f)) {
 		fgets(line, sizeof(line), f);
+		
+		// If this line doesn't contain an equals sign, skip it
+		if (strchr(line, '=') == NULL)
+			continue;
 		
 		// Remove the trailing newline character(s), LF or CR
 		while (line[strlen(line) - 1] == '\n' or line[strlen(line) - 1] == 13) {
@@ -169,25 +173,48 @@ void LoadSettings() {
 		midpoint = static_cast<uint>(strchr(line, '=') - line);
 		
 		#ifdef DEBUG
-		printf("\n\nline: \"%s\"\nposition of = is %d\n", line, midpoint);
+			printf("\n\nline: \"%s\"\nposition of = is %d\n", line, midpoint);
 		#endif
 
-		// Get the part of the string before the "="
-		strncpy(name, line, midpoint);
-		
-		// Add null terminator
-		if (midpoint < sizeof(name)) {
-			name[midpoint] = '\0';
+		/** Get the part of the string before the "=" ****/
+		n = 0; // Position in the "name" string
+		for (uint i = 0; i < midpoint; i++) {
+			// If this character is not a space or a tab
+			if (line[i] != 32 && line[i] != 9) {
+				// Add this character to the end
+				name[n] = line[i];
+				
+				// Limit string length
+				if (++n == sizeof(name) - 1)
+					break;
+			}
 		}
+		// Add null terminator
+		name[n] = '\0';
 		
 		
-		// Get the part after the "="
-		sprintf(value, "%s", strchr(line, '=') + 1);
+		/** Get the part after the "=" ****/
+		n = 0; // position in the "value" string
+		for (uint i = midpoint + 1; i < strlen(line); i++) {
+			// If this character is not a space or a tab
+			if (line[i] != 32 && line[i] != 9) {
+				// Add this character to the end
+				value[n] = line[i];
+				
+				// Limit string length
+				if (++n == sizeof(value) - 1)
+					break;
+			}
+		}
+		// Add null terminator
+		value[n] = '\0';
 		
 		// Store integer form of the value
 		uintVal = static_cast<uint>(atoi(value));
 		
-		printf(" name = \"%s\"\n value = \"%s\"\n intVal = %d\n", name, value, uintVal);
+		#ifdef DEBUG
+			printf(" name = \"%s\"\n value = \"%s\"\n intVal = %d\n", name, value, uintVal);
+		#endif
 		
 		// Set the correct option
 		if (strcmp(name, "undoSize") == 0) {
