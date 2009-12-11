@@ -32,7 +32,7 @@ void TurnOffAllKeys();
 
 
 /*** Constants ***/
-const uint NUM_GAME_KEYS = 7;
+const uint NUM_GAME_KEYS = 8;
 const uint NUM_PLAYER_KEYS = 5;
 
 

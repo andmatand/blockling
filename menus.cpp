@@ -166,6 +166,76 @@ int ControlSetupMenu(bool inGame) {
 
 
 
+
+int HelpMenu(bool inGame) {
+	int numItems = 1;
+	menu helpMenu(numItems); // Create the menu object
+	char text[256]; // Hold the help text
+	
+	int action;
+	
+	/** Set static menu items **/
+	helpMenu.Move(inGame ? SCREEN_W / 2 : 75, (FONT_H + 2) * 1);
+	helpMenu.SetTitle("HELP");
+	helpMenu.NameItem(0, "Done");
+
+	while (true) {
+		/** Render *****************/
+		if (inGame) {
+			Render(0b00001000);
+		}
+		else {
+			DrawBackground();
+		}
+		helpMenu.AutoArrange(static_cast<char>(inGame ? 1 : 0));
+		helpMenu.MoveItem(0, helpMenu.GetItemX(0), (FONT_H + 2) * 20); // Postion the "Done" button
+		helpMenu.Display();
+
+		/** Show the help text ****/
+		sprintf(text, "How to Play:");
+		DrawText((SCREEN_W / 2) - (FONT_W * 18), (FONT_H + 2) * 2, text, 0, 3);
+		sprintf(text, "Pick up blocks and stack them to get\nto the exit!  BLOCKMAN can only climb\nup steps one block high.");
+		DrawText((SCREEN_W / 2) - (FONT_W * 17), (FONT_H + 2) * 3, text, 0, 1);
+
+		sprintf(text, "In-Game Controls:");
+		DrawText((SCREEN_W / 2) - (FONT_W * 18), (FONT_H + 2) * 7, text, 0, 3);
+		
+		sprintf(text, "Esc\t\t\tShow the pause menu\nF1\t\t\tShow help\nF5\t\t\tRestart the level\nPAGE UP/DOWN\tChange the tileset\n(See CONTROL SETUP in the OPTIONS\nmenu to set the movement controls)");
+		DrawText((SCREEN_W / 2) - (FONT_W * 17), (FONT_H + 2) * 8, text, 0, 1);
+
+		sprintf(text, "Global Keyboard Shortcuts:");
+		DrawText((SCREEN_W / 2) - (FONT_W * 18), (FONT_H + 2) * 15, text, 0, 3);
+		sprintf(text, "F2\t\t\tToggle music ON/OFF\nF3\t\t\tToggle sound ON/OFF\nAlt + Enter\tToggle fullscreen mode");
+		DrawText((SCREEN_W / 2) - (FONT_W * 17), (FONT_H + 2) * 16, text, 0, 1);
+
+		UpdateScreen();
+		
+		
+		/** Input ******************/
+		action = helpMenu.Input();
+		
+		switch (action) {
+			case 1: // Enter
+				switch (helpMenu.GetSel()) {
+					case 0:
+						return -1;
+						break;
+				}
+				break;
+			case -1: // Esc
+				return -1;
+				break;
+			case -2: // Close window
+				return -2;
+				break;
+		}
+	}
+}
+
+
+
+
+
 int MainMenu() {
 	int numItems = 3;
 	menu mainMenu(numItems);
@@ -491,7 +561,28 @@ int PauseMenu() {
 		
 		switch (action) {
 			case 1: // Enter
-				return pauseMenu.GetSel();
+				switch (pauseMenu.GetSel()) {
+					case 1: // Options
+						if (OptionsMenu(true) == -2) {
+							// If closing the window was requested
+							return -2;
+						}
+						else {
+							// Sync the in-game player keymap with the preferences,
+							// in case they changed.
+							RefreshPlayerKeys();
+						}
+						break;
+					case 2:
+						if (HelpMenu(true) == -2) {
+							// If closing the window was requested
+							return -2;
+						}
+						break;
+					default:
+						return pauseMenu.GetSel();
+						break;
+				}
 				break;
 			case -1: // Esc
 				return -1;
@@ -575,11 +666,15 @@ int ReplayPauseMenu() {
 			case 1: // Enter
 				switch (pauseMenu.GetSel()) {
 					case 3: // Options
-						OptionsMenu(true);
-						
-						// Sync the in-game player keymap with the preferences,
-						// in case they changed.
-						RefreshPlayerKeys();
+						if (OptionsMenu(true) == -2) {
+							// If closing the window was requested
+							return -2;
+						}
+						else {
+							// Sync the in-game player keymap with the preferences,
+							// in case they changed.
+							RefreshPlayerKeys();
+						}
 						break;
 					default:
 						return pauseMenu.GetSel();
@@ -610,13 +705,13 @@ int SelectLevelMenu() {
 	uint i;
 	int numItems = 2;
 	menu lvlMenu(numItems); // Create the menu object
-	char text[512]; // For temporarily holding menu items' text as it is formed
+	char text[512]; // For holding complete level error message
 	int bottomY = SCREEN_H - FONT_H - 4;
 	
 	FILE *testFile;
 	bool refreshLevel = true;
 	uint numLevels = 999;
-	char *levelError = NULL;
+	char *levelError = NULL; // For pointing to the (actual) error message returned by LoadLevel
 	
 	int action;
 	

@@ -1,8 +1,5 @@
--Move the camera-movement code into a function so it can be called also
-from the Load Level menu
-
 -Maybe: Holding down shift with arrows makes player walk as far as
-possible
+possible (without falling off a cliff two blocks high)
 
 -Spinach/other items?
 

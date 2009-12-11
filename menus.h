@@ -21,11 +21,12 @@
 
 
 /*** Function Prototypes ***/
-int MainMenu();
-int ReplayPauseMenu();
 int EndOfLevelMenu();
+int HelpMenu(bool inGame);
+int MainMenu();
 int OptionsMenu(bool inGame);
 int PauseMenu();
+int ReplayPauseMenu();
 int SelectLevelMenu();
 
 

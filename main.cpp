@@ -31,12 +31,45 @@ int main(int argc, char** argv) {
 		exit(1);
 	}
 
-	// Register SDL_Quit to be called at exit; makes sure things are
-	// cleaned up when we quit.
-	atexit(SDL_Quit);
+	Init();
+
+	bool quitProgram = false;
+	while (quitProgram == false) {
+		switch (MainMenu()) {
+			case 0: // Start Game
+				if (Game() == -2) {
+					quitProgram = true;
+				}
+				break;
+			case 1: // Options
+				switch(OptionsMenu(false)) {
+					case -2: // Close window
+						quitProgram = true;
+						break;
+				}
+				break;
+			case -1: // Esc
+			case -2: // Close Window
+			case 2: // Quit
+				quitProgram = true;
+				break;
+		}
+	}
+	
+	SaveSettings();
+	DeInit();
+
+	return 0;
+}
 
 
-	// Initialize SDL_mixer
+
+
+
+
+
+void Init() {
+	/** Initialize SDL_mixer ****/
 	if (Mix_OpenAudio(22050, AUDIO_S16SYS, 2, 1024) < 0) {
     		printf("Error initializing SDL_mixer: %s\n", Mix_GetError());
     		exit(1);
@@ -58,9 +91,8 @@ int main(int argc, char** argv) {
 */
 
 
-	// Initialize Video
+	/** Initialize SDL Video ****/
 	screenSurface = SDL_SetVideoMode(SCREEN_W, SCREEN_H, SCREEN_BPP, SDL_SWSURFACE);
-	
 	if (screenSurface == NULL) {
 		fprintf(stderr, "Unable to set up video: %s\n", SDL_GetError());
 		exit(1);
@@ -68,58 +100,15 @@ int main(int argc, char** argv) {
 	
 	SDL_WM_SetCaption(GAME_TITLE, NULL);
 	SDL_ShowCursor(SDL_DISABLE);
+
 	
-	Init();
 
-	bool quitProgram = false;
-	while (true) {
-		switch (MainMenu()) {
-			case 0: // Start Game
-				if (Game() == -2) {
-					quitProgram = true;
-				}
-				break;
-			case 1: // Options
-				switch(OptionsMenu(false)) {
-					case -2: // Close window
-						quitProgram = true;
-						break;
-				}
-				break;
-			case -1: // Esc
-			case -2: // Close Window
-			case 2: // Quit
-				quitProgram = true;
-				break;
-		}
-		if (quitProgram) break;	
-	}
-	
-	SaveSettings();
-	DeInit();
-
-	// Wait for sound to finish playing
-	//while(Mix_Playing() != 0) {}
- 
-
-
-	return 0;
-}
-
-
-
-
-
-
-
-void Init() {
-	
-	/*** Graphics ***/
+	/*** Load Graphics ***/
 	LoadFont("font.bmp");
 	LoadTileset(DEFAULT_TILESET);
 
 	
-	/*** Sound ***/
+	/*** Load Sound ***/
 	LoadSound("pickup.wav", 0);
 	LoadSound("setdown.wav", 1);
 	LoadSound("push.wav", 2);
@@ -130,12 +119,12 @@ void Init() {
 	LoadSound("menu_back.wav", 7);
 	LoadSound("win.wav", 8);
 	
-	currentLevel = 0;
-		
-	// Default Game keyboard layout
+	
+	/** Set default game keyboard layout ****/
 	ResetDefaultKeys();
 	
-	// Set the default settings
+	
+	/** Set the default settings ****/
 	option_soundOn = true;
 	option_musicOn = true;
 	option_undoSize = 300;
@@ -145,8 +134,10 @@ void Init() {
 	option_background = 2;
 	option_timerOn = true;
 	option_cameraMode = 0;
+	currentLevel = 0;
 
-	// Load any options found in the settings file
+
+	/** Load any settings found in the settings file ***/
 	LoadSettings();
 }
 
@@ -154,18 +145,24 @@ void Init() {
 
 
 void DeInit() {
-	/*** Clean up surfaces ***/
+	/** Clean up SDL surfaces ****/
 	UnloadTileset();
 	UnloadFont();
 	SDL_FreeSurface(screenSurface);
-	
 
 
-	/*** Clean up SDL_mixer **/
+	/** Clean up SDL_mixer ****/
 	for (int i = 0; i < NUM_SOUNDS; i++) {
 		Mix_FreeChunk(sounds[i]);
 	}
 	
+	// Wait for sound to finish playing
+	//while(Mix_Playing() != 0) {}
+
 	//Mix_FreeMusic(bgMusic);
  	Mix_CloseAudio();
+
+
+	/** Shut down SDL ****/
+	SDL_Quit();
 }

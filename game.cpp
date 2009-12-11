@@ -203,6 +203,15 @@ int Game() {
 				restartLevel = true;
 				break;
 			}
+			
+			// Handle Help key
+			if (gameKeys[7].on == 1) {
+				if (HelpMenu(true) == -2) {
+					quitGame = true;
+					returnVal = -2;
+					break;
+				}
+			}
 
 			/** Set speed of replay ****/
 			if (showingReplay) {
@@ -273,16 +282,6 @@ int Game() {
 							case 0: // Resume Game
 								b = 1;
 								break;
-							case 1: // Options
-								OptionsMenu(true);
-								
-								// Sync the in-game player keymap with the preferences,
-								// in case they changed.
-								RefreshPlayerKeys();
-								break;
-							case 2: // Help
-								// Help();
-								break;
 							case 3: // Restart Level
 								b = 1;
 								showingReplay = false;
@@ -295,7 +294,6 @@ int Game() {
 								stickyPlayer = false;
 								selectingLevel = true;
 								break;
-
 							case -1: // Esc
 								b = 1;
 								break; // Resume the game
@@ -1368,6 +1366,7 @@ char * LoadLevel(uint level) {
 	// "puzzle" game, and not a game of chance.
 	srand(47);
 	
+	delete [] errorMsg;
 	return NULL;
 }
 

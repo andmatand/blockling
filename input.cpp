@@ -495,6 +495,9 @@ void ResetDefaultKeys() {
 	gameKeys[6].sym = SDLK_ESCAPE;	// Quit
 	gameKeys[6].mod = KMOD_NONE;	// modifier
 	
+	gameKeys[7].sym = SDLK_F1;	// Help
+	gameKeys[7].mod = KMOD_NONE;	// modifier
+
 
 
 	/** Default Player keys ****/

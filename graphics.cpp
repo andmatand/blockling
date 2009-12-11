@@ -715,6 +715,7 @@ void UnloadTileset() {
 	SDL_FreeSurface(spikeSurface);
 	for (uint i = 0; i < NUM_PLAYER_SURFACES; i++) {
 		SDL_FreeSurface(playerSurface[i]);
+		SDL_FreeSurface(player2Surface[i]);
 	}
 	for (uint i = 0; i < NUM_BRICK_SURFACES; i++) {
 		SDL_FreeSurface(brickSurface[i]);
