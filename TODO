@@ -5,8 +5,6 @@ possible (without falling off a cliff two blocks high)
 
 -Speech
 
--In-game help
-
 -Replay saving code needs to be rewritten to account for multiple
  players (replays do not currently work on levels with > 1 player)
 
