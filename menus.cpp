@@ -169,29 +169,37 @@ int ControlSetupMenu(bool inGame) {
 
 int Credits() {
 	int y = SCREEN_H; // Position of the scrolling credits
-	char text[512]; // For holding the credits
+	char text[1024]; // For holding the credits
 	uint t = SDL_GetTicks();
 	
-	sprintf(text, "BLOCKMAN\nversion 0.1\n\nCopyright 2009 Andrew Anderson <http://www.billamonster.com>\n\nLicense GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>\n\nThis is free software: you are free to change and redistribute it.  There is NO WARRANTY, to the extent permitted by law.\n\nPROGRAMMING\nAndrew Anderson\n\nSOUND\nAndrew Anderson");
+	sprintf(text, "BLOCKMAN\nversion 0.1\n\nCopyright 2009 Andrew Anderson <http://www.billamonster.com>\n\nLicense GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>\n\nThis is free software: you are free to change and redistribute it.  There is NO WARRANTY, to the extent permitted by law.\n\n\n\nPROGRAMMING\nAndrew Anderson\n\n\n\nSOUND\nAndrew Anderson\n\n\n\nGRAPHICS\nAndrew Anderson\n\n\n\nTESTING\nAubree Dinsfriend\nMatthew Galla\nJeanette Ortiz\n\n\n\nSPECIAL THANKS TO\n\nThe teams behind these open-source projects which made this game possible:\n\nAudacity <http://audacity.sourceforge.net>\n\nDebian <http://www.debian.org>\n\nGeany <http://www.geany.org>\n\nGIMP <http://www.gimp.org>\n\nGNU <http://www.gnu.org>\n\nThe Linux Kernel <http://www.kernel.org>\n\nUbuntu <http://www.ubuntu.com>\n\n\n\nENTERAL THANKS TO\n\nYeshua the Resurrected Messiah");
 	
-	while (y > -(FONT_H * 30)) {
+	while (y > -(FONT_H * 70)) {
 		
 		DrawBackground();
 		DrawText(SCREEN_W / 2, y, text, true, (SCREEN_W * .9), 0, 1);
 		UpdateScreen();
 
-		if (SDL_GetTicks() >= t + 200) {
-			t = SDL_GetTicks();
-			y -= (FONT_H / 2);
-		}
-		
 		switch (MenuInput()) {
+			case 1:
+				y += FONT_H;
+				t = SDL_GetTicks();
+				break;
+			case 2:
+				y -= FONT_H;
+				t = SDL_GetTicks();
+				break;
 			case 8: // Esc
 				return -1;
 				break;
 			case 9: // Close window
 				return -2;
 				break;
+		}
+
+		if (SDL_GetTicks() >= t + 250) {
+			t = SDL_GetTicks();
+			y -= (FONT_H / 2);
 		}
 	}
 	

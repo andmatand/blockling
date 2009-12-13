@@ -237,6 +237,8 @@ int GameInput(char mode) {
 // Move the Non-Playable Characters around
 void NPCInput() {
 	uint i;
+	bool ok;
+	int b;
 	char key;
 	
 	// Turn off all NPC keys
@@ -265,9 +267,13 @@ void NPCInput() {
 				break;
 		}
 		
-		// Don't step off ledges if we can't get back up
-		if (blocks[i].GetDir() == key) { // If this button will cause him to walk and not just change directions
-			printf("NPC: Checking for ledge...\n");
+		/** Look before we step, to make sure it's safe ****/
+		ok = true; // start with the assumption that it's safe
+		// If this button will cause him to walk and not just change directions
+		if (blocks[i].GetDir() == key) {
+			#ifdef DEBUG
+				printf("** NPC %d: Checking for dangerous step...\n", i);
+			#endif
 			
 			int x;
 			if (blocks[i].GetDir() == 0) {	// Facing left
@@ -277,26 +283,33 @@ void NPCInput() {
 				x = blocks[i].GetX() + blocks[i].GetW();
 			}
 			
-			// If there will not be ground immediately below him at the new X position
-			if (BoxContents(x, blocks[i].GetY() + blocks[i].GetH(), TILE_W, TILE_H) == -1) {
+			// Get contents of tile immediately below NPC at the new X position
+			b = BoxContents(x, blocks[i].GetY() + blocks[i].GetH(), TILE_W, TILE_H);
+			// if the tile is empty or a spike
+			if (b == -1 || b == -3) {
+				ok = false; // It's not safe
 				
-				// If there is not a floating telepad on the current Y that he can step on instead of ground
-				if (BoxContents(x, blocks[i].GetY(), TILE_W, TILE_H) != -4) {
-					printf("NPC: I am at (%d, %d) \n", blocks[i].GetX(), blocks[i].GetY());
-					printf("NPC: Checking box (%d, %d) \n", x, blocks[i].GetY() + blocks[i].GetH() + TILE_H);
-					printf("NPC: Box Contents: %d\n", BoxContents(x, blocks[i].GetY() + blocks[i].GetH() + TILE_H, TILE_W, TILE_H));
-					
-					// If there is not something to stand on one space over and two spaces down
-					if (BoxContents(x, blocks[i].GetY() + blocks[i].GetH() + TILE_H, TILE_W, 1) >= -1) {
-						// Cancel the keypress
-						key = -1;
-					}
+				// If there is a floating telepad on the current Y that he can step on instead of ground
+				if (BoxContents(x, blocks[i].GetY(), TILE_W, TILE_H) == -4) {
+					ok = true; // It's safe
+				}
+	
+				// If the tile one space over and two spaces down is safe to stand on
+				b = BoxContents(x, blocks[i].GetY() + blocks[i].GetH() + TILE_H, TILE_W, 1);
+				if (b != -1 && b != -3) { // (not empty or a spike)
+					ok = true; // It's safe
 				}
 			}
 		}
 		
+		#ifdef DEBUG
+			if (ok == false) {
+				printf("** NPC %d: Refrained from dangerous step.\n", i);
+			}
+		#endif
+		
 		// Push whatever key was determined
-		if (key >= 0) {
+		if (key >= 0 && ok) {
 			playerKeys[(i * NUM_PLAYER_KEYS) + key].on = 1;
 		}
 	}
