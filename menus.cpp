@@ -852,12 +852,14 @@ int SelectLevelMenu() {
 		
 		switch (action) {
 			case 1: // Enter
-				switch (lvlMenu.GetSel()) {
-					case 0:
-					case 1:
-						delete [] levelError;
-						return lvlMenu.GetSel();
-						break;
+				if (levelError == NULL) {
+					switch (lvlMenu.GetSel()) {
+						case 0:
+						case 1:
+							delete [] levelError;
+							return lvlMenu.GetSel();
+							break;
+					}
 				}
 				break;
 			case 3: // Left
