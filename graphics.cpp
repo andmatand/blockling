@@ -943,7 +943,7 @@ void Render (const char flag) {
 	else {
 		levelTextX -= FPS * 2;
 		if (levelTextX < 10) levelTextX = 10;
-		DrawText(levelTextX, SCREEN_H - FONT_H - 4, message, 0, 1);
+		DrawText(levelTextX, SCREEN_H - FONT_H - 4, message, 1);
 		
 		// Determine position of "Replay"
 		i = levelTextX + GetTextW(message, 0) + FONT_W;
@@ -953,7 +953,7 @@ void Render (const char flag) {
 	/** Draw Replay Notification ****/
 	if (showingReplay) {
 		sprintf(message, "Replay");
-		DrawText(i, SCREEN_H - FONT_H - 4, message, 0, 1);
+		DrawText(i, SCREEN_H - FONT_H - 4, message, 1);
 	}
 
 
@@ -967,7 +967,7 @@ void Render (const char flag) {
 				timerPos += FPS;
 				if (timerPos > 76) timerPos = 76;
 			}
-			DrawText(SCREEN_W - timerPos, SCREEN_H - FONT_H - 4, message, 0, 1);
+			DrawText(SCREEN_W - timerPos, SCREEN_H - FONT_H - 4, message, 1);
 		}
 		else {
 			timerPos = 0;

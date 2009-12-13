@@ -114,7 +114,12 @@ int Game() {
 				if (LoadLevel(currentLevel) != NULL) {
 					fprintf(stderr, "Error: Loading level %d failed.\n", currentLevel);
 	
-					currentLevel = 0;
+					if (currentLevel == 0) {
+						return -1;
+					}
+					else {
+						currentLevel = 0;
+					}
 					continue;
 				}
 				break;

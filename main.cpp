@@ -38,19 +38,25 @@ int main(int argc, char** argv) {
 		switch (MainMenu()) {
 			case 0: // Start Game
 				if (Game() == -2) {
+					// Close window
 					quitProgram = true;
 				}
 				break;
 			case 1: // Options
-				switch(OptionsMenu(false)) {
-					case -2: // Close window
-						quitProgram = true;
-						break;
+				if (OptionsMenu(false) == -2) {
+					// Close window
+					quitProgram = true;
+				}
+				break;
+			case 2: // Credits
+				if (Credits() == -2) {
+					// Close window
+					quitProgram = true;
 				}
 				break;
 			case -1: // Esc
 			case -2: // Close Window
-			case 2: // Quit
+			case 3: // Quit
 				quitProgram = true;
 				break;
 		}

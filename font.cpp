@@ -26,7 +26,6 @@ int GetTextW(char *text, int spacing) {
 	//const int tW = FONT_W * 4; // Tab Width
 	
 	int w = 0;
-	int lW = 0; // The current line's width
 	int c;
 	
 	for (uint i = 0; i < static_cast<unsigned int>(strlen(text)); i++) {
@@ -34,10 +33,7 @@ int GetTextW(char *text, int spacing) {
 		
 		// Line break
 		if (c == '\n') {
-			lW = 0;
-			
-			// Go to next character
-			continue;
+			return w;
 		}
 
 		// Tab
@@ -58,18 +54,16 @@ int GetTextW(char *text, int spacing) {
 
 		switch (c) {
 			case -1: // Space (32)
-				lW += FONT_W + spacing;
+				w += FONT_W + spacing;
 				break;
 			default:
-				lW += font[c].w;
+				w += font[c].w;
 				
 				// If this is not the last character, add a bit of space
-				if ((i + 1) != static_cast<unsigned int>(strlen(text))) lW += 2 + spacing;
+				if ((i + 1) != static_cast<unsigned int>(strlen(text))) w += 2 + spacing;
 				
 				break;
 		}
-		
-		if (lW > w) w = lW;
 	}
 	
 	return w;
@@ -209,12 +203,22 @@ void UnloadFont() {
 
 
 
-void DrawText(int x, int y, char *text, int spacing, int color) {
-	const int tW = FONT_W * 4; // Tab Width
-	int x2 = x;
-	int c;
+// Provides an additional, more simple text function for places that
+// don't need a bunch of fancy stuff
+void DrawText(int x, int y, char *text, int color) {
+	DrawText(x, y, text, false, 0, 0, color);
+}
 
-	// Guard against invalid color values
+void DrawText(int x, int y, char *text, bool centered, int wrapWidth, int spacing, int color) {
+	const int tW = FONT_W * 4; // Tab Width
+	int x2;
+	int c; // current character
+	int n;
+	bool ok;
+	char *temp;
+	uint nextBreak = 0; // The next string position at which we must do a linebreak
+
+	/** Guard against invalid color values ****/
 	if (color < 0) color = 0;
 	if (color > static_cast<int>(NUM_FONT_COLORS) - 1) color = NUM_FONT_COLORS - 1;
 	
@@ -222,12 +226,115 @@ void DrawText(int x, int y, char *text, int spacing, int color) {
 		c = text[i];
 		
 		// Line break
-		if (c == '\n') {
-			y += FONT_H + 2;
-			x2 = x;
+		if (c == '\n' || i == nextBreak) {
+			if (c == '\n') y += FONT_H + 2;
 			
-			// Go to next character
-			continue;
+			if (centered) {
+				x2 = x - (GetTextW(text + i, spacing) / 2);
+			}
+			else {
+				x2 = x;
+			}
+			
+			// If the reason for this linebreak is word-wrap (or the first character positioning)
+			if (i == nextBreak && wrapWidth > 0 && c != '\n') {
+				if (i > 0) {
+					if (text[i - 1] != '\n') y += FONT_H + 2;
+				}
+				
+				ok = true; // assume the line will fit
+				if (centered) {
+					if ((x + (GetTextW(text + i, spacing) / 2)) - (x - (GetTextW(text + i, spacing) / 2)) > wrapWidth) {
+						ok = false;  // the line will not fit
+					}
+				}
+				else {
+					// If the rest of the text won't fit on this line
+					if (x + GetTextW(text + i, spacing) > x + (wrapWidth - 1)) {
+						ok = false;  // the line will not fit
+					}
+				}	
+				
+				// If the line will not fit
+				if (ok == false) {
+					n = 0; // current temp string length
+					while (true) {
+						/** Find position of next space ***/
+						if (strchr(text + i + n + 1, ' ') == NULL) {
+							break;
+						}
+						else {
+							n = static_cast<int>(strchr(text + i + n + 1, ' ') - text) - i;
+						}
+						
+						/** Fill temp with the current line up to (but not including) the next space ***/
+						temp = new char[n + 1];
+						strncpy(temp, text + i, n);
+						temp[n] = '\0';
+						
+						
+						/** Check if temp will fit within the wrapWidth ****/
+						ok = false; // assume it won't fit
+						if (centered) {
+							if ((x + (GetTextW(temp, spacing) / 2)) - (x - (GetTextW(temp, spacing) / 2)) <= wrapWidth)
+								ok = true; // it will fit
+						}
+						else {
+							if (x + GetTextW(temp, spacing) <= x + (wrapWidth - 1))
+								ok = true; // it will fit
+						}
+						
+						if (ok) { // If temp will fit so far
+							nextBreak = i + n;
+							if (text[nextBreak] == ' ') nextBreak ++;
+
+							// Set the x here
+							if (centered) {
+								x2 = x - (GetTextW(temp, spacing) / 2);
+							}
+						}
+						else { // if temp will not fit, stop here (use the previous nextBreak)
+							delete [] temp;
+							temp = NULL;
+							
+							break;
+						}
+						
+						delete [] temp;
+						temp = NULL;
+					}
+				}
+			}
+			else { // This line break is caused by a '\n' character
+				/** Set the next line's x position based on whether or not the text is centered ****/
+				if (centered) {
+					// If this is not the last character
+					if (strlen(text) != i + 1) {
+						/** Find and store the next line of text ****/
+						if (strchr(text + i + 1, '\n') != NULL) {
+							n = static_cast<int>(strchr(text + i + 1, '\n') - text) - i; // length of next line
+						}
+						else {
+							n = static_cast<int>(strlen(text + i + 1)); // length of next line
+						}
+						temp = new char[n + 1]; // make temp the right size
+						strncpy(temp, text + i, n); // copy the line into temp
+						temp[n] = '\0'; // Append null terminator
+						
+						// Use the line's width to determine the starting x position
+						x2 = x - (GetTextW(temp, spacing) / 2);
+						
+						delete [] temp;
+						temp = NULL;
+					}
+				}
+			}
+						
+			// Go to next character if this is really a linebreak
+			if (c == '\n') {
+				nextBreak = i + 1;
+				continue;
+			}
 		}
 		
 		// Tab

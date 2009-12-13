@@ -21,6 +21,8 @@
 
 
 /*** Function Prototypes ***/
+int ControlSetupMenu(bool inGame);
+int Credits();
 int EndOfLevelMenu();
 int HelpMenu(bool inGame);
 int MainMenu();
@@ -252,12 +254,12 @@ void menu::Display() {
 
 
 	if (title != NULL) {
-		DrawText(titleX, titleY, title, titleLetterSpacing, 3);
+		DrawText(titleX, titleY, title, false, 0, titleLetterSpacing, 3);
 	}
 	for (uint i = 0; i < numItems; i++) {
 		// Draw the item's text
 		if (items[i].GetText() != NULL) {
-			DrawText(items[i].GetX(), items[i].GetY(), items[i].GetText(), 0,
+			DrawText(items[i].GetX(), items[i].GetY(), items[i].GetText(), false, 0, 0,
 				(i == static_cast<uint>(sel)) ? 2 : 1);
 		}
 	
@@ -268,14 +270,14 @@ void menu::Display() {
 				x = items[i].GetX() - (FONT_W * 2);
 				
 				sprintf(arrow, "<");
-				DrawText(x, items[i].GetY(), arrow, 0, 2);
+				DrawText(x, items[i].GetY(), arrow, 2);
 			}
 		
 			if (arrowFlash && items[i].GetRightArrow()) {
 				x = items[i].GetX() + GetTextW(items[i].GetText(), 0) + FONT_W;
 				
 				sprintf(arrow, ">");
-				DrawText(x, items[i].GetY(), arrow, 0, 2);
+				DrawText(x, items[i].GetY(), arrow, 2);
 			}
 		}
 	}	

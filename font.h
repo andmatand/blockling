@@ -21,7 +21,8 @@
 
 
 /*** Function Prototypes ***/
-void DrawText(int x, int y, char *text, int spacing, int color);
+void DrawText(int x, int y, char *text, bool centered, int wrapWidth, int spacing, int color);
+void DrawText(int x, int y, char *text, int color);
 int GetTextW(char *text, int spacing);
 
 

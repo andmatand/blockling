@@ -167,10 +167,47 @@ int ControlSetupMenu(bool inGame) {
 
 
 
+int Credits() {
+	int y = SCREEN_H; // Position of the scrolling credits
+	char text[512]; // For holding the credits
+	uint t = SDL_GetTicks();
+	
+	sprintf(text, "BLOCKMAN\nversion 0.1\n\nCopyright 2009 Andrew Anderson <http://www.billamonster.com>\n\nLicense GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>\n\nThis is free software: you are free to change and redistribute it.  There is NO WARRANTY, to the extent permitted by law.\n\nPROGRAMMING\nAndrew Anderson\n\nSOUND\nAndrew Anderson");
+	
+	while (y > -(FONT_H * 30)) {
+		
+		DrawBackground();
+		DrawText(SCREEN_W / 2, y, text, true, (SCREEN_W * .9), 0, 1);
+		UpdateScreen();
+
+		if (SDL_GetTicks() >= t + 200) {
+			t = SDL_GetTicks();
+			y -= (FONT_H / 2);
+		}
+		
+		switch (MenuInput()) {
+			case 8: // Esc
+				return -1;
+				break;
+			case 9: // Close window
+				return -2;
+				break;
+		}
+	}
+	
+	return 0;
+}
+
+
+
+
 int HelpMenu(bool inGame) {
 	int numItems = 1;
 	menu helpMenu(numItems); // Create the menu object
 	char text[256]; // Hold the help text
+	
+	int x1 = (SCREEN_W / 2) - (FONT_W * 18); // Position of titles
+	int x2 = (SCREEN_W / 2) - (FONT_W * 17); // Position of body text
 	
 	int action;
 	
@@ -193,20 +230,20 @@ int HelpMenu(bool inGame) {
 
 		/** Show the help text ****/
 		sprintf(text, "How to Play:");
-		DrawText((SCREEN_W / 2) - (FONT_W * 18), (FONT_H + 2) * 2, text, 0, 3);
-		sprintf(text, "Pick up blocks and stack them to get\nto the exit!  BLOCKMAN can only climb\nup steps one block high.");
-		DrawText((SCREEN_W / 2) - (FONT_W * 17), (FONT_H + 2) * 3, text, 0, 1);
+		DrawText(x1, (FONT_H + 2) * 2, text, 3);
+		sprintf(text, "Pick up blocks and stack them to get to the exit!  BLOCKMAN can only climb up steps one block high.");
+		DrawText(x2, (FONT_H + 2) * 3, text, false, static_cast<int>(SCREEN_W * .9) - x2, 0, 1);
 
 		sprintf(text, "In-Game Controls:");
-		DrawText((SCREEN_W / 2) - (FONT_W * 18), (FONT_H + 2) * 7, text, 0, 3);
+		DrawText(x1, (FONT_H + 2) * 7, text, 3);
 		
-		sprintf(text, "Esc\t\t\tShow the pause menu\nF1\t\t\tShow help\nF5\t\t\tRestart the level\nPAGE UP/DOWN\tChange the tileset\n(See CONTROL SETUP in the OPTIONS\nmenu to set the movement controls)");
-		DrawText((SCREEN_W / 2) - (FONT_W * 17), (FONT_H + 2) * 8, text, 0, 1);
+		sprintf(text, "Esc\t\t\tShow the pause menu\nF1\t\t\tShow help\nF5\t\t\tRestart the level\nPAGE UP/DOWN\tChange the tileset\n(See CONTROL SETUP in the OPTIONS menu to set the movement controls)");
+		DrawText(x2, (FONT_H + 2) * 8, text, false, static_cast<int>(SCREEN_W * .9) - x2, 0, 1);
 
 		sprintf(text, "Global Keyboard Shortcuts:");
-		DrawText((SCREEN_W / 2) - (FONT_W * 18), (FONT_H + 2) * 15, text, 0, 3);
+		DrawText(x1, (FONT_H + 2) * 15, text, 3);
 		sprintf(text, "F2\t\t\tToggle music ON/OFF\nF3\t\t\tToggle sound ON/OFF\nAlt + Enter\tToggle fullscreen mode");
-		DrawText((SCREEN_W / 2) - (FONT_W * 17), (FONT_H + 2) * 16, text, 0, 1);
+		DrawText(x2, (FONT_H + 2) * 16, text, 1);
 
 		UpdateScreen();
 		
@@ -237,16 +274,18 @@ int HelpMenu(bool inGame) {
 
 
 int MainMenu() {
-	int numItems = 3;
+	int numItems = 4;
 	menu mainMenu(numItems);
 	
 	mainMenu.SetTitle(GAME_TITLE);
 	mainMenu.NameItem(0, "Play");
 	mainMenu.NameItem(1, "Options");
-	mainMenu.NameItem(2, "Quit");
+	mainMenu.NameItem(2, "Credits");
+	mainMenu.NameItem(3, "Quit");
 	
 	mainMenu.Move(75, FONT_H * 7);
 	mainMenu.AutoArrange(0);
+	mainMenu.SpaceItems(3);
 	
 	int action;
 	
@@ -390,7 +429,7 @@ int OptionsMenu(bool inGame) {
 		// If the "replays" or "undo" options are selected
 		if (inGame && (optMenu.GetSel() == 3 || optMenu.GetSel() == 6)) {
 			sprintf(text, "Note: This setting will not take effect\nuntil a new level is loaded.");
-			DrawText((SCREEN_W / 2) - (GetTextW(text, 0) / 2), FONT_H * 20, text, 0, 1);
+			DrawText((SCREEN_W / 2) - (GetTextW(text, 0) / 2), FONT_H * 20, text, 1);
 		}
 		UpdateScreen();
 		
@@ -791,8 +830,8 @@ int SelectLevelMenu() {
 		}
 		else {
 			DrawBackground();
-			sprintf(text, "Syntax errors exist in the level file:\n\n%s\nPlease fix the errors and try\nselecting the level again.", levelError);
-			DrawText(FONT_W * 3, FONT_H * 3, text, 0, 1);
+			sprintf(text, "Syntax errors exist in the level file:\n\n%s\nPlease fix the errors and try selecting the level again.", levelError);
+			DrawText(FONT_W * 3, FONT_H * 3, text, false, (SCREEN_W * .9) - (FONT_W * 3), 0, 1);
 		}
 		lvlMenu.AutoArrange(static_cast<char>(1));
 		
