@@ -1,7 +1,5 @@
 /*
- *   sound.cpp
- *	  
- *   Copyright 2009 Andrew Anderson <billamonster.com>
+ *   Copyright 2009 Andrew Anderson <www.billamonster.com>
  *	  
  *   This file is part of Blockman.
  *

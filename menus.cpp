@@ -1,7 +1,5 @@
 /*
- *   menu.cpp
- *      
- *   Copyright 2009 Andrew Anderson <billamonster.com>
+ *   Copyright 2009 Andrew Anderson <www.billamonster.com>
  *      
  *   This file is part of Blockman.
  *
@@ -172,7 +170,7 @@ int Credits() {
 	char text[1024]; // For holding the credits
 	uint t = SDL_GetTicks();
 	
-	sprintf(text, "BLOCKMAN\nversion 0.1\n\nCopyright 2009 Andrew Anderson <http://www.billamonster.com>\n\nLicense GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>\n\nThis is free software: you are free to change and redistribute it.  There is NO WARRANTY, to the extent permitted by law.\n\n\n\nPROGRAMMING\nAndrew Anderson\n\n\n\nSOUND\nAndrew Anderson\n\n\n\nGRAPHICS\nAndrew Anderson\n\n\n\nTESTING\nAubree Dinsfriend\nMatthew Galla\nJeanette Ortiz\n\n\n\nSPECIAL THANKS TO\nThe teams behind these open-source projects which made this game possible:\n\nAudacity <http://audacity.sourceforge.net>\n\nDebian <http://www.debian.org>\n\nGeany <http://www.geany.org>\n\nGIMP <http://www.gimp.org>\n\nGNU <http://www.gnu.org>\n\nThe Linux Kernel <http://www.kernel.org>\n\nUbuntu <http://www.ubuntu.com>\n\n\n\nETERNAL THANKS TO\nYeshua the Resurrected Messiah");
+	sprintf(text, "BLOCKMAN\nversion 0.1\n\nCopyright 2009 Andrew Anderson <http://www.billamonster.com>\n\nThis is free software, and you are welcome to change and redistribute it under the conditions of the GNU General Public License (GPL) version 3 or later <http://gnu.org/licenses/gpl.html>.  There is NO WARRANTY, to the extent permitted by law.\n\n\nPROGRAMMING\nAndrew Anderson\n\n\nSOUND\nAndrew Anderson\n\n\nGRAPHICS\nAndrew Anderson\n\n\nTESTING\nAubree Dinsfriend\nMatthew Galla\nJeanette Ortiz\nJeTSpice <http://jetspicegames.com/>\n\n\nBASED ON AN ORIGINAL CONCEPT\nfound in\nBLOCK-MAN 1\nCopyright 1993 Soleau Software <http://www.soleau.com>\n\n\nSPECIAL THANKS TO\nthe teams behind the free/open-source projects which made this game possible:\n\nAudacity <http://audacity.sourceforge.net>\nDebian <http://www.debian.org>\nGeany <http://www.geany.org>\nGIMP <http://www.gimp.org>\nGNU <http://www.gnu.org>\nThe Linux Kernel <http://www.kernel.org>\nSDL <http://www.libsdl.org>\nUbuntu <http://www.ubuntu.com>\n\n\nETERNAL THANKS TO\nYeshua the Resurrected Messiah");
 	
 	while (y > -(FONT_H * 70)) {
 		

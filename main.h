@@ -1,7 +1,5 @@
 /*
- *   main.h
- *      
- *   Copyright 2009 Andrew Anderson <billamonster.com>
+ *   Copyright 2009 Andrew Anderson <www.billamonster.com>
  *      
  *   This file is part of Blockman.
  *
@@ -132,7 +130,7 @@ void DeInit();
 #include "physics.h"
 #include "settings.h"
 #include "replay.h"
-
+#include "speech.h"
 
 
 
@@ -283,3 +281,4 @@ telepad **undoTelepads = NULL;	// Needs telepad class
 #include "physics.cpp"
 #include "sound.cpp"
 #include "settings.cpp"
+#include "speech.cpp"

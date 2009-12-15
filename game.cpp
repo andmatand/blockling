@@ -1,7 +1,5 @@
 /*
- *   game.cpp
- *
- *   Copyright 2009 Andrew Anderson <billamonster.com>
+ *   Copyright 2009 Andrew Anderson <www.billamonster.com>
  *
  *   This file is part of Blockman.
  *
@@ -73,6 +71,7 @@ int Game() {
 	bool restartLevel = false;
 	uint oldLevel = currentLevel;
 	uint wonLevelTimer = 0;
+	uint telepadErrorMessageTimer;
 
 	cameraXVel = 0;
 	cameraYVel = 0;
@@ -99,6 +98,7 @@ int Game() {
 		levelTime = 0;
 		levelTimeRunning = false;
 		physicsStarted = false;
+		telepadErrorMessageTimer = 1;
 
 		// Don't sync the real undo memory size with the
 		// (possibly changed) option if we are doing a replay
@@ -545,6 +545,13 @@ int Game() {
 							playerBlock[i] = b; // Player can't move until this block stops moving
 							pushedKey = true; // Now player can't push other buttons this frame
 						}
+						else {
+							// Check if there is an ungrabbable block
+							if (BlockNumber(x, blocks[i].GetY() + (blocks[i].GetH() - 1), 1, 1) >= 0) {
+								Speak(0, "I can't get a grip on the bottom of it.");
+								Speak(0, "My arms aren't very long, after all.");
+							}
+						}
 					}
 					
 					if (pushedKey == false && recordingReplay && levelTimeRunning && wonLevel < 2) {
@@ -720,6 +727,7 @@ int Game() {
 			DrawBackground();
 
 			/*** Do Telepads (including teleportation animation) ***/
+			j = 0; // Player One is not standing on blinking red telepad
 			for (i = 0; i < numTelepads; i++) {
 				// If the telpad is currently in the process of teleporting something
 				// OR the telepad needs to teleport
@@ -729,7 +737,26 @@ int Game() {
 				else if (telepads[i].NeedsToTeleport()) {
 					telepads[i].Teleport();
 				}
+				// If the telepad is waiting to teleport (flashing red)
+				else if (telepads[i].GetState() == 1) {
+					if (telepads[i].GetOccupant1() == 0 || telepads[i].GetOccupant2() == 0) {
+						if (telepadErrorMessageTimer > 0) {
+							j = 1; // Player One is standing on a blinking red telepad
+							
+							// If the variable is still at its initial value
+							if (telepadErrorMessageTimer == 1) {
+								telepadErrorMessageTimer = SDL_GetTicks();
+							}
+							if (SDL_GetTicks() > telepadErrorMessageTimer + 500) {
+								telepadErrorMessageTimer = 0; // prevent this message for the rest of this level
+								Speak(0, "There must be something blocking the other telepad.");
+							}
+						}
+					}
+				}
 			}
+			// If the player is not standing on a blinking red telepad, reset the message timer
+			if (j == 0 && telepadErrorMessageTimer != 0) telepadErrorMessageTimer = 1;
 			
 			/** Render **/
 			if (showingReplay) {

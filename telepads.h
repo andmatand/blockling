@@ -1,7 +1,5 @@
 /*
- *   telepads.h
- *	  
- *   Copyright 2009 Andrew Anderson <billamonster.com>
+ *   Copyright 2009 Andrew Anderson <www.billamonster.com>
  *	  
  *   This file is part of Blockman.
  *
@@ -45,6 +43,7 @@ class telepad {
 		int GetY1() const { return y1; };
 		int GetX2() const { return x2; };
 		int GetY2() const { return y2; };
+		char GetState() const { return state; };
 		bool GetTeleporting() const { return teleporting; };
 
 		int GetOccupant1(); // Returns which block is currently on the first telepad

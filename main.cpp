@@ -1,7 +1,5 @@
 /*
- *   main.cpp
- *      
- *   Copyright 2009 Andrew Anderson <billamonster.com>
+ *   Copyright 2009 Andrew Anderson <www.billamonster.com>
  *      
  *   This file is part of Blockman.
  *
@@ -151,11 +149,13 @@ void Init() {
 
 
 void DeInit() {
+	/** Free speech bubble memory ****/
+	delete [] bubbles;
+	
 	/** Clean up SDL surfaces ****/
 	UnloadTileset();
 	UnloadFont();
 	SDL_FreeSurface(screenSurface);
-
 
 	/** Clean up SDL_mixer ****/
 	for (int i = 0; i < NUM_SOUNDS; i++) {

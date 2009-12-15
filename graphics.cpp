@@ -1,7 +1,5 @@
 /*
- *   graphics.cpp
- *	  
- *   Copyright 2009 Andrew Anderson <billamonster.com>
+ *   Copyright 2009 Andrew Anderson <www.billamonster.com>
  *	  
  *   This file is part of Blockman.
  *
@@ -117,8 +115,6 @@ void block::Animate() {
 			face = 2;
 		}
 	}
-	
-	// Talking
 }	
 
 
@@ -894,6 +890,9 @@ void Render (const char flag) {
 		stickyPlayerY = blocks[0].GetY() - cameraY;
 	}
 
+	// Move mouths of speaking players
+	if (flag & 0b00000100) AnimateSpeech();
+	
 	for (i = 0; i < numBlocks; i++) {
 		if (blocks[i].GetType() >= 0) {
 			if (flag & 0b00000100) blocks[i].Animate();
@@ -930,6 +929,8 @@ void Render (const char flag) {
 	//UnlockSurface(screenSurface);
 	//PutPixel(screenSurface, cameraX + 10, cameraY + 10, SDL_MapRGB(screenSurface->format, 0x00, 0xff, 0x00));
 
+	/** Draw any Speech "Bubbles" above players' heads *****/
+	DrawBubbles((flag & 0b00000100) ? true : false);
 
 	char message[128];
 	

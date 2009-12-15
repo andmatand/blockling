@@ -1,7 +1,5 @@
 /*
- *   font.cpp
- *      
- *   Copyright 2009 Andrew Anderson <billamonster.com>
+ *   Copyright 2009 Andrew Anderson <www.billamonster.com>
  *      
  *   This file is part of Blockman.
  *
@@ -68,6 +66,66 @@ int GetTextW(char *text, int spacing) {
 	
 	return w;
 }
+
+
+
+int GetTextH(char *text, int wrapWidth, int spacing) {
+	if (text == NULL) return 0;
+	
+	int h = 1; // height (in number of lines of text)
+	int lineW = 0; // width of the current line
+	int wordW = 0; // width of the current word
+	int c; // holds current character
+	
+	for (uint i = 0; i < static_cast<unsigned int>(strlen(text)); i++) {
+		c = text[i];
+		
+		// Line break
+		if (c == '\n') {
+			// Increase the height by one line			
+			h += 1;
+
+			// Increase the height by the number of lines
+			// this text will take up (rounding up)
+			h += int((wrapWidth / lineW) + .5);
+			
+			lineW = 0;
+			wordW = 0;
+		}
+		else if (c != '\t') {
+			if (c == ' ') {
+				// if the previous character was also a space
+				if (i > 0 && text[i - 1] == ' ') {
+					// count this space
+					lineW += FONT_W + spacing;
+				}
+				
+				lineW += wordW;
+				wordW = 0;
+			}
+			else {
+				wordW += font[c - 33].w;
+
+				// If this is not the last character, add a bit of space
+				if ((i + 1) != static_cast<unsigned int>(strlen(text))) wordW += 2 + spacing;
+			}
+		}
+	}
+	
+	if (lineW > 0) {
+		// Increase the height by the number of lines
+		// this text will take up (rounding up)
+		//double f = (staticlineW / wrapWidth) + .5;
+		//h += static_cast<int>(f);
+		h += int((double(lineW) / double(wrapWidth)) + .5);
+	}
+
+	// convert h from number of lines to the actual height in pixels
+	h = (h * FONT_H) + ((h - 1) * 2);
+	
+	return h;
+}
+
 
 
 void LoadFont(const char *file) {
