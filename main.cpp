@@ -149,8 +149,9 @@ int Init() {
 
 
 void DeInit() {
-	/** Free speech bubble memory ****/
+	/** Free speech bubble-related memory ****/
 	delete [] bubbles;
+	delete [] triggers;
 	
 	/** Clean up SDL surfaces ****/
 	UnloadTileset();
