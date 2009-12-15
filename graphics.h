@@ -34,6 +34,7 @@ void PutPixel(SDL_Surface *surface, int x, int y, Uint32 pixel);
 void Render(char flag);
 void SetCameraTargetBlock(uint b);
 SDL_Surface* TileSurface(char *path, const char *file, bool transparent);
+void ToggleFullscreen();
 void UnlockSurface(SDL_Surface *surf);
 void UnloadTileset();
 void UpdateScreen();

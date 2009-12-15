@@ -22,6 +22,7 @@
 /*** Function Prototypes ***/
 void CameraInput(SDL_Event event);
 int GameInput(char mode);
+const char* KeyName(SDLKey sym);
 char MenuInput();
 void NPCInput();
 void ReplayInput(SDL_Event event);

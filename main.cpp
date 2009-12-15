@@ -22,14 +22,7 @@
 
 
 int main(int argc, char** argv) {
-	
-	// Initialize SDL
-	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {
-		fprintf(stderr, "Unable to init SDL: %s\n", SDL_GetError());
-		exit(1);
-	}
-
-	Init();
+	if (Init() != 0) return 1;
 
 	bool quitProgram = false;
 	while (quitProgram == false) {
@@ -72,7 +65,33 @@ int main(int argc, char** argv) {
 
 
 
-void Init() {
+int Init() {
+	/** Set default game keyboard layout ****/
+	ResetDefaultKeys();
+	
+	/** Set the default settings ****/
+	option_soundOn = true;
+	option_musicOn = true;
+	option_undoSize = 300;
+	option_levelSet = 0;
+	option_replayOn = true;
+	option_replaySpeed = 2;
+	option_background = 2;
+	option_timerOn = true;
+	option_cameraMode = 0;
+	option_fullscreen = false;
+	currentLevel = 0;
+
+	/** Load any settings found in the settings file ***/
+	LoadSettings();
+	
+
+	/** Initialize SDL ****/
+	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {
+		fprintf(stderr, "Unable to init SDL: %s\n", SDL_GetError());
+		exit(1);
+	}
+
 	/** Initialize SDL_mixer ****/
 	if (Mix_OpenAudio(22050, AUDIO_S16SYS, 2, 1024) < 0) {
     		printf("Error initializing SDL_mixer: %s\n", Mix_GetError());
@@ -96,7 +115,7 @@ void Init() {
 
 
 	/** Initialize SDL Video ****/
-	screenSurface = SDL_SetVideoMode(SCREEN_W, SCREEN_H, SCREEN_BPP, SDL_SWSURFACE);
+	screenSurface = SDL_SetVideoMode(SCREEN_W, SCREEN_H, SCREEN_BPP, SDL_HWSURFACE | (option_fullscreen ? SDL_FULLSCREEN : 0));
 	if (screenSurface == NULL) {
 		fprintf(stderr, "Unable to set up video: %s\n", SDL_GetError());
 		exit(1);
@@ -123,26 +142,7 @@ void Init() {
 	LoadSound("menu_back.wav", 7);
 	LoadSound("win.wav", 8);
 	
-	
-	/** Set default game keyboard layout ****/
-	ResetDefaultKeys();
-	
-	
-	/** Set the default settings ****/
-	option_soundOn = true;
-	option_musicOn = true;
-	option_undoSize = 300;
-	option_levelSet = 0;
-	option_replayOn = true;
-	option_replaySpeed = 2;
-	option_background = 2;
-	option_timerOn = true;
-	option_cameraMode = 0;
-	currentLevel = 0;
-
-
-	/** Load any settings found in the settings file ***/
-	LoadSettings();
+	return 0;
 }
 
 

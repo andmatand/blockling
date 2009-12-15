@@ -117,7 +117,7 @@ int stickyPlayerOrigX, stickyPlayerOrigY; // The player's game coordinates
 
 /******* HEADER INCLUDES *******/
 /* main.cpp */
-void Init();
+int Init();
 void DeInit();
 
 #include "blocks.h"

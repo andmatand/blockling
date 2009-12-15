@@ -36,19 +36,7 @@ void GlobalInput(SDL_Event event) {
 				// Toggle fullscreen
 				case SDLK_RETURN:
 					if (event.key.keysym.mod & KMOD_LALT || event.key.keysym.mod & KMOD_RALT) {
-						#ifdef _WIN32
-							printf("Windows fullscreen toggle\n");
-							//SDL_FreeSurface(screenSurface);
-							screenSurface = SDL_SetVideoMode(screenSurface->w,
-									screenSurface->h,
-									screenSurface->format->BitsPerPixel,
-									SDL_HWSURFACE |
-										((screenSurface->flags & SDL_FULLSCREEN) ? 0 : SDL_FULLSCREEN) |
-										SDL_ANYFORMAT
-										);
-						#else
-							printf("fullscreen toggle: %d\n", SDL_WM_ToggleFullScreen(screenSurface));
-						#endif
+						ToggleFullscreen();
 					}
 					break;
 				

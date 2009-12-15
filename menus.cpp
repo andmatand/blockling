@@ -320,7 +320,7 @@ int MainMenu() {
 
 
 int OptionsMenu(bool inGame) {
-	int numItems = 9;
+	int numItems = 10;
 	menu optMenu(numItems); // Create the menu object
 	char text[70]; // For temporarily holding menu items' text as it is formed
 	
@@ -336,8 +336,8 @@ int OptionsMenu(bool inGame) {
 	/** Set static menu items **/
 	optMenu.Move(inGame ? SCREEN_W / 2 : 75, FONT_H * 5);
 	optMenu.SetTitle("OPTIONS");
-	optMenu.NameItem(7, "Control Setup");
-	optMenu.NameItem(8, "Done");
+	optMenu.NameItem(8, "Control Setup");
+	optMenu.NameItem(9, "Done");
 
 	while (true) {
 		/** Set dynamic menu items' text *****************/
@@ -376,6 +376,15 @@ int OptionsMenu(bool inGame) {
 		optMenu.SetRightArrow(3, (option_replayOn < 1));
 
 
+		// Determine Fullscreen on/off text
+		sprintf(text, "Fullscreen: ");
+		strcat(text, (option_fullscreen ? "ON" : "OFF"));
+		optMenu.NameItem(4, text);
+
+		optMenu.SetLeftArrow(4,	(option_fullscreen > 0));
+		optMenu.SetRightArrow(4, (option_fullscreen < 1));
+
+
 		// Determine Camera Setting text
 		sprintf(text, "Camera: ");
 		switch (option_cameraMode) {
@@ -386,10 +395,10 @@ int OptionsMenu(bool inGame) {
 				strcat(text, "MANUAL");
 				break;
 		}
-		optMenu.NameItem(4, text);
+		optMenu.NameItem(5, text);
 
-		optMenu.SetLeftArrow(4, (option_cameraMode > 0));
-		optMenu.SetRightArrow(4, (option_cameraMode < maxCameraMode));
+		optMenu.SetLeftArrow(5, (option_cameraMode > 0));
+		optMenu.SetRightArrow(5, (option_cameraMode < maxCameraMode));
 
 
 		// Determine Background text
@@ -405,19 +414,19 @@ int OptionsMenu(bool inGame) {
 				strcat(text, "SCROLLING");
 				break;
 		}
-		optMenu.NameItem(5, text);
+		optMenu.NameItem(6, text);
 
-		optMenu.SetLeftArrow(5, (option_background > 0));
-		optMenu.SetRightArrow(5, (option_background < maxBackground));
+		optMenu.SetLeftArrow(6, (option_background > 0));
+		optMenu.SetRightArrow(6, (option_background < maxBackground));
 
 
 		// Determine Undo text
 		sprintf(text, "Undo Memory: %d move", option_undoSize);
 		if (option_undoSize != 1) strcat(text, "s");
-		optMenu.NameItem(6, text);
+		optMenu.NameItem(7, text);
 		
-		optMenu.SetLeftArrow(6,	(option_undoSize > 0));
-		optMenu.SetRightArrow(6, (option_undoSize < maxUndoSize));
+		optMenu.SetLeftArrow(7,	(option_undoSize > 0));
+		optMenu.SetRightArrow(7, (option_undoSize < maxUndoSize));
 		
 
 		
@@ -460,6 +469,9 @@ int OptionsMenu(bool inGame) {
 						option_replayOn = (option_replayOn ? false : true);
 						break;
 					case 4:
+						ToggleFullscreen();
+						break;
+					case 5:
 						if (option_cameraMode < maxCameraMode) {
 							option_cameraMode++;
 						}
@@ -467,7 +479,7 @@ int OptionsMenu(bool inGame) {
 							option_cameraMode = 0;
 						}
 						break;
-					case 5:
+					case 6:
 						if (option_background < maxBackground) {
 							option_background++;
 						}
@@ -475,14 +487,14 @@ int OptionsMenu(bool inGame) {
 							option_background = 0;
 						}
 						break;
-					case 6:
+					case 7:
 						change_undoSize = 1;
 						if (option_undoSize == maxUndoSize) option_undoSize = 0;
 						break;
-					case 7:
+					case 8:
 						if (ControlSetupMenu(inGame) == -2) return -2;
 						break;
-					case 8:
+					case 9:
 						return -1;
 						break;
 				}
@@ -502,12 +514,15 @@ int OptionsMenu(bool inGame) {
 						option_replayOn = false;
 						break;
 					case 4:
-						if (option_cameraMode > 0) option_cameraMode--;
+						if (option_fullscreen) ToggleFullscreen();
 						break;
 					case 5:
-						if (option_background > 0) option_background--;
+						if (option_cameraMode > 0) option_cameraMode--;
 						break;
 					case 6:
+						if (option_background > 0) option_background--;
+						break;
+					case 7:
 						change_undoSize = -1;						
 						break;
 				}
@@ -530,12 +545,15 @@ int OptionsMenu(bool inGame) {
 						option_replayOn = true;
 						break;
 					case 4:
-						if (option_cameraMode < maxCameraMode) option_cameraMode++;
+						if (!option_fullscreen) ToggleFullscreen();
 						break;
 					case 5:
-						if (option_background < maxBackground) option_background++;
+						if (option_cameraMode < maxCameraMode) option_cameraMode++;
 						break;
 					case 6:
+						if (option_background < maxBackground) option_background++;
+						break;
+					case 7:
 						change_undoSize = 1;
 						break;
 				}

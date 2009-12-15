@@ -68,6 +68,9 @@ void SaveSettings() {
 			case 8:
 				strcpy(name, "cameraMode");
 				break;
+			case 9:
+				strcpy(name, "fullscreen");
+				break;
 		}		
 
 		// Get the string form of this option's value
@@ -99,6 +102,9 @@ void SaveSettings() {
 			case 8:
 				sprintf(value, "%u", option_cameraMode);
 				break;
+			case 9:
+				sprintf(value, "%u", option_fullscreen);
+				break;
 		}
 		
 		// Construct the line
@@ -109,14 +115,14 @@ void SaveSettings() {
 	}
 	
 	// Write the game controls
-	for (uchar i = 0; i < NUM_GAME_KEYS; i++) {
+	for (uint i = 0; i < NUM_GAME_KEYS; i++) {
 		sprintf(line, "gameKeySym%d=%d\ngameKeyMod%d=%d\n", i, gameKeys[i].sym, i, gameKeys[i].mod);
 		
 		fputs(line, f);
 	}
 
 	// Write the player controls
-	for (uchar i = 0; i < NUM_PLAYER_KEYS; i++) {
+	for (uint i = 0; i < NUM_PLAYER_KEYS; i++) {
 		sprintf(line, "playerKey%d=%d\n", i, option_playerKeys[i].sym);
 		
 		fputs(line, f);
@@ -244,6 +250,9 @@ void LoadSettings() {
 		}
 		else if (strcmp(name, "currentLevel") == 0) {
 			currentLevel = static_cast<uchar>(uintVal);
+		}
+		else if (strcmp(name, "fullscreen") == 0) {
+			option_fullscreen = static_cast<bool>(uintVal);
 		}
 		else {
 			// Get the number on the end of the setting name

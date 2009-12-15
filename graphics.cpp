@@ -59,6 +59,26 @@ SDL_Surface* FillSurface(const char *file, bool transparent) {
 
 
 
+void ToggleFullscreen() {
+	option_fullscreen = (option_fullscreen ? false : true);
+	
+	#ifdef _WIN32
+		printf("Windows fullscreen toggle\n");
+		//SDL_FreeSurface(screenSurface);
+		screenSurface = SDL_SetVideoMode(screenSurface->w,
+				screenSurface->h,
+				screenSurface->format->BitsPerPixel,
+				SDL_HWSURFACE |
+					(option_fullscreen ? SDL_FULLSCREEN : 0) |
+					SDL_ANYFORMAT
+					);
+	#else
+		printf("X11 fullscreen toggle: %d\n", SDL_WM_ToggleFullScreen(screenSurface));
+	#endif
+}
+
+
+
 SDL_Surface* TileSurface(char *path, const char *filename, bool transparent) {
 	// Form the full path (path + filename)
 	char *fullPath;

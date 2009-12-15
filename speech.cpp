@@ -40,8 +40,15 @@ void Speak(int block, char *text) {
 			bubbles[i].SetX(blocks[block].GetX() + (blocks[block].GetW() / 2) - cameraX);
 			bubbles[i].SetY(blocks[block].GetY() - cameraY);
 			
-			// Set the TTL based on the length of the text
-			bubbles[i].SetTTL(static_cast<uint>(strlen(text)) * 2);
+			/** Set the TTL ****/
+			// If the text is blank, pause a little
+			if (text == NULL || text[0] == '\0') {
+				bubbles[i].SetTTL(10);
+			}
+			else {  // otherwise set it based on the length of the text
+				bubbles[i].SetTTL(static_cast<uint>(strlen(text)) * 2);
+			}
+			
 			
 			// Set the text
 			bubbles[i].SetText(text);

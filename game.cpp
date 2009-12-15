@@ -64,7 +64,7 @@ int Game() {
 	int returnVal = 0;
 	uint i, j;
 	int x, b;
-	std::string tempPath;
+	//std::string tempPath;
 	char s[11];
 	bool pushedKey;
 	bool quitGame = false;
@@ -650,6 +650,18 @@ int Game() {
 					blocks[i].SetFace(4); // scared mouth
 					blocks[i].SetDir(2); // Face the camera
 					if (blocks[i].GetH() > TILE_H - 2) blocks[i].SetH(blocks[i].GetH() - 2);
+					
+					// If this is player one, and it's an early level
+					if (i == 0 && currentLevel < 8) {
+						// Give a helpful hint about undoing
+						Speak(0, "Ouch.");
+						if (maxUndo >= 1) {
+							Speak(0, "");
+							char temp[80];
+							sprintf(temp, "Umm pressing %s to undo would be really helpful right now...", KeyName(gameKeys[4].sym));
+							Speak(0, temp);
+						}
+					}
 				}
 				
 				// If the player just finished walking into the exit (with the door open)
@@ -822,7 +834,11 @@ int Game() {
 				Render(0b00000111);
 			}
 			else {
+				// Do stuff that would normally be done
+				// within render that still needs to be
+				// done every loop
 				CenterCamera(0);
+				DrawBubbles(true);
 			}
 
 			/*** Stuff for when the player reached the exit ***/
