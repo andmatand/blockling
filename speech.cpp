@@ -18,6 +18,23 @@
  */
 
 
+void ClearSpeechTriggers() {
+	/** Get rid of all inactive triggers and then reset active bits for the next check ****/
+	for (uint i = 0; i < MAX_TRIGGERS; i++) {
+		// If this trigger was not pushed last frame, and it is
+		// not permanently disabled
+		if (triggers[i].GetActive() == false && triggers[i].GetFrames() != -1) {
+			triggers[i].SetID(-1);
+		}
+		
+		// Reset the active bit for the next check
+		triggers[i].SetActive(false);
+	}
+}
+
+
+
+
 // Overloaded for both <const char *> and <char *>
 void Speak(int block, const char *text) {
 	char temp[strlen(text) + 1];
@@ -43,7 +60,7 @@ void Speak(int block, char *text) {
 			/** Set the TTL ****/
 			// If the text is blank, pause a little
 			if (text == NULL || text[0] == '\0') {
-				bubbles[i].SetTTL(10);
+				bubbles[i].SetTTL(30);
 			}
 			else {  // otherwise set it based on the length of the text
 				bubbles[i].SetTTL(static_cast<uint>(strlen(text)) * 2);
@@ -143,5 +160,72 @@ void AnimateSpeech() {
 		// Close the mouth when the bubble is about to disappear
 		if (bubbles[i].GetTTL() == 1)
 			blocks[b].SetFace(0);
+	}
+}
+
+
+
+// Overloaded for both <const char *> and <char *>
+void SpeechTrigger(int block, const char *text, int targetFrames, char type, int id) {
+	char temp[strlen(text) + 1];
+	strcpy(temp, text);
+	
+	SpeechTrigger(block, temp, targetFrames, type, id);
+}
+
+
+
+void SpeechTrigger(int block, char *text, int targetFrames, char type, int id) {
+	int t = -1; // the trigger number in the "triggers" array
+	
+	// Check if this trigger already exists
+	for (uint i = 0; i < MAX_TRIGGERS; i++) {
+		if (triggers[i].GetID() == id) {
+			// If this trigger has been permanently disabled
+			if (triggers[i].GetFrames() == -1) {
+				// exit the function
+				return;
+			}	
+			else {
+				t = i;
+			}
+			break;
+		}
+	}
+	
+	// If it was not found, create it in an empty slot
+	if (t == -1) {
+		for (uint i = 0; i < MAX_TRIGGERS; i++) {
+			// If this slot is empty
+			if (triggers[i].GetID() == -1) {
+				t = i;
+				
+				triggers[i].SetID(id); 
+				triggers[i].SetFrames(0);
+				triggers[i].SetActive(true);
+				break;
+			}
+		}
+	}
+	
+	// If there was no room in the "triggers" array, exit the
+	// function here
+	if (t == -1) return;
+	
+	// Increment the trigger's frames
+	if (triggers[t].GetFrames() <= targetFrames) {
+		triggers[t].SetFrames(triggers[t].GetFrames() + 1);
+		triggers[t].SetActive(true);
+	}
+
+	// Check if this trigger has been held long enough
+	if (triggers[t].GetFrames() == targetFrames) {
+		Speak(block, text);
+		
+		// if this is a one-time-only trigger
+		if (type == 1) {
+			// mark it as permanently disabled
+			triggers[t].SetFrames(-1);
+		}
 	}
 }

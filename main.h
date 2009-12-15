@@ -54,11 +54,12 @@ const char TILE_PATH[] = "data/tiles/";
 const char DEFAULT_TILESET[] = "default";
 const char DEFAULT_LEVELSET[] = "default";
 const char SETTINGS_PATH[] = "./";
-const char SETTINGS_FILE[] = ".blockmanrc";
 #ifdef _WIN32
 	const char TEMP_PATH[] = "./";
+	const char SETTINGS_FILE[] = "blockman.cfg";
 #else
 	const char TEMP_PATH[] = "/tmp/";
+	const char SETTINGS_FILE[] = ".blockmanrc";
 #endif
 
 

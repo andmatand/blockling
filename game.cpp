@@ -71,7 +71,6 @@ int Game() {
 	bool restartLevel = false;
 	uint oldLevel = currentLevel;
 	uint wonLevelTimer = 0;
-	uint telepadErrorMessageTimer;
 
 	cameraXVel = 0;
 	cameraYVel = 0;
@@ -98,7 +97,6 @@ int Game() {
 		levelTime = 0;
 		levelTimeRunning = false;
 		physicsStarted = false;
-		telepadErrorMessageTimer = 1;
 
 		// Don't sync the real undo memory size with the
 		// (possibly changed) option if we are doing a replay
@@ -193,6 +191,9 @@ int Game() {
 
 		/******* GAME LOOP *******/
 		while (quitGame == false && selectingLevel == false && restartLevel == false) {
+			
+			// Clear Speech Triggers
+			ClearSpeechTriggers();
 			
 			// Handle Window Close
 			if (GameInput(showingReplay ? 1 : 0) == -2) {
@@ -654,12 +655,11 @@ int Game() {
 					// If this is player one, and it's an early level
 					if (i == 0 && currentLevel < 8) {
 						// Give a helpful hint about undoing
-						Speak(0, "Ouch.");
+						SpeechTrigger(0, "Ouch.", FPS, 1, 2);
 						if (maxUndo >= 1) {
-							Speak(0, "");
 							char temp[80];
-							sprintf(temp, "Umm pressing %s to undo would be really helpful right now...", KeyName(gameKeys[4].sym));
-							Speak(0, temp);
+							sprintf(temp, "Umm pressing %s to undo would be really helpful right about now...", KeyName(gameKeys[4].sym));
+							SpeechTrigger(0, temp, FPS * 3, 1, 3);
 						}
 					}
 				}
@@ -739,7 +739,6 @@ int Game() {
 			DrawBackground();
 
 			/*** Do Telepads (including teleportation animation) ***/
-			j = 0; // Player One is not standing on blinking red telepad
 			for (i = 0; i < numTelepads; i++) {
 				// If the telpad is currently in the process of teleporting something
 				// OR the telepad needs to teleport
@@ -752,23 +751,10 @@ int Game() {
 				// If the telepad is waiting to teleport (flashing red)
 				else if (telepads[i].GetState() == 1) {
 					if (telepads[i].GetOccupant1() == 0 || telepads[i].GetOccupant2() == 0) {
-						if (telepadErrorMessageTimer > 0) {
-							j = 1; // Player One is standing on a blinking red telepad
-							
-							// If the variable is still at its initial value
-							if (telepadErrorMessageTimer == 1) {
-								telepadErrorMessageTimer = SDL_GetTicks();
-							}
-							if (SDL_GetTicks() > telepadErrorMessageTimer + 500) {
-								telepadErrorMessageTimer = 0; // prevent this message for the rest of this level
-								Speak(0, "There must be something blocking the other telepad.");
-							}
-						}
+						SpeechTrigger(0, "There must be something blocking the other telepad.", FPS, 1, 1);
 					}
 				}
 			}
-			// If the player is not standing on a blinking red telepad, reset the message timer
-			if (j == 0 && telepadErrorMessageTimer != 0) telepadErrorMessageTimer = 1;
 			
 			/** Render **/
 			if (showingReplay) {
@@ -953,6 +939,17 @@ char * LoadLevel(uint level) {
 	
 	// Free memory used by previous level
 	CollectLevelGarbage();
+	
+	// Clear all active speech bubbles
+	for (uint i = 0; i < MAX_BUBBLES; i++) {
+		bubbles[i].SetTTL(0);
+		bubbles[i].DelText();
+	}
+	
+	// Clear all active speech triggers
+	for (uint i = 0; i < MAX_TRIGGERS; i++) {
+		triggers[i].SetID(-1);
+	}
 	
 	// Zero all game object count variables
 	numBlocks = 0;
