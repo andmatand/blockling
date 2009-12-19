@@ -66,6 +66,8 @@ int Game() {
 	int x, b;
 	//std::string tempPath;
 	char s[11];
+	char *buf1 = NULL;
+	char *buf2 = NULL;
 	bool pushedKey;
 	bool quitGame = false;
 	bool restartLevel = false;
@@ -398,31 +400,70 @@ int Game() {
 					if (pushedKey == false && playerBlock[i] == -1 && playerKeys[(i * NUM_PLAYER_KEYS) + 4].on > 0) {
 						// Determine which tile the player is looking at.
 						if (blocks[i].GetDir() == 0) {	// Facing left
-							x = blocks[i].GetX() - TILE_W;
+							x = blocks[i].GetX() - 1;
 						}
 						else { 				// Facing right
 							x = blocks[i].GetX() + blocks[i].GetW();
 						}
-						b = BlockNumber(x, blocks[i].GetY() + (blocks[i].GetH() - 1), TILE_W, 1); // First try to push from bottom of player
-						if (b < 0) b = BlockNumber(x, blocks[i].GetY(), TILE_W, 1); // If that didn't work, push from top
+						b = BlockNumber(x, blocks[i].GetY() + (blocks[i].GetH() - 1), 1, 1); // First try to push from bottom of player
+						if (b < 0) b = BlockNumber(x, blocks[i].GetY(), 1, 1); // If that didn't work, push from top
 						
 						if (b >= 0 && blocks[b].OnSolidGround()) {
-							PlaySound(2); // Play sound
-							if (recordingReplay) neatoReplay->SaveKey(4); // Save the keypress in the replay
-							if (showingReplay) replayKeyWorked = true;
-							Undo(0); // Save Undo state
+							/** Check if there is room for it to move ****/
+							if (blocks[i].GetDir() == 0) {	// Facing left
+								x = blocks[b].GetX() - 1;
+							}
+							else { 				// Facing right
+								x = blocks[b].GetX() + blocks[b].GetW();
+							}
+							// (re-use the x variable)
+							x = BoxContents(x, blocks[b].GetY() + (blocks[b].GetH() - 1), 1, 1);
 							
-							if (blocks[i].GetDir() == 0) {
-								blocks[i].SetXMoving(-TILE_W);
-								blocks[b].SetXMoving(-TILE_W);
+							// If the space next to the block is empty
+							if (x == -1) {
+								PlaySound(2); // Play sound
+								if (recordingReplay) neatoReplay->SaveKey(4); // Save the keypress in the replay
+								if (showingReplay) replayKeyWorked = true;
+								Undo(0); // Save Undo state
+								
+								if (blocks[i].GetDir() == 0) {
+									blocks[i].SetXMoving(-TILE_W);
+									blocks[b].SetXMoving(-TILE_W);
+								}
+								else {
+									blocks[i].SetXMoving(TILE_W);
+									blocks[b].SetXMoving(TILE_W);
+								}
+								if (blocks[i].GetStrong() == 1) blocks[b].SetStrong(1); // If player is strong, make this block strong for now
+								playerBlock[i] = b; // Player can't move until this block stops moving
+								pushedKey = true; // Now player can't push other buttons this frame
 							}
 							else {
-								blocks[i].SetXMoving(TILE_W);
-								blocks[b].SetXMoving(TILE_W);
+								// If this is the first player
+								if (i == 0) {
+									// If there's another block blocking it
+									if (x >= 0) {
+										switch (rand() % 2) {
+											case 0:
+												Speak(0, "I'm not strong enough to push more than one block at a time.", false);
+												break;
+											case 1:
+												Speak(0, "They're too heavy for me to push.", false);
+												break;
+										}
+									}
+									else {
+										switch (rand() % 2) {
+											case 0:
+												Speak(0, "I can't move it.  I think there's something blocking it.", false);
+												break;
+											case 1:
+												Speak(0, "It won't move.  I think there's something on the other side.", false);
+												break;
+										}
+									}
+								}
 							}
-							if (blocks[i].GetStrong() == 1) blocks[b].SetStrong(1); // If player is strong, make this block strong for now
-							playerBlock[i] = b; // Player can't move until this block stops moving
-							pushedKey = true; // Now player can't push other buttons this frame
 						}
 					}
 					
@@ -535,8 +576,12 @@ int Game() {
 							// If player is strong, make this block strong for now
 							if (blocks[i].GetStrong() == 1) blocks[b].SetStrong(1);
 							
-							// If the block had room to climb onto the player's head
-							if (blocks[b].Climb(static_cast<char>((blocks[i].GetDir() == 0) ? 1 : 0))) {
+							// Try to make the block climb onto the player's head
+							// (re-use the x variable for this)
+							x = blocks[b].Climb(static_cast<char>((blocks[i].GetDir() == 0) ? 1 : 0));
+							
+							// If there was room for the block to climb
+							if (x == -1) {
 								PlaySound(0); // Play sound
 								
 								playerBlock[i] = b; // Player can't move until this block stops moving
@@ -544,13 +589,45 @@ int Game() {
 							// If there was no room for the block to climb
 							else {
 								if (i == 0) {
-									switch (rand() % 2) {
+									switch (x) {
 										case 0:
-											SpeechTrigger(0, "I can't pick it up.  There's a block on top of it.", 1, 2, 4);
+											switch (rand() % 2) {
+												case 0:
+													SpeechTrigger(0, "I can't pick it up.  There's a block on top of it.", 1, 2, false, 4);
+													break;
+												case 1:
+													SpeechTrigger(0, "I'm not strong enough to pick up that block with another one on top of it.", 1, 2, false, 4);
+													break;
+											}
 											break;
-										case 1:
-											SpeechTrigger(0, "I'm not strong enough to pick up that block with another one on top of it.", 1, 2, 4);
+										case -2:
+											buf1 = new char[14];
+											sprintf(buf1, "piece of land");
 											break;
+										case -3:
+											buf1 = new char[6];
+											sprintf(buf1, "spike");
+											break;
+										case -4:
+											buf1 = new char[8];
+											sprintf(buf1, "telepad");
+											break;
+									}
+									
+									if (buf1 != NULL) {
+										buf2 = new char[64];
+										switch (rand() % 2) {
+											case 0:
+												sprintf(buf2, "I can't move it up.  There's a %s in the way.", buf1);
+												break;
+											case 1:
+												sprintf(buf2, "I can't.  There's a %s blocking it.", buf1);
+												break;
+										}
+										Speak(0, buf2, false);
+										
+										delete [] buf1; buf1 = NULL;
+										delete [] buf2; buf2 = NULL;
 									}
 								}
 							}
@@ -560,8 +637,8 @@ int Game() {
 						else {
 							// Check if there is an ungrabbable block
 							if (BlockNumber(x, blocks[i].GetY() + (blocks[i].GetH() - 1), 1, 1) >= 0) {
-								Speak(0, "I can't get a grip on the bottom of it.");
-								Speak(0, "My arms aren't very long, after all.");
+								Speak(0, "I can't get a grip on the bottom of it.", 0);
+								if (rand() % 2) Speak(0, "My arms aren't very long, after all.", 0);
 							}
 						}
 					}
@@ -668,16 +745,16 @@ int Game() {
 						// Give a helpful hint about undoing
 						switch (rand() % 2) {
 							case 0:
-								SpeechTrigger(0, "Ow.", FPS, 0, 2);
+								SpeechTrigger(0, "Ow.", FPS, 0, false, 2);
 								break;
 							case 1:
-								SpeechTrigger(0, "Ouch.", FPS, 0, 2);
+								SpeechTrigger(0, "Ouch.", FPS, 0, false, 2);
 								break;
 						}
 						if (maxUndo >= 1) {
 							char temp[80];
 							sprintf(temp, "Umm pressing %s to undo would be really helpful right about now...", KeyName(gameKeys[4].sym));
-							SpeechTrigger(0, temp, FPS * 4, 1, 3);
+							SpeechTrigger(0, temp, FPS * 4, 1, false, 3);
 						}
 					}
 				}
@@ -769,7 +846,7 @@ int Game() {
 				// If the telepad is waiting to teleport (flashing red)
 				else if (telepads[i].GetState() == 1) {
 					if (telepads[i].GetOccupant1() == 0 || telepads[i].GetOccupant2() == 0) {
-						SpeechTrigger(0, "There must be something blocking the other telepad.", FPS, 1, 1);
+						SpeechTrigger(0, "I think there's something blocking the other telepad.", FPS, 1, false, 1);
 					}
 				}
 			}

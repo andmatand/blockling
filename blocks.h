@@ -95,7 +95,7 @@ class block {
 		/** Others **/
 		void Animate();              // Change block/player face (blinking, etc.)
 		
-		bool Climb(char direction);  // Makes the player climb over the obstacle in the
+		int Climb(char direction);  // Makes the player climb over the obstacle in the
 		                             // specified direction (same as dir)
 		                             //
 		                             // returns false if the block has something immediately

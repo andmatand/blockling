@@ -63,8 +63,8 @@ int BoxContents(int x, int y, int w, int h) {
 
 	// Telepads
 	for (i = 0; i < static_cast<int>(numTelepads); i++) {
-		if (BoxOverlap(x, y, w, h, telepads[i].GetX1(), telepads[i].GetY1() + (TILE_H - 4), TILE_W, 2) ||
-			BoxOverlap(x, y, w, h, telepads[i].GetX2(), telepads[i].GetY2() + (TILE_H - 4), TILE_W, 2))
+		if (BoxOverlap(x, y, w, h, telepads[i].GetX1(), telepads[i].GetY1() + (TILE_H - 4), TILE_W, 4) ||
+			BoxOverlap(x, y, w, h, telepads[i].GetX2(), telepads[i].GetY2() + (TILE_H - 4), TILE_W, 4))
 		{
 			return -4;
 		}
@@ -128,7 +128,10 @@ bool block::OnSolidGround() {
 
 
 
-bool block::Climb(char direction) {
+// returns BoxContents return value of thing in the way (directly above)
+// with the exception that 0 = a block and there is no value > 0
+// (-1 = there's nothing in the way)
+int block::Climb(char direction) {
 	int b;
 	char s[11];
 	int x1, y1; // Destination x and y
@@ -168,7 +171,8 @@ bool block::Climb(char direction) {
 					// If it's not the case that the thing above is
 					// a block and this block is strong
 					if ( !(b >= 0 && strong > 0) )
-						return false; // There was no room for the block to go up
+						if (b > 0) b = 0;
+						return b; // There was no room for the block to go up
 				}
 			}
 			
@@ -177,12 +181,11 @@ bool block::Climb(char direction) {
 				//Climb up block/brick
 				sprintf(s, "-%dy%dx", (y - y1), x1 - x);
 				SetPath(s);
-				return true;
 			}
 		}
 	}
 	
-	return true;
+	return -1;
 }
 
 

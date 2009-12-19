@@ -1,6 +1,7 @@
-"I'm not strong enough to push both of those blocks."
+-"I'm not strong enough to push both of those blocks."
 
-"I can't pick it up.  There's a block on top of it."
+-Add importance level to speech bubbles (with most as 0, so that they
+may be immediately cut off if another one arises)
 
 -Maybe: Holding down shift with arrows makes player walk as far as
 possible (without falling off a cliff two blocks high)

@@ -23,10 +23,10 @@ void AnimateSpeech();
 void ClearBubbles();
 void ClearSpeechTriggers();
 void DrawBubbles(bool decrementTTLs);
-void Speak(int block, char *text);
-void Speak(int block, const char *text);
-void SpeechTrigger(int block, char *text, int targetFrames, char type, int id);
-void SpeechTrigger(int block, const char *text, int targetFrames, char type, int id);
+void Speak(int block, char *text, bool important);
+void Speak(int block, const char *text, bool important);
+void SpeechTrigger(int block, char *text, int targetFrames, char type, bool important, int id);
+void SpeechTrigger(int block, const char *text, int targetFrames, char type, bool important, int id);
 
 
 /** Classes ****/
@@ -62,22 +62,25 @@ class bubble {
 		void SetX(int xPos) { x = xPos; };
 		void SetY(int yPos) { y = yPos; };
 		void SetTTL(uint frames) { ttl = frames; };
+		void SetImportant(bool thisIsSerious) { important = thisIsSerious; };
 	
 		char* GetText() const { return text; };
 		int GetBlock() const { return block; };
 		int GetX() const { return x; };
 		int GetY() const { return y; };
 		uint GetTTL() const { return ttl; };
+		bool GetImportant() const { return important; };
 
 		void DelText() { delete [] text; text = NULL; };
 	
 	private:
 
-		char *text;
-		int block;   // The block/player number of the block/player speaking
-		int x;       // Text is centered around this x
-		int y;       // Top of text
-		uint ttl;    // Time to live (in frames)
+		char *text;     // Pointer to the text string
+		int block;      // The block/player number of the block/player speaking
+		int x;          // Text is centered around this x
+		int y;          // Top of text
+		uint ttl;       // Time to live (in frames)
+		bool important; // If false, this speech bubble can be cut short by another one's creation
 };
 
 

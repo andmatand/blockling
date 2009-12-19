@@ -45,18 +45,18 @@ void ClearSpeechTriggers() {
 
 
 // Overloaded for both <const char *> and <char *>
-void Speak(int block, const char *text) {
+void Speak(int block, const char *text, bool important) {
 	char temp[strlen(text) + 1];
 	strcpy(temp, text);
 	
-	Speak(block, temp);
+	Speak(block, temp, important);
 }
 
 // there is already another active bubble, don't bother speaking
-void Speak(int block, char *text) {
+void Speak(int block, char *text, bool important) {
 	/** Find the first empty spot in the bubbles array (queue) ****/
 	for (uint i = 0; i < MAX_BUBBLES; i++) {
-		if (bubbles[i].GetTTL() == 0) {
+		if (bubbles[i].GetTTL() == 0 || bubbles[i].GetImportant() == false) {
 			// Set the block/player number
 			bubbles[i].SetBlock(block);
 			
@@ -81,6 +81,9 @@ void Speak(int block, char *text) {
 			
 			// Set the text
 			bubbles[i].SetText(text);
+			
+			// Set the "important" value
+			bubbles[i].SetImportant(important);
 			
 			// Stop looking for empty bubbles
 			break;
@@ -233,15 +236,14 @@ void AnimateSpeech() {
 
 
 // Overloaded for both <const char *> and <char *>
-void SpeechTrigger(int block, const char *text, int targetFrames, char type, int id) {
+void SpeechTrigger(int block, const char *text, int targetFrames, char type, bool important, int id) {
 	char temp[strlen(text) + 1];
 	strcpy(temp, text);
 	
-	SpeechTrigger(block, temp, targetFrames, type, id);
+	SpeechTrigger(block, temp, targetFrames, type, important, id);
 }
 
-void SpeechTrigger(int block, char *text, int targetFrames, char type, int id) {
-	static uint delayTimer = 0;
+void SpeechTrigger(int block, char *text, int targetFrames, char type, bool important, int id) {
 	int t = -1; // the trigger number in the "triggers" array
 	
 	// Check if this trigger already exists
@@ -288,7 +290,7 @@ void SpeechTrigger(int block, char *text, int targetFrames, char type, int id) {
 
 	// Check if this trigger has been held long enough
 	if (triggers[t].GetFrames() == targetFrames) {
-		Speak(block, text);
+		Speak(block, text, important);
 		
 		// if this is a one-time-only trigger
 		if (type == 1) {
