@@ -134,7 +134,16 @@ void DrawBubbles(bool decrementTTLs) {
 		
 		
 		/** Determine the optimal Y position ****/
-		y = blocks[bubbles[i].GetBlock()].GetY() - cameraY - GetTextH(bubbles[i].GetText(), wrapW, 0) - (FONT_H * 2) - 2;		
+		y = blocks[bubbles[i].GetBlock()].GetY() - cameraY - GetTextH(bubbles[i].GetText(), wrapW, 0) - FONT_H - 2;
+		
+		// If it's a player
+		if (bubbles[i].GetBlock() < static_cast<int>(numPlayers)) {
+			// It he's carrying a block
+			if (BlockNumber(blocks[bubbles[i].GetBlock()].GetX(), blocks[bubbles[i].GetBlock()].GetY() - 1, blocks[bubbles[i].GetBlock()].GetW(), 1) >= 0) {
+				y -= TILE_H;
+			}
+		}
+			
 		do {
 			h = GetTextH(bubbles[i].GetText(), wrapW, 0);
 			

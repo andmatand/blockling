@@ -165,8 +165,8 @@ int block::Climb(char direction) {
 			
 			// If this is not a player
 			if (type < 10) {
-				b = BoxContents(x, y1, w, h);
-				// If the the tile above is not empty
+				b = BoxContents(x, y - 1, w, 1);
+				// If the space above is not empty
 				if (b != -1) {
 					// If it's not the case that the thing above is
 					// a block and this block is strong
