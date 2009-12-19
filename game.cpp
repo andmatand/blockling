@@ -528,6 +528,9 @@ int Game() {
 						
 						// If it's a block, make it climb up onto the player =)
 						if (b >= 0 && blocks[b].GetType() >= 0) {
+							if (recordingReplay) neatoReplay->SaveKey(2); // Save the keypress in the replay
+							if (showingReplay) replayKeyWorked = true;
+							Undo(0); // Save Undo state
 							
 							// If player is strong, make this block strong for now
 							if (blocks[i].GetStrong() == 1) blocks[b].SetStrong(1);
@@ -535,9 +538,6 @@ int Game() {
 							// If the block had room to climb onto the player's head
 							if (blocks[b].Climb(static_cast<char>((blocks[i].GetDir() == 0) ? 1 : 0))) {
 								PlaySound(0); // Play sound
-								if (recordingReplay) neatoReplay->SaveKey(2); // Save the keypress in the replay
-								if (showingReplay) replayKeyWorked = true;
-								Undo(0); // Save Undo state
 								
 								playerBlock[i] = b; // Player can't move until this block stops moving
 							}
