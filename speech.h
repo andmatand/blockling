@@ -20,6 +20,7 @@
 
 /** Function prototypes ****/
 void AnimateSpeech();
+void ClearBubbles();
 void ClearSpeechTriggers();
 void DrawBubbles(bool decrementTTLs);
 void Speak(int block, char *text);

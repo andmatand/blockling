@@ -528,22 +528,33 @@ int Game() {
 						
 						// If it's a block, make it climb up onto the player =)
 						if (b >= 0 && blocks[b].GetType() >= 0) {
-							PlaySound(0); // Play sound
-							if (recordingReplay) neatoReplay->SaveKey(2); // Save the keypress in the replay
-							if (showingReplay) replayKeyWorked = true;
-							Undo(0); // Save Undo state
 							
 							// If player is strong, make this block strong for now
 							if (blocks[i].GetStrong() == 1) blocks[b].SetStrong(1);
 							
-							// Climb
-							blocks[b].Climb(static_cast<char>(
-										(blocks[i].GetDir() == 0)
-										? 1
-										: 0
-									));
+							// If the block had room to climb onto the player's head
+							if (blocks[b].Climb(static_cast<char>((blocks[i].GetDir() == 0) ? 1 : 0))) {
+								PlaySound(0); // Play sound
+								if (recordingReplay) neatoReplay->SaveKey(2); // Save the keypress in the replay
+								if (showingReplay) replayKeyWorked = true;
+								Undo(0); // Save Undo state
+								
+								playerBlock[i] = b; // Player can't move until this block stops moving
+							}
+							// If there was no room for the block to climb
+							else {
+								if (i == 0) {
+									switch (rand() % 2) {
+										case 0:
+											SpeechTrigger(0, "I can't pick it up.  There's a block on top of it.", 1, 2, 4);
+											break;
+										case 1:
+											SpeechTrigger(0, "I'm not strong enough to pick up that block with another one on top of it.", 1, 2, 4);
+											break;
+									}
+								}
+							}
 							
-							playerBlock[i] = b; // Player can't move until this block stops moving
 							pushedKey = true; // Now player can't push other buttons this frame
 						}
 						else {
@@ -655,11 +666,18 @@ int Game() {
 					// If this is player one, and it's an early level
 					if (i == 0 && currentLevel < 8) {
 						// Give a helpful hint about undoing
-						SpeechTrigger(0, "Ouch.", FPS, 1, 2);
+						switch (rand() % 2) {
+							case 0:
+								SpeechTrigger(0, "Ow.", FPS, 0, 2);
+								break;
+							case 1:
+								SpeechTrigger(0, "Ouch.", FPS, 0, 2);
+								break;
+						}
 						if (maxUndo >= 1) {
 							char temp[80];
 							sprintf(temp, "Umm pressing %s to undo would be really helpful right about now...", KeyName(gameKeys[4].sym));
-							SpeechTrigger(0, temp, FPS * 3, 1, 3);
+							SpeechTrigger(0, temp, FPS * 4, 1, 3);
 						}
 					}
 				}
@@ -941,10 +959,7 @@ char * LoadLevel(uint level) {
 	CollectLevelGarbage();
 	
 	// Clear all active speech bubbles
-	for (uint i = 0; i < MAX_BUBBLES; i++) {
-		bubbles[i].SetTTL(0);
-		bubbles[i].DelText();
-	}
+	ClearBubbles();
 	
 	// Clear all active speech triggers
 	for (uint i = 0; i < MAX_TRIGGERS; i++) {
@@ -1454,7 +1469,7 @@ void Undo(char action) {
 
 		player_yMoving = blocks[0].GetYMoving();
 		blocks[0].SetYMoving(0);
-		/***/
+		/******/
 
 		
 		if (undoEnd != undoStart && undoSlot == undoStart) {
@@ -1543,6 +1558,12 @@ void Undo(char action) {
 				}
 			}
 
+			// Clear all active speech bubbles
+			ClearBubbles();
+			// Change all players' face back to normal, in case they were currently talking
+			for (uint i = 0; i < numPlayers; i++) {
+				blocks[i].SetFace(0);
+			}
 
 			if (undoEnd != undoStart) {
 				// Move undoEnd back, so it points to the now most recent undo state

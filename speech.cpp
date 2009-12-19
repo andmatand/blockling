@@ -18,6 +18,15 @@
  */
 
 
+void ClearBubbles() {
+	for (uint i = 0; i < MAX_BUBBLES; i++) {
+		bubbles[i].SetTTL(0);
+		bubbles[i].DelText();
+	}
+}
+
+
+
 void ClearSpeechTriggers() {
 	/** Get rid of all inactive triggers and then reset active bits for the next check ****/
 	for (uint i = 0; i < MAX_TRIGGERS; i++) {
@@ -43,8 +52,6 @@ void Speak(int block, const char *text) {
 	Speak(block, temp);
 }
 
-
-// polite = true    Indicates that the message is unimportant and if
 // there is already another active bubble, don't bother speaking
 void Speak(int block, char *text) {
 	/** Find the first empty spot in the bubbles array (queue) ****/
@@ -64,6 +71,11 @@ void Speak(int block, char *text) {
 			}
 			else {  // otherwise set it based on the length of the text
 				bubbles[i].SetTTL(static_cast<uint>(strlen(text)) * 2);
+				
+				// enforce a minimum TTL
+				if (bubbles[i].GetTTL() < static_cast<int>(FPS)) {
+					bubbles[i].SetTTL(FPS);
+				}
 			}
 			
 			
@@ -79,21 +91,69 @@ void Speak(int block, char *text) {
 
 
 void DrawBubbles(bool decrementTTLs) {
-	int wrapW = FONT_W * 14;
+	int wrapW = FONT_W * 25;
+	int x, y, w, h;
+	int xMargin = FONT_W / 2;
+	int yMargin = FONT_W + 2; // Applies only to bottom of screen
+	bool ok;
 	
 	uint i = 0;
 	if (bubbles[i].GetTTL() > 0) {
-		// Draw the text
-		DrawText(
-			//bubbles[i].GetX(),
-			blocks[bubbles[i].GetBlock()].GetX() - cameraX,
-			//bubbles[i].GetY() - GetTextH(bubbles[i].GetText(), wrapW, 0) - FONT_H - 2,
-			blocks[bubbles[i].GetBlock()].GetY() - cameraY - GetTextH(bubbles[i].GetText(), wrapW, 0) - (FONT_H * 2) - 2,
-			bubbles[i].GetText(),
-			true,
-			wrapW,
-			0,
-			1);
+		/** Determine the optimal X position ****/
+		x = blocks[bubbles[i].GetBlock()].GetX() - cameraX;	
+		do {
+			//w = GetTextW(bubbles[i].GetText(), 0);
+			w = wrapW;
+			
+			ok = true;
+			if (x - (w / 2) < xMargin) {
+				x = xMargin + (w / 2);
+				ok = false;
+			}
+			if (x + (w / 2) > SCREEN_W - xMargin) {
+				x = SCREEN_W - xMargin - (w / 2);
+				
+				// If the bubble is going off BOTH edges of the screen
+				if (ok == false) {
+					// Enforce minimum wrap width
+					if (wrapW > FONT_W * 10) {
+						// Make the wrap width smaller
+						wrapW -= FONT_W;
+					}
+					else {
+						break;
+					}
+				}
+				
+				ok = false;
+			}
+		} while (ok == false);
+		
+		
+		/** Determine the optimal Y position ****/
+		y = blocks[bubbles[i].GetBlock()].GetY() - cameraY - GetTextH(bubbles[i].GetText(), wrapW, 0) - (FONT_H * 2) - 2;		
+		do {
+			h = GetTextH(bubbles[i].GetText(), wrapW, 0);
+			
+			ok = true;
+			if (y < 0) {
+				y = 0;
+				ok = false;
+			}
+			if (y + h > SCREEN_H - yMargin) {
+				y = SCREEN_H - yMargin - h;
+				if (ok == false) {
+					break;
+				}
+				
+				ok = false;
+			}
+		} while (ok == false);
+
+		
+		
+		/** Draw the text ****/
+		DrawText(x, y, bubbles[i].GetText(), true, wrapW, 0, 1);
 
 		// Decrement the TTL
 		if (decrementTTLs) {
@@ -113,10 +173,10 @@ void DrawBubbles(bool decrementTTLs) {
 
 
 
-// Makes speaking players' mouths move
+// Makes the speaking player's mouths move
 void AnimateSpeech() {
 	int b; // will hold block number
-	char f; // will hold "face" number
+	static char f; // holds current "face" number
 	
 	uint i = 0;
 	if (bubbles[i].GetTTL() > 0) {
@@ -153,13 +213,20 @@ void AnimateSpeech() {
 					
 					break;
 			}
-			
-			blocks[b].SetFace(f);
 		}
 		
+		// If the player has "scared" face (e.g. he's on a spike)
+		// and the mouth is going to be set to "closed", then
+		// prevent the "closed" mouth & replace it with "scared"
+		//if (blocks[b].GetFace() == 4 && f == 0) {
+		//	f = 4;
+		//}
+
 		// Close the mouth when the bubble is about to disappear
 		if (bubbles[i].GetTTL() == 1)
-			blocks[b].SetFace(0);
+			f = 0;
+
+		blocks[b].SetFace(f);
 	}
 }
 
@@ -173,9 +240,8 @@ void SpeechTrigger(int block, const char *text, int targetFrames, char type, int
 	SpeechTrigger(block, temp, targetFrames, type, id);
 }
 
-
-
 void SpeechTrigger(int block, char *text, int targetFrames, char type, int id) {
+	static uint delayTimer = 0;
 	int t = -1; // the trigger number in the "triggers" array
 	
 	// Check if this trigger already exists
@@ -212,10 +278,12 @@ void SpeechTrigger(int block, char *text, int targetFrames, char type, int id) {
 	// function here
 	if (t == -1) return;
 	
+	// Mark the trigger as active this frame
+	triggers[t].SetActive(true);
+	
 	// Increment the trigger's frames
 	if (triggers[t].GetFrames() <= targetFrames) {
 		triggers[t].SetFrames(triggers[t].GetFrames() + 1);
-		triggers[t].SetActive(true);
 	}
 
 	// Check if this trigger has been held long enough

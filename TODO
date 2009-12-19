@@ -1,9 +1,11 @@
+"I'm not strong enough to push both of those blocks."
+
+"I can't pick it up.  There's a block on top of it."
+
 -Maybe: Holding down shift with arrows makes player walk as far as
 possible (without falling off a cliff two blocks high)
 
 -Spinach/other items?
-
--Speech
 
 -Replay saving code needs to be rewritten to account for multiple
  players (replays do not currently work on levels with > 1 player)

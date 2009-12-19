@@ -128,7 +128,7 @@ bool block::OnSolidGround() {
 
 
 
-void block::Climb(char direction) {
+bool block::Climb(char direction) {
 	int b;
 	char s[11];
 	int x1, y1; // Destination x and y
@@ -159,14 +159,30 @@ void block::Climb(char direction) {
 		
 		// If it's either not a block, or it's a block on solid ground
 		if (b < 0 || blocks[b].OnSolidGround()) {
-			// If the diagonal tile (up & to the left/right) is clear
+			
+			// If this is not a player
+			if (type < 10) {
+				b = BoxContents(x, y1, w, h);
+				// If the the tile above is not empty
+				if (b != -1) {
+					// If it's not the case that the thing above is
+					// a block and this block is strong
+					if ( !(b >= 0 && strong > 0) )
+						return false; // There was no room for the block to go up
+				}
+			}
+			
+			// If the tile diagonal tile (up & to the left/right) is clear
 			if (BoxContents(x1, y1, w, h) == -1) {
 				//Climb up block/brick
 				sprintf(s, "-%dy%dx", (y - y1), x1 - x);
 				SetPath(s);
+				return true;
 			}
 		}
 	}
+	
+	return true;
 }
 
 

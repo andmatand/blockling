@@ -93,48 +93,53 @@ class block {
 		void SetPath(char *p);
 		
 		/** Others **/
-		void Animate();		// Change block/player face (blinking, etc.)
+		void Animate();              // Change block/player face (blinking, etc.)
 		
-		void Climb(char direction);  // Makes the player climb over the obstacle in the
-					     // specified direction (same as dir)
-		void Physics();		// Moves the block according to physics (in physics.cpp)
-		void PostPhysics();	// Decrements the xMoving and yMoving
+		bool Climb(char direction);  // Makes the player climb over the obstacle in the
+		                             // specified direction (same as dir)
+		                             //
+		                             // returns false if the block has something immediately
+		                             // above it blocking its path
 		
-		SDL_Surface* GetSurface();	// in graphics.cpp
-		int GetSurfaceIndex();		// in graphics.cpp
+		void Physics();              // Moves the block according to physics (in physics.cpp)
 		
-		int GetYOffset();	// Find how much player has sunk down from carrying something.
+		void PostPhysics();	     // Decrements the xMoving and yMoving
 		
-		bool OnSolidGround();   // This recursive function will return true only if the block
-					// is making contact with a permanent object, either directly
-					// or indirectly (e.g. sitting on a pile of blocks which is
-					// sitting on a brick)
+		SDL_Surface* GetSurface();   // in graphics.cpp
+		int GetSurfaceIndex();       // in graphics.cpp
+		
+		int GetYOffset();            // Find how much player has sunk down from carrying something.
+		
+		bool OnSolidGround();        // This recursive function will return true only if the block
+		                             // is making contact with a permanent object, either directly
+		                             // or indirectly (e.g. sitting on a pile of blocks which is
+		                             // sitting on a brick)
 	private:
 		int x, y;
 		int xSpeed, ySpeed;
-		int xMoving, yMoving;	// Stores current path movement
+		int xMoving, yMoving;   // Stores current path movement
 					// progress, e.g. xMoving = 16
 					// would mean this block needs
 					// to move 16 more pixels to the
 					// right until it finishes its
 					// path.
 		
-		int w, h;	// width, height
+		int w, h;       // width, height
 		
-		char dir;	// Direction the player is facing:
-				// 0 left, 1 right, 2 at camera, 3 dead
+		char dir;       // Direction the player is facing:
+		                // 0 left, 1 right, 2 at camera, 3 dead
 		
-		char type;	// 0 regular block
-				// >= 10 player
-				//  < 0  temporarily disabled (for teleportation animation)
-				//  -100 permanently disabled for rest of level
+		char type;      // 0 regular block
+		                // >= 10 player
+		                //  < 0  temporarily disabled (for teleportation animation)
+		                //  -100 permanently disabled for rest of level
 		
-		char face;	// Players:            Blocks:	
-				// 0 = normal          0 = normal
-				// 1 = mouth open
-				// 2 = blinking
-				// 3 = happy mouth
-				// 4 = scared mouth
+		char face;      // Players:            Blocks:	
+		                // 0 = normal          0 = normal
+		                // 1 = mouth open
+		                // 2 = blinking
+		                // 3 = happy mouth
+		                // 4 = scared mouth
 
 		
 		char strong;    // 0 = Regular strength (can only lift/push 1 block at a time)
@@ -144,24 +149,24 @@ class block {
 		                //     was pushed by a strong block, and can in turn push other
 		                //     blocks, but this is reset to 0 at the end of the frame.
 		
-		char won;	// 0 = Player has not won the level yet
-				// 1 = Player reached the exit, and is waiting for door to open
-				// 2 = Player is continuing to walk toward (now open) door
-				// 3 = Player is inside door
+		char won;       // 0 = Player has not won the level yet
+		                // 1 = Player reached the exit, and is waiting for door to open
+		                // 2 = Player is continuing to walk toward (now open) door
+		                // 3 = Player is inside door
 		
-		bool didPhysics;	// Did the block have physics
-					// applied to it this frame yet?
+		bool didPhysics;  // Did the block have physics
+		                  // applied to it this frame yet?
 					
-		bool moved;		// Did the block move this frame yet?
-					// Blocks are only allowed to move once per frame
-					// (no diagonals, etc.)
+		bool moved;       // Did the block move this frame yet?
+		                  // Blocks are only allowed to move once per frame
+		                  // (no diagonals, etc.)
 		
-		char *path;	// Stores a path that the block will
-				// follow, e.g. "-16y16x" would be used
-				// for picking up a block if the player
-				// were facing left.  The block will
-				// move up 16px, then right 16px.
-				//
+		char *path;     // Stores a path that the block will
+		                // follow, e.g. "-16y16x" would be used
+		                // for picking up a block if the player
+		                // were facing left.  The block will
+		                // move up 16px, then right 16px.
+		                //
 				// "100s" would make the block sleep for
 				// 100 milliseconds (useful for NPCs)
 };
