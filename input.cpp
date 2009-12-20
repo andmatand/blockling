@@ -366,6 +366,7 @@ char MenuInput() {
 				switch (event.key.keysym.sym) {
 					case SDLK_KP_ENTER:
 					case SDLK_RETURN:
+					case SDLK_SPACE:
 						if (!(event.key.keysym.mod & KMOD_ALT)) {
 							return 5;
 						}
