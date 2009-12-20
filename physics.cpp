@@ -163,7 +163,7 @@ int block::Climb(char direction) {
 		// If it's either not a block, or it's a block on solid ground
 		if (b < 0 || blocks[b].OnSolidGround()) {
 			
-			// If this is not a player
+			// If this is not a player (used for help speech messages)
 			if (type < 10) {
 				b = BoxContents(x, y - 1, w, 1);
 				// If the space above is not empty

@@ -192,8 +192,12 @@ void replay::InitWrite() {
 
 
 void replay::DeInitWrite() {
+	// Make sure the last timestamp reflects the final position of the level timer
+	if (pos > 0) {
+		timestamps[pos - 1] = levelTime;
+	}
+	
 	DumpBuffer(); // Make sure to finish writing anything still in the buffer
-	timestamps[pos] = levelTime;
 	
 	if (fclose(fp) != 0) {
 		fprintf(stderr, "File error: Could not close replay file \"%s\"", filename);
@@ -251,6 +255,11 @@ void replay::FillBuffer() {
 			printf("[FillBuffer] Parsing line...\n");
 			#endif
 			
+			// Remove the trailing newline character(s), LF or CR
+			while (line[strlen(line) - 1] == '\n' or line[strlen(line) - 1] == 13) {
+				line[strlen(line) - 1] = '\0';
+			}
+			
 			// Empty tempString
 			tempString[0] = '\0';
 			
@@ -273,7 +282,7 @@ void replay::FillBuffer() {
 						n = 1;
 					}
 					// Set the number of presses
-					steps[i].SetNum(n); 
+					steps[i].SetNum(n);
 					
 					
 					// Determine the key number from the action symbol
@@ -310,21 +319,36 @@ void replay::FillBuffer() {
 					// Stop examining this line
 					break;
 				}
-				// If the line contains nothing but a number, it is a level timer position
-				else if (i > 0 && j + 1 == strlen(line)) {
-					n = static_cast<uint>(strtoul(tempString, NULL, 0));
-					timestamps[i - 1] = n;
-					
-					// Don't count this as a replayStep
-					i--;
-					
-					// Stop examining this line
-					break;
-				}
 				else {
 					// Append this character to the temporary string
 					tempString[j] = line[j];
 					tempString[j + 1] = 0;
+
+					// If the line contains nothing but a number, it is a level timer position
+					if (j + 1 == strlen(line)) {
+						n = static_cast<uint>(strtoul(tempString, NULL, 0));
+						
+						// if it's the rare case that a timestamp is the
+						// first line we are filling the buffer with,
+						// just go ahead and set the time here since
+						// it was supposed to be set right after the
+						// previous key was pressed
+						if (i == 0) {
+							if (n > 0) {
+								levelTime = n;
+								levelTimeTick = SDL_GetTicks();
+							}
+						}
+						else {
+							timestamps[i - 1] = n;
+						}
+						
+						// Don't count this as a replayStep
+						i--;
+						
+						// Stop examining this line
+						break;
+					}
 				}
 			}
 		}
@@ -363,10 +387,16 @@ void replay::SaveKey(char key) {
 		steps[pos - 1].SetNum(steps[pos - 1].GetNum() - 1);
 	}
 
+	/** Check if the levelTime has changed since last keyPresss ****/
+	bool timeChanged = false;
+	if (pos > 1) {
+		if (levelTime > timestamps[pos - 2]) timeChanged = true;
+	}
+
 
 	// If this is the very first key, OR if this is not the same key
 	// as the previous key, OR if the previous key has been pushed the maximum number of times
-	if (pos == 0 || key != steps[pos - 1].GetKey() || maxNum) {
+	if (pos == 0 || key != steps[pos - 1].GetKey() || maxNum || timeChanged) {
 		#ifdef DEBUG_REPLAY
 			printf("[replay] pos = %d\n", pos);
 			printf("[replay] New key (%d) was pressed.\n", key);

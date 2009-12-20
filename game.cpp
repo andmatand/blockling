@@ -498,7 +498,7 @@ int Game() {
 					if (pushedKey == false && playerKeys[(i * NUM_PLAYER_KEYS) + 1].on > 0) {
 						if (blocks[i].GetDir() == 1) {
 							// Player musn't be waiting for a block he's acted upon
-							if (playerBlock[i] == -1) {								
+							if (playerBlock[i] == -1) {
 								// Try to set block's path to climb/walk right
 								blocks[i].Climb(1);
 
@@ -559,10 +559,10 @@ int Game() {
 					// Up (pick up block)
 					if (pushedKey == false && playerBlock[i] == -1 && playerKeys[(i * NUM_PLAYER_KEYS) + 2].on > 0) {
 						// Determine which tile the player is looking at.
-						if (blocks[i].GetDir() == 0) {	// Facing left
+						if (blocks[i].GetDir() == 0) {  // Facing left
 							x = blocks[i].GetX() - 1;
 						}
-						else { 				// Facing right
+						else {                          // Facing right
 							x = blocks[i].GetX() + blocks[i].GetW();
 						}
 						b = BlockNumber(x, blocks[i].GetY(), 1, 1);
@@ -852,8 +852,7 @@ int Game() {
 			}
 			
 			/** Render **/
-			if (showingReplay) {
-				
+			if (showingReplay) {				
 				// Skip frames depending on playback speed of replay
 				// (and determine menu text)
 				frameNumber++;
