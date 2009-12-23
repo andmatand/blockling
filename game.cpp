@@ -346,7 +346,7 @@ int Game() {
 				}
 				
 				// Undo
-				if (gameKeys[4].on > 0) {
+				if (i == 0 && gameKeys[4].on > 0) {
 					if (recordingReplay) neatoReplay->SaveKey(5); // Save the keypress in the replay
 					if (showingReplay) replayKeyWorked = true;
 					
@@ -422,9 +422,13 @@ int Game() {
 							// If the space next to the block is empty
 							if (x == -1) {
 								PlaySound(2); // Play sound
-								if (recordingReplay) neatoReplay->SaveKey(4); // Save the keypress in the replay
-								if (showingReplay) replayKeyWorked = true;
-								Undo(0); // Save Undo state
+								
+								// Save only the first player's keypresses
+								if (i == 0) {
+									if (recordingReplay) neatoReplay->SaveKey(4); // Save the keypress in the replay
+									if (showingReplay) replayKeyWorked = true;
+									Undo(0); // Save Undo state
+								}
 								
 								if (blocks[i].GetDir() == 0) {
 									blocks[i].SetXMoving(-TILE_W);
@@ -477,16 +481,23 @@ int Game() {
 								
 								// If the player is actually going to move
 								if (blocks[i].GetPathLength() > 0 || blocks[i].GetXMoving() != 0) {
-									Undo(0); // Save Undo state
-									if (recordingReplay) neatoReplay->SaveKey(0); // Save the keypress in the replay
-									if (showingReplay) replayKeyWorked = true;
+									// Save only the first player's keypresses
+									if (i == 0) {
+										Undo(0); // Save Undo state
+										if (recordingReplay) neatoReplay->SaveKey(0); // Save the keypress in the replay
+										if (showingReplay) replayKeyWorked = true;
+									}
+									
 									pushedKey = true; // Now player can't push other buttons this frame
 								}
 							}
 						}
 						else {
-							if (recordingReplay) neatoReplay->SaveKey(0); // Save the keypress in the replay
-							if (showingReplay) replayKeyWorked = true;
+							// Save only the first player's keypresses
+							if (i == 0) {
+								if (recordingReplay) neatoReplay->SaveKey(0); // Save the keypress in the replay
+								if (showingReplay) replayKeyWorked = true;
+							}
 							
 							blocks[i].SetDir(0);
 							
@@ -504,16 +515,23 @@ int Game() {
 
 								// If the player is actually going to move
 								if (blocks[i].GetPathLength() > 0 || blocks[i].GetXMoving() != 0) {
-									Undo(0); // Save Undo state
-									if (recordingReplay) neatoReplay->SaveKey(1); // Save the keypress in the replay	
-									if (showingReplay) replayKeyWorked = true;
+									// Save only the first player's keypresses
+									if (i == 0) {
+										Undo(0); // Save Undo state
+										if (recordingReplay) neatoReplay->SaveKey(1); // Save the keypress in the replay	
+										if (showingReplay) replayKeyWorked = true;
+									}
+									
 									pushedKey = true; // Now player can't push other buttons this frame
 								}
 							}
 						}
 						else {
-							if (recordingReplay) neatoReplay->SaveKey(1); // Save the keypress in the replay
-							if (showingReplay) replayKeyWorked = true;
+							// Save only the first player's keypresses
+							if (i == 0) {
+								if (recordingReplay) neatoReplay->SaveKey(1); // Save the keypress in the replay
+								if (showingReplay) replayKeyWorked = true;
+							}
 							
 							blocks[i].SetDir(1);
 							
@@ -529,9 +547,12 @@ int Game() {
 						// If it's a block, set its path to be set down.
 						if (b >= 0 && blocks[b].GetXMoving() == 0 && blocks[b].GetYMoving() == 0) {
 							PlaySound(1); // Play sound
-							if (recordingReplay) neatoReplay->SaveKey(3); // Save the keypress in the replay
-							if (showingReplay) replayKeyWorked = true;
-							Undo(0); // Save Undo state
+							// Save only the first player's keypresses
+							if (i == 0) {
+								if (recordingReplay) neatoReplay->SaveKey(3); // Save the keypress in the replay
+								if (showingReplay) replayKeyWorked = true;
+								Undo(0); // Save Undo state
+							}
 							
 							if (blocks[i].GetDir() == 0) { // player facing left
 								sprintf(s, "-%dy-%dx", TILE_H - blocks[i].GetH(), TILE_W);
@@ -569,9 +590,12 @@ int Game() {
 						
 						// If it's a block, make it climb up onto the player =)
 						if (b >= 0 && blocks[b].GetType() >= 0) {
-							if (recordingReplay) neatoReplay->SaveKey(2); // Save the keypress in the replay
-							if (showingReplay) replayKeyWorked = true;
-							Undo(0); // Save Undo state
+							// Save only the first player's keypresses
+							if (i == 0) {
+								if (recordingReplay) neatoReplay->SaveKey(2); // Save the keypress in the replay
+								if (showingReplay) replayKeyWorked = true;
+								Undo(0); // Save Undo state
+							}
 							
 							// If player is strong, make this block strong for now
 							if (blocks[i].GetStrong() == 1) blocks[b].SetStrong(1);
@@ -643,7 +667,7 @@ int Game() {
 						}
 					}
 					
-					if (pushedKey == false && recordingReplay && levelTimeRunning && wonLevel < 2) {
+					if (i == 0 && pushedKey == false && recordingReplay && levelTimeRunning && wonLevel < 2) {
 						neatoReplay->SaveKey(-1); // Save the non-keypress (sleep) in the replay
 					}
 					
