@@ -259,12 +259,18 @@ void UnloadFont() {
 }
 
 
-
-
 // Provides an additional, more simple text function for places that
 // don't need a bunch of fancy stuff
 void DrawText(int x, int y, char *text, int color) {
 	DrawText(x, y, text, false, 0, 0, color);
+}
+
+// Overloaded to allow for <const char *>
+void DrawText(int x, int y, const char *text, bool centered, int wrapWidth, int spacing, int color) {
+	char temp[strlen(text) + 1];
+	strcpy(temp, text);
+	
+	DrawText(x, y, temp, centered, wrapWidth, spacing, color);
 }
 
 void DrawText(int x, int y, char *text, bool centered, int wrapWidth, int spacing, int color) {

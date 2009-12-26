@@ -167,15 +167,15 @@ int ControlSetupMenu(bool inGame) {
 
 int Credits() {
 	int y = SCREEN_H; // Position of the scrolling credits
-	char text[1024]; // For holding the credits
+	//char text[1024]; // For holding the credits
 	uint t = SDL_GetTicks();
 	
-	sprintf(text, "BLOCKMAN\nversion 0.1\n\nCopyright 2009 Andrew Anderson <http://www.billamonster.com>\n\nThis is free software, and you are welcome to change and redistribute it under the conditions of the GNU General Public License (GPL) version 3 or later <http://gnu.org/licenses/gpl.html>.  There is NO WARRANTY, to the extent permitted by law.\n\n\nPROGRAMMING\nAndrew Anderson\n\n\nSOUND\nAndrew Anderson\n\n\nGRAPHICS\nAndrew Anderson\n\n\nTESTING\nTyler Christensen\nAubree Dinsfriend\nMatthew Galla\nJeanette Ortiz\nJeTSpice <http://jetspicegames.com/>\n\n\nBASED ON AN ORIGINAL CONCEPT\nfound in\nBLOCK-MAN 1\nCopyright 1993 Soleau Software <http://www.soleau.com>\n\n\nSPECIAL THANKS TO\nthe teams behind the free/open-source projects which made this game possible:\n\nAudacity <http://audacity.sourceforge.net>\nDebian <http://www.debian.org>\nGeany <http://www.geany.org>\nGIMP <http://www.gimp.org>\nGNU <http://www.gnu.org>\nThe Linux Kernel <http://www.kernel.org>\nSDL <http://www.libsdl.org>\nUbuntu <http://www.ubuntu.com>\n\n\nETERNAL THANKS TO\nYeshua the Resurrected Messiah");
+	//sprintf(text, "BLOCKMAN\nversion 0.1\n\nCopyright 2009 Andrew Anderson <http://www.billamonster.com>\n\nThis is free software, and you are welcome to change and redistribute it under the conditions of the GNU General Public License (GPL) version 3 or later <http://gnu.org/licenses/gpl.html>.  There is NO WARRANTY, to the extent permitted by law.\n\n\nPROGRAMMING\nAndrew Anderson\n\n\nSOUND\nAndrew Anderson\n\n\nGRAPHICS\nAndrew Anderson\n\n\nLEVEL DESIGN\nAndrew Anderson\n\n\nTESTING\nTyler Christensen\nAubree Dinsfriend\nMatthew Galla\nJeanette Ortiz\nJeTSpice <http://jetspicegames.com/>\n\n\nBASED ON AN ORIGINAL CONCEPT\nfound in\nBLOCK-MAN 1\nCopyright 1993 Soleau Software <http://www.soleau.com>\n\n\nSPECIAL THANKS TO\nthe teams behind the free/open-source projects which made this game possible:\n\nAudacity <http://audacity.sourceforge.net>\nDebian <http://www.debian.org>\nGeany <http://www.geany.org>\nGIMP <http://www.gimp.org>\nGNU <http://www.gnu.org>\nThe Linux Kernel <http://www.kernel.org>\nSDL <http://www.libsdl.org>\nUbuntu <http://www.ubuntu.com>\n\n\nETERNAL THANKS TO\nYeshua the Resurrected Messiah");
 	
 	while (y > -(FONT_H * 70)) {
 		
 		DrawBackground();
-		DrawText(SCREEN_W / 2, y, text, true, (SCREEN_W * .9), 0, 1);
+		DrawText(SCREEN_W / 2, y, "BLOCKMAN\nversion 0.1\n\nCopyright 2009 Andrew Anderson <http://www.billamonster.com>\n\nThis is free software, and you are welcome to change and redistribute it under the conditions of the GNU General Public License (GPL) version 3 or later <http://gnu.org/licenses/gpl.html>.  There is NO WARRANTY, to the extent permitted by law.\n\n\nPROGRAMMING\nAndrew Anderson\n\n\nSOUND\nAndrew Anderson\n\n\nGRAPHICS\nAndrew Anderson\n\n\nLEVEL DESIGN\nAndrew Anderson\n\n\nTESTING\nTyler Christensen\nAubree Dinsfriend\nMatthew Galla\nJeanette Ortiz\nJeTSpice <http://jetspicegames.com/>\n\n\nBASED ON AN ORIGINAL CONCEPT\nfound in\nBLOCK-MAN 1\nCopyright 1993 Soleau Software <http://www.soleau.com>\n\n\nSPECIAL THANKS TO\nthe teams behind the free/open-source projects which made this game possible:\n\nAudacity <http://audacity.sourceforge.net>\nDebian <http://www.debian.org>\nGeany <http://www.geany.org>\nGIMP <http://www.gimp.org>\nGNU <http://www.gnu.org>\nThe Linux Kernel <http://www.kernel.org>\nSDL <http://www.libsdl.org>\nUbuntu <http://www.ubuntu.com>\n\n\nETERNAL THANKS TO\nYeshua the Resurrected Messiah", true, (SCREEN_W * .9), 0, 1);
 		UpdateScreen();
 
 		switch (MenuInput()) {
@@ -322,7 +322,7 @@ int MainMenu() {
 int OptionsMenu(bool inGame) {
 	int numItems = 10;
 	menu optMenu(numItems); // Create the menu object
-	char text[70]; // For temporarily holding menu items' text as it is formed
+	char text[72]; // For temporarily holding menu items' text as it is formed
 	
 	uint maxUndoSize = 500;
 	char change_undoSize;
@@ -334,7 +334,7 @@ int OptionsMenu(bool inGame) {
 	int action;
 	
 	/** Set static menu items **/
-	optMenu.Move(inGame ? SCREEN_W / 2 : 75, FONT_H * 5);
+	optMenu.Move(inGame ? SCREEN_W / 2 : 75, FONT_H * 4);
 	optMenu.SetTitle("OPTIONS");
 	optMenu.NameItem(8, "Control Setup");
 	optMenu.NameItem(9, "Done");
@@ -438,13 +438,12 @@ int OptionsMenu(bool inGame) {
 			DrawBackground();
 		}
 		optMenu.AutoArrange(static_cast<char>(inGame ? 1 : 0));
-		optMenu.SpaceItems(7);
 		optMenu.SpaceItems(8);
+		optMenu.SpaceItems(9);
 		optMenu.Display();
 		// If the "replays" or "undo" options are selected
-		if (inGame && (optMenu.GetSel() == 3 || optMenu.GetSel() == 6)) {
-			sprintf(text, "Note: This setting will not take effect\nuntil a new level is loaded.");
-			DrawText((SCREEN_W / 2) - (GetTextW(text, 0) / 2), FONT_H * 20, text, 1);
+		if (inGame && (optMenu.GetSel() == 3 || optMenu.GetSel() == 7)) {
+			DrawText(SCREEN_W / 2, FONT_H * 20, "(Note: This setting will not take effect\nuntil a new level is loaded.)", true, SCREEN_W * .9, 0, 1);
 		}
 		UpdateScreen();
 		
@@ -665,16 +664,19 @@ int PauseMenu() {
 
 
 int EndOfLevelMenu() {
-	int numItems = 2;
+	int numItems = 4;
 	
 	menu theMenu(numItems);
 	
 	theMenu.SetTitle("NOW WHAT?");
 	theMenu.NameItem(0, "Next Level");
 	theMenu.NameItem(1, "View Replay");
+	theMenu.NameItem(2, "Change Level");
+	theMenu.NameItem(3, "Quit Game");
 	
 	theMenu.Move(SCREEN_W / 2, 100);
 	theMenu.AutoArrange(1);
+	theMenu.SpaceItems(2);
 	
 	int action;
 	
