@@ -284,36 +284,27 @@ int Game() {
 					if (currentLevel != i) break;
 				}
 				else { // Normal pause menu
-					b = 0;
-					while (b == 0) {
-						switch (PauseMenu()) {
-							case 0: // Resume Game
-								b = 1;
-								break;
-							case 3: // Restart Level
-								b = 1;
-								showingReplay = false;
-								stickyPlayer = false;
-								restartLevel = true;
-								break;
-							case 4: // Switch Level
-								b = 1;
-								showingReplay = false;
-								stickyPlayer = false;
-								selectingLevel = true;
-								break;
-							case -1: // Esc
-								b = 1;
-								break; // Resume the game
-							case -2: // Close window
-								b = 1;
-								returnVal = -2;
-							case 5: // Quit Game
-								b = 1;
-								showingReplay = false;
-								quitGame = true;
-								break;
-						}
+					switch (PauseMenu()) {
+						case 0: // Resume Game
+							break;
+						case 3: // Restart Level
+							showingReplay = false;
+							stickyPlayer = false;
+							restartLevel = true;
+							break;
+						case 4: // Change Level
+							showingReplay = false;
+							stickyPlayer = false;
+							selectingLevel = true;
+							break;
+						case -1: // Esc
+							break; // Resume the game
+						case -2: // Close window
+							returnVal = -2;
+						case 5: // Quit Game
+							showingReplay = false;
+							quitGame = true;
+							break;
 					}
 				}
 				
@@ -957,6 +948,14 @@ int Game() {
 						case 1: // View Replay
 							stickyPlayer = false;
 							showingReplay = true;
+							break;
+						case 2: // Change Level
+							showingReplay = false;
+							stickyPlayer = false;
+							selectingLevel = true;
+							break;
+						case 3: // Quit Game
+							quitGame = true;
 							break;
 						case -2: // Close window
 							quitGame = true;
