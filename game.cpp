@@ -68,7 +68,8 @@ int Game() {
 	char s[11];
 	char *buf1 = NULL;
 	char *buf2 = NULL;
-	bool pushedKey;
+	bool pushedKey, triedKey;
+	char previousKey;
 	bool quitGame = false;
 	bool restartLevel = false;
 	uint oldLevel = currentLevel;
@@ -163,7 +164,7 @@ int Game() {
 				playerKeys[(i * NUM_PLAYER_KEYS) + j].on = 0;
 			}
 		}
-
+		previousKey = -1;
 
 		/*** Initialze replay ***/
 		recordingReplay = (option_replayOn ? true : false);	
@@ -322,7 +323,7 @@ int Game() {
 			/*** Handle Player Movement ***/
 			for (i = 0; i < numPlayers; i++) {
 				pushedKey = false; // This will forbid multiple actions from happening in the same frame
-
+				triedKey = false;
 				
 				if (showingReplay) {
 					// Turn undo key off
@@ -389,6 +390,7 @@ int Game() {
 					
 					// Enter (push a block)
 					if (pushedKey == false && playerBlock[i] == -1 && playerKeys[(i * NUM_PLAYER_KEYS) + 4].on > 0) {
+						
 						// Determine which tile the player is looking at.
 						if (blocks[i].GetDir() == 0) {	// Facing left
 							x = blocks[i].GetX() - 1;
@@ -410,8 +412,8 @@ int Game() {
 							// (re-use the x variable)
 							x = BoxContents(x, blocks[b].GetY() + (blocks[b].GetH() - 1), 1, 1);
 							
-							// If the space next to the block is empty
-							if (x == -1) {
+							// If the space next to the block is empty or if this player is strong
+							if (x == -1 || blocks[i].GetStrong() > 0) {
 								PlaySound(2); // Play sound
 								
 								// Save only the first player's keypresses
@@ -419,6 +421,7 @@ int Game() {
 									if (recordingReplay) neatoReplay->SaveKey(4); // Save the keypress in the replay
 									if (showingReplay) replayKeyWorked = true;
 									Undo(0); // Save Undo state
+									previousKey = 4;
 								}
 								
 								if (blocks[i].GetDir() == 0) {
@@ -434,8 +437,13 @@ int Game() {
 								pushedKey = true; // Now player can't push other buttons this frame
 							}
 							else {
+								triedKey = true;
+								
 								// If this is the first player
-								if (i == 0) {
+								if (i == 0 && previousKey != 4) {
+									pushedKey = true;
+									previousKey = 4;
+									
 									// If there's another block blocking it
 									if (x >= 0) {
 										switch (rand() % 2) {
@@ -668,8 +676,12 @@ int Game() {
 						blocks[0].SetFace(0); // normal face
 					}
 					
+					// Turn off previousKey
+					if (i == 0 && playerBlock[i] == -1 && pushedKey == false && triedKey == false) {
+						previousKey = -1;
+					}
+					
 					// Only count a replay key as pushed if it did something
-					//if (showingReplay && pushedKey && replayKeyWorked) {
 					if (showingReplay && replayKeyWorked) {
 						neatoReplay->DecrementKey();
 					}

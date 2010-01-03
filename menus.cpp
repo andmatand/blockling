@@ -174,17 +174,27 @@ int Credits() {
 	
 	while (y > -(FONT_H * 70)) {
 		
+		if (y > SCREEN_H) y = SCREEN_H;
+		
 		DrawBackground();
-		DrawText(SCREEN_W / 2, y, "BLOCKMAN\nversion 0.1\n\nCopyright 2009 Andrew Anderson <http://www.billamonster.com>\n\nThis is free software, and you are welcome to change and redistribute it under the conditions of the GNU General Public License (GPL) version 3 or later <http://gnu.org/licenses/gpl.html>.  There is NO WARRANTY, to the extent permitted by law.\n\n\nPROGRAMMING\nAndrew Anderson\n\n\nSOUND\nAndrew Anderson\n\n\nGRAPHICS\nAndrew Anderson\n\n\nLEVEL DESIGN\nAndrew Anderson\n\n\nTESTING\nTyler Christensen\nAubree Dinsfriend\nMatthew Galla\nJeanette Ortiz\nJeTSpice <http://jetspicegames.com/>\n\n\nBASED ON AN ORIGINAL CONCEPT\nfound in\nBLOCK-MAN 1\nCopyright 1993 Soleau Software <http://www.soleau.com>\n\n\nSPECIAL THANKS TO\nthe teams behind the free/open-source projects which made this game possible:\n\nAudacity <http://audacity.sourceforge.net>\nDebian <http://www.debian.org>\nGeany <http://www.geany.org>\nGIMP <http://www.gimp.org>\nGNU <http://www.gnu.org>\nThe Linux Kernel <http://www.kernel.org>\nSDL <http://www.libsdl.org>\nUbuntu <http://www.ubuntu.com>\n\n\nETERNAL THANKS TO\nYeshua the Resurrected Messiah", true, (SCREEN_W * .9), 0, 1);
+		DrawText(SCREEN_W / 2, y, "BLOCKLING\nversion 0.1\n\nCopyright 2009 Andrew Anderson <http://www.billamonster.com>\n\nThis is free software, and you are welcome to change and redistribute it under the conditions of the GNU General Public License (GPL) version 3 or later <http://gnu.org/licenses/gpl.html>.  There is NO WARRANTY, to the extent permitted by law.\n\n\nPROGRAMMING\nAndrew Anderson\n\n\nSOUND\nAndrew Anderson\n\n\nGRAPHICS\nAndrew Anderson\n\n\nLEVEL DESIGN\nAndrew Anderson\n\n\nTESTING\nTyler Christensen\nAubree Dinsfriend\nMatthew Galla\nJeanette Ortiz\nJeTSpice <http://jetspicegames.com/>\n\n\nBASED ON AN ORIGINAL CONCEPT\nfound in\nBLOCK-MAN 1\nCopyright 1993 Soleau Software <http://www.soleau.com>\n\n\nSPECIAL THANKS TO\nthe teams behind the free/open-source projects which made this game possible:\n\nAudacity <http://audacity.sourceforge.net>\nDebian <http://www.debian.org>\nGeany <http://www.geany.org>\nGIMP <http://www.gimp.org>\nGNU <http://www.gnu.org>\nThe Linux Kernel <http://www.kernel.org>\nSDL <http://www.libsdl.org>\nUbuntu <http://www.ubuntu.com>\n\n\nETERNAL THANKS TO\nYeshua the Resurrected Messiah", true, (SCREEN_W * .9), 0, 1);
 		UpdateScreen();
 
 		switch (MenuInput()) {
-			case 1:
+			case 1: // Up
 				y += FONT_H;
 				t = SDL_GetTicks();
 				break;
-			case 2:
+			case 2: // Down
 				y -= FONT_H;
+				t = SDL_GetTicks();
+				break;
+			case 10: // Page Up
+				y += SCREEN_H;
+				t = SDL_GetTicks();
+				break;
+			case 11: // Page Down
+				y -= SCREEN_H;
 				t = SDL_GetTicks();
 				break;
 			case 8: // Esc

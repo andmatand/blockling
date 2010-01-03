@@ -144,7 +144,7 @@ class block {
 		
 		char strong;    // 0 = Regular strength (can only lift/push 1 block at a time)
 		                // 1 = Strong block (used for a strong player and for the block
-		                //     when a strong player acts upon it.
+		                //     when a strong player acts upon it.)
 		                // 2 = Pushed by a strong block (temporary, means this block
 		                //     was pushed by a strong block, and can in turn push other
 		                //     blocks, but this is reset to 0 at the end of the frame.
