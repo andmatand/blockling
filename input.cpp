@@ -350,7 +350,8 @@ void CameraInput(SDL_Event event) {
 //	9 Window close button
 //	10 Page Up
 //	11 Page Down
-char MenuInput() {
+//	A negative value means that the key is being held down and this is a repetition
+signed char MenuInput() {
 	// Keep track of which key is currently held down
 	static char keyDown = 0;
 	static bool keyRepeating;
@@ -447,7 +448,7 @@ char MenuInput() {
 	// Repeat delay
 	if (keyRepeating && SDL_GetTicks() >= keyTimer + 50) {
 		keyTimer = SDL_GetTicks();
-		return keyDown;
+		return -keyDown;
 	}
 	
 	return 0;

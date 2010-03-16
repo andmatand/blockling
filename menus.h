@@ -283,8 +283,13 @@ void menu::Display() {
 
 
 int menu::Input() {
-	int key = MenuInput(); // In input.cpp
 	int oldSel = sel;
+	bool keyWasHeld = false;
+	int key = MenuInput(); // In input.cpp
+	if (key < 0) {
+		keyWasHeld = true;
+		key = -key;
+	}
 	
 	switch (key) {
 		case 1: // Up
@@ -338,9 +343,16 @@ int menu::Input() {
 			break;
 	}
 	
-	if (sel < 0) sel = 0;
-	if (sel > static_cast<int>(numItems - 1)) sel = static_cast<int>(numItems - 1);
-	
+	if (keyWasHeld) {	
+		if (sel < 0) sel = 0;
+		if (sel > static_cast<int>(numItems - 1)) sel = static_cast<int>(numItems - 1);
+	}
+	else {
+		if (sel < 0) sel = static_cast<int>(numItems - 1);
+		if (sel > static_cast<int>(numItems - 1)) sel = 0;
+	}
+
+	// Play a sound if the slection changed	
 	if (sel != oldSel) PlaySound(5);
 	
 	return 0;
