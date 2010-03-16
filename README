@@ -1,9 +1,9 @@
-Please distribute this file with Blockman:
+Please distribute this file with Blockling:
 
-The source code of Blockman is available from:
+The source code of Blockling is available from:
 http://www.billamonster.com/blockman (not yet)
 
-Blockman is free software.  It is distributed under the terms of the GNU 
+Blockling is free software.  It is distributed under the terms of the GNU 
 General Public License:
 http://www.gnu.org/copyleft/gpl.html
 
@@ -82,7 +82,7 @@ Where is the data directory?
     is in.
   - On Unix systems, the data directory is probably "/usr/games/blockman/data/"
   - On Windows systems, this data directory is probably
-    "%systemroot%\Program Files\Blockman\data\".
+    "%systemroot%\Program Files\Blockling\data\".
 
 When examining those levels on non-Unix systems, you will need to be sure to
 use a text editor capable of displaying Unix LF linebreaks.
