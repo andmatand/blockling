@@ -8,3 +8,4 @@ Dependencies
 Compiling with GCC
 ------------------
     * Type "make"
+    * Run the freshly-compiled "./blockling"
