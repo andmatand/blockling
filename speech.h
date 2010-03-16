@@ -23,8 +23,10 @@ void AnimateSpeech();
 void ClearBubbles();
 void ClearSpeechTriggers();
 void DrawBubbles(bool decrementTTLs);
-void Speak(int block, char *text, bool important);
-void Speak(int block, const char *text, bool important);
+void Speak(int block, char *text, bool important, bool polite);
+void Speak(int block, const char *text, bool important, bool polite);
+void Speak(int block, const char *text);
+void Speak(int block, char *text);
 void SpeechTrigger(int block, char *text, int targetFrames, char type, bool important, int id);
 void SpeechTrigger(int block, const char *text, int targetFrames, char type, bool important, int id);
 
@@ -63,6 +65,7 @@ class bubble {
 		void SetY(int yPos) { y = yPos; };
 		void SetTTL(uint frames) { ttl = frames; };
 		void SetImportant(bool thisIsSerious) { important = thisIsSerious; };
+		void SetPolite(bool itCanWait) { polite = itCanWait; };
 	
 		char* GetText() const { return text; };
 		int GetBlock() const { return block; };
@@ -70,6 +73,7 @@ class bubble {
 		int GetY() const { return y; };
 		uint GetTTL() const { return ttl; };
 		bool GetImportant() const { return important; };
+		bool GetPolite() const { return polite; };
 
 		void DelText() { delete [] text; text = NULL; };
 	
@@ -81,6 +85,7 @@ class bubble {
 		int y;          // Top of text
 		uint ttl;       // Time to live (in frames)
 		bool important; // If false, this speech bubble can be cut short by another one's creation
+		bool polite;    // If true, this speech bubble will go to the end of the queue and wait its turn
 };
 
 

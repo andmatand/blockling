@@ -44,19 +44,30 @@ void ClearSpeechTriggers() {
 
 
 
-// Overloaded for both <const char *> and <char *>
-void Speak(int block, const char *text, bool important) {
+// Overloaded for <const char *> instead of <char *>
+void Speak(int block, const char *text, bool important, bool polite) {
 	char temp[strlen(text) + 1];
 	strcpy(temp, text);
 	
-	Speak(block, temp, important);
+	Speak(block, temp, important, polite);
 }
 
-// there is already another active bubble, don't bother speaking
-void Speak(int block, char *text, bool important) {
+// Overloaded for most common shorthand usage
+void Speak(int block, const char *text) {
+	Speak(block, text, 0, 0);
+}
+
+// Overloaded for the shorthand with <char *>
+void Speak(int block, char *text) {
+	Speak(block, text, 0, 0);
+}
+
+// important = this bubble with not be cut short by the appearance of any other bubble
+// polite    = The bubble will go to the end of the queue and wait for the ones before it to finish
+void Speak(int block, char *text, bool important, bool polite) {
 	/** Find the first empty spot in the bubbles array (queue) ****/
 	for (uint i = 0; i < MAX_BUBBLES; i++) {
-		if (bubbles[i].GetTTL() == 0 || bubbles[i].GetImportant() == false) {
+		if (bubbles[i].GetTTL() == 0 || (polite == false && bubbles[i].GetImportant() == false)) {
 			// Set the block/player number
 			bubbles[i].SetBlock(block);
 			
@@ -299,7 +310,7 @@ void SpeechTrigger(int block, char *text, int targetFrames, char type, bool impo
 
 	// Check if this trigger has been held long enough
 	if (triggers[t].GetFrames() == targetFrames) {
-		Speak(block, text, important);
+		Speak(block, text, important, 0);
 		
 		// if this is a one-time-only trigger
 		if (type == 1) {

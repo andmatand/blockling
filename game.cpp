@@ -448,20 +448,20 @@ int Game() {
 									if (x >= 0) {
 										switch (rand() % 2) {
 											case 0:
-												Speak(0, "I'm not strong enough to push more than one block at a time.", false);
+												Speak(0, "I'm not strong enough to push more than one block at a time.");
 												break;
 											case 1:
-												Speak(0, "They're too heavy for me to push.", false);
+												Speak(0, "They're too heavy for me to push.");
 												break;
 										}
 									}
 									else {
 										switch (rand() % 2) {
 											case 0:
-												Speak(0, "I can't move it.  I think there's something blocking it.", false);
+												Speak(0, "I can't move it.  I think there's something blocking it.");
 												break;
 											case 1:
-												Speak(0, "It won't move.  I think there's something on the other side.", false);
+												Speak(0, "It won't move.  I think there's something on the other side.");
 												break;
 										}
 									}
@@ -647,7 +647,7 @@ int Game() {
 												sprintf(buf2, "I can't.  There's a %s blocking it.", buf1);
 												break;
 										}
-										Speak(0, buf2, false);
+										Speak(0, buf2);
 										
 										delete [] buf1; buf1 = NULL;
 										delete [] buf2; buf2 = NULL;
@@ -660,8 +660,8 @@ int Game() {
 						else {
 							// Check if there is an ungrabbable block
 							if (BlockNumber(x, blocks[i].GetY() + (blocks[i].GetH() - 1), 1, 1) >= 0) {
-								Speak(0, "I can't get a grip on the bottom of it.", 0);
-								if (rand() % 2) Speak(0, "My arms aren't very long, after all.", 0);
+								Speak(0, "I can't get a grip on the bottom of it.");
+								if (rand() % 2) Speak(0, "My arms aren't very long, after all.", 0, 1);
 							}
 						}
 					}
