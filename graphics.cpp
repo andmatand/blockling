@@ -92,8 +92,8 @@ SDL_Surface* TileSurface(char *path, const char *filename, bool transparent) {
 		
 		// Change the fullPath to the default tile path + the filename
 		delete [] fullPath;
-		fullPath = new char[strlen(TILE_PATH) + strlen(DEFAULT_TILESET) + 1 + strlen(filename) + 1];
-		sprintf(fullPath, "%s%s/%s", TILE_PATH, DEFAULT_TILESET, filename);
+		fullPath = new char[strlen(DATA_PATH) + strlen(TILE_PATH) + strlen(DEFAULT_TILESET) + 1 + strlen(filename) + 1];
+		sprintf(fullPath, "%s%s%s/%s", DATA_PATH, TILE_PATH, DEFAULT_TILESET, filename);
 	}
 	else { // If it does exist
 		fclose(fp);
@@ -580,8 +580,8 @@ void LoadTileset(const char *tilesetDir) {
 
 	/*** Load new tile bmps into surfaces ***/
 	// Set the path
-	char path[strlen(TILE_PATH) + strlen(tilesetDir) + 2];
-	sprintf(path, "%s%s/", TILE_PATH, tilesetDir);
+	char path[strlen(DATA_PATH) + strlen(TILE_PATH) + strlen(tilesetDir) + 2];
+	sprintf(path, "%s%s%s/", DATA_PATH, TILE_PATH, tilesetDir);
 	
 	bgSurface = TileSurface(path, "bg.bmp", 0);
 	bgW = bgSurface->w;
