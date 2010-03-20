@@ -8,5 +8,6 @@ possible (without falling off a cliff two blocks high)
 
 
 ==Bugs==
+-During a replay, choosing "Select Level" from the pause menu doesn't work
 -Teleportation animation lags behind camera movements
 -In Windows, controls aren't written to settings file
