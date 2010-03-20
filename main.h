@@ -56,10 +56,10 @@ const char DEFAULT_LEVELSET[] = "default";
 const char SETTINGS_PATH[] = "./";
 #ifdef _WIN32
 	const char TEMP_PATH[] = "./";
-	const char SETTINGS_FILE[] = "blockman.cfg";
+	const char SETTINGS_FILE[] = "blockling.cfg";
 #else
 	const char TEMP_PATH[] = "/tmp/";
-	const char SETTINGS_FILE[] = ".blockmanrc";
+	const char SETTINGS_FILE[] = ".blocklingrc";
 #endif
 
 

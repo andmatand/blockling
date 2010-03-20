@@ -373,15 +373,19 @@ signed char MenuInput() {
 						}
 						break;
 					case SDLK_UP:
+					case SDLK_k:
 						keyDown = 1;
 						break;
 					case SDLK_DOWN:
+					case SDLK_j:
 						keyDown = 2;
 						break;
 					case SDLK_LEFT:
+					case SDLK_h:
 						keyDown = 3;
 						break;
 					case SDLK_RIGHT:
+					case SDLK_l:
 						keyDown = 4;
 						break;
 					case SDLK_HOME:
@@ -407,15 +411,19 @@ signed char MenuInput() {
 			case SDL_KEYUP:
 				switch (event.key.keysym.sym) {
 					case SDLK_UP:
+					case SDLK_k:
 						if (keyDown == 1) keyDown = 0;
 						break;
 					case SDLK_DOWN:
+					case SDLK_j:
 						if (keyDown == 2) keyDown = 0;
 						break;
 					case SDLK_LEFT:
+					case SDLK_h:
 						if (keyDown == 3) keyDown = 0;
 						break;
 					case SDLK_RIGHT:
+					case SDLK_l:		
 						if (keyDown == 4) keyDown = 0;
 						break;
 					default:
