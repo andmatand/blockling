@@ -1,5 +1,5 @@
 /*
- *   Copyright 2009 Andrew Anderson <www.billamonster.com>
+ *   Copyright 2010 Andrew Anderson <www.billamonster.com>
  *	  
  *   This file is part of Blockling.
  *

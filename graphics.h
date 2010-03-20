@@ -1,7 +1,7 @@
 /*
  *   graphics.h
  *	  
- *   Copyright 2009 Andrew Anderson <billamonster.com>
+ *   Copyright 2010 Andrew Anderson <billamonster.com>
  *	  
  *   This file is part of Blockling.
  *
