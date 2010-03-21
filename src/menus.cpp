@@ -247,7 +247,7 @@ int HelpMenu(bool inGame) {
 		/** Show the help text ****/
 		sprintf(text, "How to Play:");
 		DrawText(x1, (FONT_H + 2) * 2, text, 3);
-		sprintf(text, "Pick up blocks and stack them to get to the exit!  BLOCKMAN can only climb up steps one block high.");
+		sprintf(text, "Pick up blocks and stack them to get to the exit!  The young BLOCKLING can only climb up steps one block high.");
 		DrawText(x2, (FONT_H + 2) * 3, text, false, static_cast<int>(SCREEN_W * .9) - x2, 0, 1);
 
 		sprintf(text, "In-Game Controls:");
