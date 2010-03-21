@@ -860,25 +860,6 @@ int Game() {
 			/*** Draw the Background (underneath teleportation animation) ***/
 			DrawBackground();
 
-			/*** Do Telepads (including teleportation animation) ***/
-			for (i = 0; i < numTelepads; i++) {
-				// If the telpad is currently in the process of teleporting something
-				// OR the telepad needs to teleport
-				if (telepads[i].GetTeleporting() == true) {
-					telepads[i].Teleport();
-				}
-				else if (telepads[i].NeedsToTeleport()) {
-					telepads[i].Teleport();
-				}
-				// If the telepad is waiting to teleport (flashing red)
-				else if (telepads[i].GetState() == 1) {
-					if (telepads[i].GetOccupant1() == 0 || telepads[i].GetOccupant2() == 0) {
-						SpeechTrigger(0, "I think there's something blocking the other telepad.", FPS, 1, false, 1);
-					}
-				}
-			}
-			
-			/** Render **/
 			if (showingReplay) {				
 				// Skip frames depending on playback speed of replay
 				// (and determine menu text)
@@ -937,14 +918,39 @@ int Game() {
 					replayMenu->Display();
 				}
 			}
+
+			// Process camera movements
 			if (showingReplay == false || frameNumber == 0) {
-				Render(0b00000111);
+				MoveCamera();
+				CenterCamera(0);
+			}
+
+			/*** Do Telepads (including teleportation animation) ***/
+			for (i = 0; i < numTelepads; i++) {
+				// If the telpad is currently in the process of teleporting something
+				// OR the telepad needs to teleport
+				if (telepads[i].GetTeleporting() == true) {
+					telepads[i].Teleport();
+				}
+				else if (telepads[i].NeedsToTeleport()) {
+					telepads[i].Teleport();
+				}
+				// If the telepad is waiting to teleport (flashing red)
+				else if (telepads[i].GetState() == 1) {
+					if (telepads[i].GetOccupant1() == 0 || telepads[i].GetOccupant2() == 0) {
+						SpeechTrigger(0, "I think there's something blocking the other telepad.", FPS, 1, false, 1);
+					}
+				}
+			}
+			
+			// Render
+			if (showingReplay == false || frameNumber == 0) {
+				Render(0b00000101);
 			}
 			else {
 				// Do stuff that would normally be done
 				// within render that still needs to be
 				// done every loop
-				CenterCamera(0);
 				DrawBubbles(true);
 			}
 

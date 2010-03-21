@@ -98,6 +98,7 @@ int ControlSetupMenu(bool inGame) {
 		/** Render *****************/
 		do {
 			if (inGame) {
+				MoveCamera();
 				Render(0b00001000);
 			}
 			else {
@@ -235,6 +236,7 @@ int HelpMenu(bool inGame) {
 	while (true) {
 		/** Render *****************/
 		if (inGame) {
+			MoveCamera();
 			Render(0b00001000);
 		}
 		else {
@@ -442,6 +444,7 @@ int OptionsMenu(bool inGame) {
 		
 		/** Render *****************/
 		if (inGame) {
+			MoveCamera();
 			Render(0b00001000);
 		}
 		else {
@@ -664,6 +667,7 @@ int PauseMenu() {
 				break;
 		}
 		
+		MoveCamera();
 		Render(0b00001000);
 		pauseMenu.Display();
 		UpdateScreen();
@@ -765,6 +769,7 @@ int ReplayPauseMenu() {
 				break;
 		}
 		
+		MoveCamera();
 		Render(0b00001000);
 		pauseMenu.Display();
 		UpdateScreen();
