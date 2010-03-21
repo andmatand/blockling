@@ -1,6 +1,6 @@
 SHELL = /bin/sh
 
-DATADIR = ../data/
+DATADIR = data/
 srcdir = src/
 
 CC = g++
@@ -10,4 +10,4 @@ default: all
 
 all:
 
-	$(CC) $(CFLAGS) -o $(srcdir)blockling $(srcdir)main.cpp
+	$(CC) $(CFLAGS) -o ./blockling $(srcdir)main.cpp
