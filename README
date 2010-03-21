@@ -41,7 +41,7 @@ distribute to others in any practical way.
 
 Many years later, I discovered Linux and C++, and here is the result.
 
--Andrew Anderson (www.billamonster.com)
+-Andrew Anderson (www.unfinishedblog.org)
 
 
 
@@ -73,16 +73,7 @@ d  Move camera right
 == III. CREATING YOUR OWN LEVELS =======
 Levels can be easily created using a simple text editor.  Perhaps the easiest
 way to begin is by examining some existing levels.  The game's default levels
-may be found in the "levels/default/" directory within the data directory.
-
-Where is the data directory?
-
-  - If the game is not "installed" and you are just running it from a folder,
-    the data directory is located in the same directory that this readme file
-    is in.
-  - On Unix systems, the data directory is probably "/usr/games/blockman/data/"
-  - On Windows systems, this data directory is probably
-    "%systemroot%\Program Files\Blockling\data\".
+may be found in the "levels/default/" directory within the "data/" directory.
 
 When examining those levels on non-Unix systems, you will need to be sure to
 use a text editor capable of displaying Unix LF linebreaks.
@@ -130,8 +121,8 @@ When designing a level, it can be helpful to try out your changes by playing
 through the level, or simply observing how the level is being parsed by the
 game.  Since the game loads levels afresh from disk each time they are
 reloaded, this can be accomplished by running the game and displaying the level
-upon which you are working, and reloading it whenever you save a change.  The
-F5 keyboard shortcut is particularly handy for quick reloading.
+upon which you are working, reloading it whenever you save a change.  The F5
+keyboard shortcut is particularly handy for quick reloading.
 
 If the game finds any syntax errors in your file, it will let you know with a
 (hopefully) helpful on-screen message.
