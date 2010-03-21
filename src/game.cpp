@@ -976,9 +976,11 @@ int Game() {
 					}
 				}
 
-				wonLevel = 4;
-				if (showingReplay == false) {
-					currentLevel ++;
+				if (selectingLevel == false) {
+					wonLevel = 4;
+					if (showingReplay == false) {
+						currentLevel ++;
+					}
 				}
 				
 				break;
