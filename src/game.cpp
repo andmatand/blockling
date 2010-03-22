@@ -86,13 +86,10 @@ int Game() {
 	bool replayKeyWorked;
 	menu *replayMenu = NULL;
 	uint frameNumber; // counts frames for doing frameskipping for fast replays
+	char replayTempFile[256]; // Will hold filenames for replay temp files
 	
-	// Replay object pointer
-	replay *neatoReplay = NULL;
-
-	// Get full filename for the replay temp file
-	char replayTempFile[256];
-	sprintf(replayTempFile, "%sblockman-replay.tmp", TEMP_PATH);
+	// Pointer for array of pointers replay objects
+	replay **theReplays = NULL;
 
 	/*** Loop to advance to next level ***/
 	while(quitGame == false) {
@@ -171,8 +168,10 @@ int Game() {
 		replayKeyWorked = false;
 	
 		if (showingReplay) {
-			// Initialize the replay for reading
-			neatoReplay->InitRead();
+			// Initialize the replay files for reading
+			for (i = 0; i < numPlayers; i++) {
+				theReplays[i]->InitRead();
+			}
 			
 			// Disable recording
 			recordingReplay = false;
@@ -185,11 +184,31 @@ int Game() {
 			frameNumber = 0;
 		}
 		else if (recordingReplay) {
-			// Create the replay object
-			neatoReplay = new replay(replayTempFile, 100); // A buffer of 100 takes about 500 bytes of memory
+			// Create an array of replay object pointers (one replay for each player)
+			theReplays = new replay*[numPlayers];
+			for (i = 0; i < numPlayers; i++) {
+				// Loop to try sequential numbers at the end of the filename
+				for (uint j = i; j < (2 ^ sizeof(j)); j++) {
+					// Get full filename for this replay temp file
+					sprintf(replayTempFile, "%sblockman-replay-%d.tmp", TEMP_PATH, j);
 
-			// Initialize the replay object for writing
-			neatoReplay->InitWrite();
+					// If this filename doesn't exist, we can exit the loop
+					FILE *f = NULL;
+					f = fopen(replayTempFile, "r");
+					if (f == NULL) {
+						break;
+					}
+					else {
+						fclose(f);
+					}	
+				}
+
+				// Create the replay object
+				theReplays[i] = new replay(i, replayTempFile, 100);  // A buffer of 100 takes about 500 bytes of memory
+
+				// Initialize the replay object for writing
+				theReplays[i]->InitWrite();
+			}
 		}
 
 		/******* GAME LOOP *******/
@@ -332,15 +351,15 @@ int Game() {
 					// If the next key in the replay is Undo, press that
 					// here (not inside the normal keypressing scope which
 					// requires that the player be on solid ground)
-					if (neatoReplay->GetNextKey() == 5) {
-						neatoReplay->PushNextKey();
+					if (theReplays[i]->GetNextKey() == 5) {
+						theReplays[i]->PushNextKey();
 					}
 				}
 				
 				// Undo
 				if (i == 0 && gameKeys[4].on > 0) {
-					if (recordingReplay) neatoReplay->SaveKey(5); // Save the keypress in the replay
-					if (showingReplay) replayKeyWorked = true;
+					if (recordingReplay) theReplays[i]->SaveKey(5); // Save the keypress in the replay
+					//if (showingReplay) replayKeyWorked = true;
 					
 					Undo(1);
 					pushedKey = true;
@@ -362,28 +381,31 @@ int Game() {
 					
 					/*** Perform next keypress from replay file ***/
 					if (showingReplay) {
-						// Turn all playerKeys off (for player 0)
+						// Turn all playerKeys off (for current player)
 						for (uint j = 0; j < NUM_PLAYER_KEYS; j++) {
-							playerKeys[j].on = 0;
+							playerKeys[(i * NUM_PLAYER_KEYS) + j].on = 0;
 						}
 						
 						if (physicsStarted) {
-							currentReplayKey = neatoReplay->GetNextKey();
+							currentReplayKey = theReplays[i]->GetNextKey();
+							theReplays[i]->PushNextKey();
 							//printf("currentReplayKey = %d\n", currentReplayKey);
 						
 							// Push the next key if it's okay
-							if (currentReplayKey != 100) {
+							//if (currentReplayKey != 100) {
 								//if (replayKeyWorked == false) printf("Key didn't do anything.  Trying again.\n");
 								//printf("pushing key %d\n", currentReplayKey);
 								
-								neatoReplay->PushKey(currentReplayKey);
+								//theReplays[i]->PushKey(currentReplayKey);
+								/*
 								if (currentReplayKey == -1) {
 									replayKeyWorked = true;
 								}
 								else {
 									replayKeyWorked = false;
 								}
-							}
+								*/
+							//}
 						}
 					}
 					
@@ -415,15 +437,16 @@ int Game() {
 							// If the space next to the block is empty or if this player is strong
 							if (x == -1 || blocks[i].GetStrong() > 0) {
 								PlaySound(2); // Play sound
-								
-								// Save only the first player's keypresses
+
+								if (recordingReplay) theReplays[i]->SaveKey(4); // Save the keypress in the replay
+								//if (showingReplay) replayKeyWorked = true;
+
+								// If this is player 0
 								if (i == 0) {
-									if (recordingReplay) neatoReplay->SaveKey(4); // Save the keypress in the replay
-									if (showingReplay) replayKeyWorked = true;
 									Undo(0); // Save Undo state
 									previousKey = 4;
 								}
-								
+
 								if (blocks[i].GetDir() == 0) {
 									blocks[i].SetXMoving(-TILE_W);
 									blocks[b].SetXMoving(-TILE_W);
@@ -439,7 +462,7 @@ int Game() {
 							else {
 								triedKey = true;
 								
-								// If this is the first player
+								// Possibly do speech if this is the first player
 								if (i == 0 && previousKey != 4) {
 									pushedKey = true;
 									previousKey = 4;
@@ -480,23 +503,21 @@ int Game() {
 								
 								// If the player is actually going to move
 								if (blocks[i].GetPathLength() > 0 || blocks[i].GetXMoving() != 0) {
-									// Save only the first player's keypresses
+									// If this is player 0
 									if (i == 0) {
 										Undo(0); // Save Undo state
-										if (recordingReplay) neatoReplay->SaveKey(0); // Save the keypress in the replay
-										if (showingReplay) replayKeyWorked = true;
 									}
+
+									if (recordingReplay) theReplays[i]->SaveKey(0); // Save the keypress in the replay
+									//if (showingReplay) replayKeyWorked = true;
 									
 									pushedKey = true; // Now player can't push other buttons this frame
 								}
 							}
 						}
 						else {
-							// Save only the first player's keypresses
-							if (i == 0) {
-								if (recordingReplay) neatoReplay->SaveKey(0); // Save the keypress in the replay
-								if (showingReplay) replayKeyWorked = true;
-							}
+							if (recordingReplay) theReplays[i]->SaveKey(0); // Save the keypress in the replay
+							//if (showingReplay) replayKeyWorked = true;
 							
 							blocks[i].SetDir(0);
 							
@@ -514,24 +535,22 @@ int Game() {
 
 								// If the player is actually going to move
 								if (blocks[i].GetPathLength() > 0 || blocks[i].GetXMoving() != 0) {
-									// Save only the first player's keypresses
+									// If this is player 0
 									if (i == 0) {
 										Undo(0); // Save Undo state
-										if (recordingReplay) neatoReplay->SaveKey(1); // Save the keypress in the replay	
-										if (showingReplay) replayKeyWorked = true;
 									}
 									
+									if (recordingReplay) theReplays[i]->SaveKey(1); // Save the keypress in the replay	
+									//if (showingReplay) replayKeyWorked = true;
+
 									pushedKey = true; // Now player can't push other buttons this frame
 								}
 							}
 						}
 						else {
-							// Save only the first player's keypresses
-							if (i == 0) {
-								if (recordingReplay) neatoReplay->SaveKey(1); // Save the keypress in the replay
-								if (showingReplay) replayKeyWorked = true;
-							}
-							
+							if (recordingReplay) theReplays[i]->SaveKey(1); // Save the keypress in the replay
+							if (showingReplay) replayKeyWorked = true;
+
 							blocks[i].SetDir(1);
 							
 							pushedKey = true; // Now player can't push other buttons this frame
@@ -546,10 +565,11 @@ int Game() {
 						// If it's a block, set its path to be set down.
 						if (b >= 0 && blocks[b].GetXMoving() == 0 && blocks[b].GetYMoving() == 0) {
 							PlaySound(1); // Play sound
-							// Save only the first player's keypresses
+							if (recordingReplay) theReplays[i]->SaveKey(3); // Save the keypress in the replay
+							//if (showingReplay) replayKeyWorked = true;
+							
+							// If this is player 0
 							if (i == 0) {
-								if (recordingReplay) neatoReplay->SaveKey(3); // Save the keypress in the replay
-								if (showingReplay) replayKeyWorked = true;
 								Undo(0); // Save Undo state
 							}
 							
@@ -589,10 +609,11 @@ int Game() {
 						
 						// If it's a block, make it climb up onto the player =)
 						if (b >= 0 && blocks[b].GetType() >= 0) {
-							// Save only the first player's keypresses
+							if (recordingReplay) theReplays[i]->SaveKey(2); // Save the keypress in the replay
+							//if (showingReplay) replayKeyWorked = true;
+							
+							// If this is player 0
 							if (i == 0) {
-								if (recordingReplay) neatoReplay->SaveKey(2); // Save the keypress in the replay
-								if (showingReplay) replayKeyWorked = true;
 								Undo(0); // Save Undo state
 							}
 							
@@ -611,6 +632,7 @@ int Game() {
 							}
 							// If there was no room for the block to climb
 							else {
+								// Possibly do speech if this is player 0
 								if (i == 0) {
 									switch (x) {
 										case 0:
@@ -666,8 +688,8 @@ int Game() {
 						}
 					}
 					
-					if (i == 0 && pushedKey == false && recordingReplay && levelTimeRunning && wonLevel < 2) {
-						neatoReplay->SaveKey(-1); // Save the non-keypress (sleep) in the replay
+					if (pushedKey == false && recordingReplay && levelTimeRunning && wonLevel < 2) {
+						theReplays[i]->SaveKey(-1); // Save the non-keypress (sleep) in the replay
 					}
 					
 					// Prevent bug where player moves in very first frame before player's
@@ -682,9 +704,11 @@ int Game() {
 					}
 					
 					// Only count a replay key as pushed if it did something
+					/*
 					if (showingReplay && replayKeyWorked) {
-						neatoReplay->DecrementKey();
+						theReplays[i]->DecrementKey();
 					}
+					*/
 				}
 				
 
@@ -767,8 +791,8 @@ int Game() {
 					blocks[i].SetDir(2); // Face the camera
 					if (blocks[i].GetH() > TILE_H - 2) blocks[i].SetH(blocks[i].GetH() - 2);
 					
-					// If this is player one, and it's an early level
-					if (i == 0 && currentLevel < 8) {
+					// If this is player 0
+					if (i == 0) {
 						// Give a helpful hint about undoing
 						switch (rand() % 2) {
 							case 0:
@@ -789,6 +813,7 @@ int Game() {
 				// If the player just finished walking into the exit (with the door open)
 				if (blocks[i].GetWon() == 2 && blocks[i].GetX() == exitX && blocks[i].GetY() - blocks[i].GetYOffset() == exitY) {
 					blocks[i].SetWon(3);
+					// If this is player 0
 					if (i == 0) {
 						PlaySound(8);
 						
@@ -875,7 +900,8 @@ int Game() {
 						break;
 					case 1: // Normal speed
 						sprintf(s, "REALTIME");
-
+						replayMenu->SetLeftArrow(0, 0);
+						
 						frameNumber = 0; // Show every frame
 						break;
 					case 2: // 2x
@@ -1014,17 +1040,21 @@ int Game() {
 
 		// Collect garbage for replay (post-record)
 		if (recordingReplay) {
-			neatoReplay->DeInitWrite();
+			for (i = 0; i < numPlayers; i++) {
+				theReplays[i]->DeInitWrite();
+			}
 		}
 
 		// Collect garbage for replay (post-play)
 		if (showingReplay == false || quitGame) {
-			delete neatoReplay;
-			neatoReplay = NULL;
-			
-			if (remove(replayTempFile) != 0) {
-				fprintf(stderr, "File error: Could not delete %s\n", replayTempFile);
+			for (i = 0; i < numPlayers; i++) {
+				if (remove(theReplays[i]->GetFilename()) != 0) {
+					fprintf(stderr, "File error: Could not delete %s\n", replayTempFile);
+				}
 			}
+			
+			delete [] theReplays;
+			theReplays = NULL;
 			
 			delete replayMenu;
 			replayMenu = NULL;

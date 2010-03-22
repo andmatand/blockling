@@ -18,8 +18,8 @@
  */
 
 
-
 //#define DEBUG_REPLAY
+
 /******** replayStep *********/
 // A replayStep is one or more repititions of the same "action" (i.e.
 // keypress).  Physically, it takes up one line when written to a replay
@@ -91,7 +91,7 @@ char replayStep::GetSymbol() {
 class replay {
 	public:
 		// Constructor prototype
-		replay(char *file, uint buffSize);
+		replay(char player, char *file, uint buffSize);
 
 		// Destructor prototype
 		~replay();
@@ -110,33 +110,37 @@ class replay {
 		void DecrementKey();
 		
 		/*** Other ***/
+		char* GetFilename() { return filename; };
 		void InitRead();
 		void DeInitRead();
 		void InitWrite();
 		void DeInitWrite();
 		
 	private:
-		char *filename;		// Full path to read/write the replay file from/to.
+		char *filename;         // Full path to read/write the replay file from/to.
 		
-		FILE *fp;		// Pointer to file stream
+		FILE *fp;               // Pointer to file stream
 		
-		uint bufferSize;	// Number of replaySteps that will be
-					// simultaneously held in the buffer.
+		uint bufferSize;        // Number of replaySteps that will be
+		                        // simultaneously held in the buffer.
 		
-		replayStep *steps;	// Will point to an array of replaySteps
+		replayStep *steps;      // Will point to an array of replaySteps
 		
-		uint pos;		// The current step (whether recording or playing)
+		uint pos;               // The current step (whether recording or playing)
 		
-		uint *timestamps;	// Will point to an array of timestamps (timestamps come after sleeps)
+		uint *timestamps;       // Will point to an array of timestamps (timestamps come after sleeps)
 		uint lastTimestamp;
+
+		char playerNum;         // The player for whom this replay file is (each player has a separate file)
 };
 
 // Constructor
-replay::replay(char *file, uint buffSize):
+replay::replay(char player, char *file, uint buffSize):
 pos(0) {
 	bufferSize = buffSize;
 	steps = new replayStep[bufferSize];
 	timestamps = new uint[bufferSize];
+	playerNum = player;
 	
 	if (file != NULL) {
 		filename = new char[strlen(file) + 1];
@@ -499,7 +503,7 @@ void replay::PushKey(int k) {
 	}
 	// Regular Key
 	else if (k >= 0 && k <= 4) {
-		playerKeys[k].on = 1;
+		playerKeys[(playerNum * NUM_PLAYER_KEYS) + k].on = 1;
 	}
 }
 
@@ -513,6 +517,8 @@ void replay::PushNextKey() {
 	}
 
 	int k = GetNextKey();
+
+	if (k == 100) return;
 	
 	/*** Turn the correct key on ***/
 	PushKey(k);

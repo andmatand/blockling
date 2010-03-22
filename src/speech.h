@@ -114,7 +114,9 @@ class trigger {
 		trigger():
 			id(-1),
 			frames(0)
-			{}
+			{
+				active = false;
+			}
 		
 		// Destructor
 		//~trigger() {}

@@ -209,9 +209,10 @@ int GameInput(char mode) {
 	}
 	
 	
-	
-	// Add NPC access to playerKeys here
-	NPCInput();
+	// If this is not a replay, do the input for Non-Playable Characters	
+	if (mode == 0) {
+		NPCInput();
+	}
 	
 	return 0;
 }
@@ -739,7 +740,7 @@ void ReplayInput(SDL_Event event) {
 		case SDL_KEYDOWN:
 			switch (event.key.keysym.sym) {
 				case SDLK_LEFT:
-					if (option_replaySpeed > 0) option_replaySpeed--;
+					if (option_replaySpeed > 1) option_replaySpeed--;
 					break;
 				case SDLK_RIGHT:
 					if (option_replaySpeed < 5) option_replaySpeed++;

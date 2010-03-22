@@ -4,7 +4,7 @@ DATADIR = data/
 srcdir = src/
 
 CC = g++
-CFLAGS = -Wall -Wextra -lSDL -lSDL_mixer -DDATA_PATH="\"$(DATADIR)\""
+CFLAGS = -ggdb -Wall -Wextra -lSDL -lSDL_mixer -DDATA_PATH="\"$(DATADIR)\""
 
 default: all
 

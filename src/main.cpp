@@ -169,7 +169,6 @@ void DeInit() {
 	//Mix_FreeMusic(bgMusic);
  	Mix_CloseAudio();
 
-
 	/** Shut down SDL ****/
 	SDL_Quit();
 }
