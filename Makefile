@@ -6,8 +6,11 @@ srcdir = src/
 CC = g++
 CFLAGS = -ggdb -Wall -Wextra -lSDL -lSDL_mixer -DDATA_PATH="\"$(DATADIR)\""
 
+# Comment out the line below to disable debug mode
+DEFINE=-DDEBUG
+
 default: all
 
 all:
 
-	$(CC) $(CFLAGS) -o ./blockling $(srcdir)main.cpp
+	$(CC) $(CFLAGS) $(DEFINE) -o ./blockling $(srcdir)main.cpp

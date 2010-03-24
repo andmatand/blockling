@@ -361,8 +361,8 @@ void replay::FillBuffer() {
 	// If the whole buffer was not filled (i.e. EOF was reached)
 	if (i < bufferSize) {
 		// Raise a flag for PushNextKey to know when to stop
-		steps[i - 1].SetKey(100);
-		timestamps[i - 1] = 0;
+		steps[i].SetKey(100);
+		timestamps[i] = 0;
 	}
 	
 	// Reset position
@@ -476,6 +476,7 @@ char replay::GetNextKey() {
 		}
 
 		// Lengthen sleeps if replay is in slow motion
+		/*
 		if (option_replaySpeed == 0 && steps[pos].GetKey() == -1) {
 			printf("STEP %d: Lengethed sleep length from %d to ", pos, steps[pos].GetNum());
 			
@@ -483,6 +484,7 @@ char replay::GetNextKey() {
 			
 			printf("%d\n", steps[pos].GetNum());
 		}
+		*/
 	}
 	
 	// Check for the flag set by FillBuffer to signal EOF

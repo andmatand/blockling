@@ -1,53 +1,62 @@
-Please distribute this file with Blockling:
+-==Please distribute this file with Blockling==-
+
+Blockling is free software.  It is distributed under the terms of the GNU 
+General Public License:  http://www.gnu.org/copyleft/gpl.html
 
 The source code of Blockling is available from:
 http://sourceforge.net/projects/blockling
 
-Blockling is free software.  It is distributed under the terms of the GNU 
-General Public License:
-http://www.gnu.org/copyleft/gpl.html
+Enjoy Blockling?  Absolutely hate it?  Have some cool level designs?
+All types of feedback are valued!
+  * Forum: http://sourceforge.net/projects/blockling/forums/forum/1112080
+  * or send e-mail to blockling@unfinishedblog.org 
 
 
-
-== TABLE OF CONTENTS =======
+== TABLE OF CONTENTS ===========================================================
 I.   About
 II.  Controls
 III. Creating Your Own Levels
 
 
 
-== I. ABOUT =======
-In 1993, Doug and Larry Murk of Soleau Software <www.soleau.com> released
-BLOCK-MAN 1.0.  I first played Block-man at my grandmother's house as a young
-lad circa 1996.  It was included on one of those old demo CDs which would have
-dozens of Shareware/Demo games on them.  Since Block-man was distributed as
-"shareware", it happened to be included on one of those discs.
+== I. ABOUT ====================================================================
+In 1993, Doug and Larry Murk of Soleau Software <www.soleau.com> released BLOCK-
+MAN 1.0.  I first played Block-Man at my grandmother's house as a young lad
+circa 1996.  I loved going to her house because she had a few of those old "demo
+CDs" which would have dozens of Shareware/Demo games on them (this was of course
+back before broadband Internet access was widely available).  Since Block-Man
+was "shareware", it happened to be included on one of those discs.
 
-As I played the game, I was intrigued by its deceitfully simple gameplay;
-Little blocks, innocently stacked in random piles amidst a room, radiated with
-child-like playfulness; yet, as the levels progressed, the task of arranging
-them in such a way as to reach the exit became a puzzle far too complex for
-most grown men!
+As I played the game, I was intrigued by its deceitfully simple gameplay: Little
+blocks, innocently stacked in random piles amidst a room, radiated with child-
+like playfulness; yet, as the levels progressed, the task of arranging them in
+such a way as to reach the exit became a puzzle far too complex for most grown
+men!  (Well, at least too complex for me at the time)
 
-Being an avid QBasic programmer from the age of nine, I figured I'd attempt to
-implement my own version of Block-man.  I did so rather succesfully, adding my
-own touches such as telepads and the ability to push blocks and turn around
+Being the avid nine-year-old BASIC programmer I was, I figured I'd attempt to
+implement my own version of Block-Man.  I did so rather succesfully, adding my
+own touches such as "telepads" and new abilities to push blocks and turn around
 without walking.  These additions gave the game a somewhat different dynamic,
-and I was pleased overall with the result, except for one big problem: I had
-written the whole thing in QBasic.  Becuase my code was much too large for the
-simple QBasic interpreter, not only was I forced to stop adding to it, but I
-was unable to compile it into an executable, thus making it impossible to 
-distribute to others in any practical way.  
+and I was pleased overall with the result, except for one big problem:  I had
+written the whole thing in Microsoft QBasic!  As my code grew larger and larger,
+eventually reaching the size limit of the feeble QBasic interpreter, I came to
+the harsh realization that I would need to learn a real programming language if
+I ever wanted to finish my version of Block-Man.
 
-Many years later, I discovered Linux and C++, and here is the result.
+Many years elapsed, but I eventually discovered Linux and then finally got
+around to learning enough C++ that I was able to rewrite the game from scratch
+and produce what I now call Blockling.
 
--Andrew Anderson (www.unfinishedblog.org)
+I hope you enjoy it.  And feel free to help me make it even better!
+
+Andrew Anderson <www.unfinishedblog.org>
+March 2010
 
 
 
-== II. CONTROLS =======
+== II. CONTROLS ================================================================
 Esc           Menu
-F1            Help (not yet implemented)
+F1            Help
 F2            Toggle Music
 F3            Toggle Sound
 F5            Restart the current level
@@ -70,7 +79,7 @@ d  Move camera right
 
 
 
-== III. CREATING YOUR OWN LEVELS =======
+== III. CREATING YOUR OWN LEVELS ===============================================
 Levels can be easily created using a simple text editor.  Perhaps the easiest
 way to begin is by examining some existing levels.  The game's default levels
 may be found in the "levels/default/" directory within the "data/" directory.
@@ -125,4 +134,4 @@ upon which you are working, reloading it whenever you save a change.  The F5
 keyboard shortcut is particularly handy for quick reloading.
 
 If the game finds any syntax errors in your file, it will let you know with a
-(hopefully) helpful on-screen message.
+(hopefully) helpful on-screen message (on the level-selection screen).

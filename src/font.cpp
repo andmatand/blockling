@@ -131,7 +131,9 @@ int GetTextH(char *text, int wrapWidth, int spacing) {
 void LoadFont(const char *file) {
 	char fullPath[256];
 	sprintf(fullPath, "%s%s%s", DATA_PATH, FONT_PATH, file);
-	printf("fullPath = %s\n", fullPath);
+	#ifdef DEBUG
+		printf("fullPath = %s\n", fullPath);
+	#endif
 	
 	// The surface holding the big long list of characters
 	SDL_Surface *fontSurf = FillSurface(fullPath, 0);

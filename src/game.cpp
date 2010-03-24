@@ -19,8 +19,10 @@
 
 
 void CollectLevelGarbage() {
-	printf("Collecting Level Garbage...\n");
-	
+	#ifdef DEBUG
+		printf("Collecting Level Garbage...\n");
+	#endif
+
 	delete [] bricks; bricks = NULL;
 	delete [] blocks; blocks = NULL;
 	delete [] telepads; telepads = NULL;
@@ -190,7 +192,7 @@ int Game() {
 				// Loop to try sequential numbers at the end of the filename
 				for (uint j = i; j < (2 ^ sizeof(j)); j++) {
 					// Get full filename for this replay temp file
-					sprintf(replayTempFile, "%sblockman-replay-%d.tmp", TEMP_PATH, j);
+					sprintf(replayTempFile, "%sblockling-replay-%d.tmp", TEMP_PATH, j);
 
 					// If this filename doesn't exist, we can exit the loop
 					FILE *f = NULL;
