@@ -945,11 +945,13 @@ int Game() {
 				}
 			}
 
-			// Process camera movements
+			// Process camera movements only on real frames
 			if (showingReplay == false || frameNumber == 0) {
 				MoveCamera();
-				CenterCamera(0);
 			}
+			
+			// Do auto camera centering every frame
+			CenterCamera(0);
 
 			/*** Do Telepads (including teleportation animation) ***/
 			for (i = 0; i < numTelepads; i++) {
