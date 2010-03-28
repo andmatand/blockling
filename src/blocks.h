@@ -127,7 +127,10 @@ class block {
 		int w, h;       // width, height
 		
 		char dir;       // Direction the player is facing:
-		                // 0 left, 1 right, 2 at camera, 3 dead
+		                // 0 left
+		                // 1 right
+		                // 2 at camera (but user may turn left or right)
+		                // 3 at camera (movement locked)
 		
 		char type;      // 0 regular block
 		                // >= 10 player

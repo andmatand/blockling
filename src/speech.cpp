@@ -45,26 +45,16 @@ void ClearSpeechTriggers() {
 
 
 // Overloaded for <const char *> instead of <char *>
-void Speak(int block, const char *text, bool important, bool polite) {
+void Speak(int block, const char *text, bool important, bool polite, char postDir) {
 	char temp[strlen(text) + 1];
 	strcpy(temp, text);
 	
-	Speak(block, temp, important, polite);
-}
-
-// Overloaded for most common shorthand usage
-void Speak(int block, const char *text) {
-	Speak(block, text, 0, 0);
-}
-
-// Overloaded for the shorthand with <char *>
-void Speak(int block, char *text) {
-	Speak(block, text, 0, 0);
+	Speak(block, temp, important, polite, postDir);
 }
 
 // important = this bubble with not be cut short by the appearance of any other bubble
 // polite    = The bubble will go to the end of the queue and wait for the ones before it to finish
-void Speak(int block, char *text, bool important, bool polite) {
+void Speak(int block, char *text, bool important, bool polite, char postDir) {
 	/** Find the first empty spot in the bubbles array (queue) ****/
 	for (uint i = 0; i < MAX_BUBBLES; i++) {
 		if (bubbles[i].GetTTL() == 0 || (polite == false && bubbles[i].GetImportant() == false)) {
@@ -95,7 +85,15 @@ void Speak(int block, char *text, bool important, bool polite) {
 			
 			// Set the "important" value
 			bubbles[i].SetImportant(important);
-			
+
+			// Set the postDir
+			bubbles[i].SetPostDir(postDir);
+
+			// Clear all the bubbles after this one
+			for (uint j = i + 1; j < MAX_BUBBLES; j++) {
+				bubbles[j].SetTTL(0);
+			}
+
 			// Stop looking for empty bubbles
 			break;
 		}
@@ -184,6 +182,11 @@ void DrawBubbles(bool decrementTTLs) {
 		
 			// If this speech bubble is done
 			if (bubbles[i].GetTTL() == 0) {
+				// Turn the player the direction specified by postDir
+				if (bubbles[i].GetPostDir() > -1) {
+					blocks[bubbles[i].GetBlock()].SetDir(bubbles[i].GetPostDir());
+				}
+
 				// rotate the queue
 				for (uint i = 0; i < MAX_BUBBLES - 1; i++) {
 					bubbles[i] = bubbles[i + 1];
@@ -202,7 +205,7 @@ void AnimateSpeech() {
 	static char f; // holds current "face" number
 	
 	uint i = 0;
-	if (bubbles[i].GetTTL() > 0) {
+	if (bubbles[i].GetTTL() > 0 && strlen(bubbles[i].GetText()) > 0) {
 		b = bubbles[i].GetBlock();
 		
 		// Every 2 frames, move the player's mouth

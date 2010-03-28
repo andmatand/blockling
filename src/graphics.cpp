@@ -532,6 +532,7 @@ int block::GetSurfaceIndex() {
 			}
 			break;
 		case 2: // Facing camera
+		case 3:
 			switch (face) {
 				case 0: // normal
 					return 10;

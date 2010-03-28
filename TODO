@@ -8,5 +8,9 @@ possible (without falling off a cliff two blocks high)
 
 -Make file errors fail gracefully (i.e. no segfaulting)
 
+-Make the program actually read the list in data/tiles/list (instead of
+hard coding paths) & add text notice when tileset is changed e.g.
+"Tileset: Default" in upper left corner for 1 sec
+
 ==Bugs==
--In Windows, controls aren't written to settings file
+-In Windows, controls aren't written to settings file for some reason??

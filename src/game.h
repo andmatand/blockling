@@ -19,6 +19,7 @@
 
 /** Function Prototypes ****/
 int Game ();
+void TutorialSpeech(bool reset);
 void Undo(char action);
 char * LoadLevel(uint level);
 FILE * OpenLevel(uint level);

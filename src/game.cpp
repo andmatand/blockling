@@ -175,7 +175,7 @@ int Game() {
 				theReplays[i]->InitRead();
 			}
 			
-			// Disable recording
+			// Disable recording if we're playing!
 			recordingReplay = false;
 			
 			// Create the speed selection menu
@@ -213,6 +213,12 @@ int Game() {
 			}
 		}
 
+		// Reset tutorial state if this is level 0
+		if (currentLevel == 0) {
+			TutorialSpeech(true);
+		}
+
+
 		/******* GAME LOOP *******/
 		while (quitGame == false && selectingLevel == false && restartLevel == false) {
 			
@@ -243,7 +249,13 @@ int Game() {
 				}
 			}
 
+			// Show tutorial on level 0
+			if (currentLevel == 0 && physicsStarted) {
+				TutorialSpeech(false);
+			}
+
 			/** Set speed of replay ****/
+			/*
 			if (showingReplay) {
 				switch (option_replaySpeed) {
 					case 0:
@@ -260,6 +272,7 @@ int Game() {
 						break;
 				}
 			}
+			*/
 
 			/*** Pause Menu (when Quit button [Esc] is pushed) ***/
 			if (gameKeys[6].on > 0) {
@@ -283,7 +296,6 @@ int Game() {
 							blockXSpeed = TILE_W / 2;
 							blockYSpeed = TILE_H / 2;
 							blockYGravity = blockYSpeed;							
-							
 							showingReplay = false;
 							break;
 						case 2: // Restart the replay
@@ -377,8 +389,8 @@ int Game() {
 					&& blocks[i].GetType() >= 0
 					// and the player is still playing (hasn't won)
 					&& blocks[i].GetWon() == 0
-					// and the player is either facing left or right (not toward camera)
-					&& (blocks[i].GetDir() == 0 || blocks[i].GetDir() == 1))
+					// and the player is not facing the camera with locked movement
+					&& blocks[i].GetDir() < 3)
 				{
 					
 					/*** Perform next keypress from replay file ***/
@@ -390,13 +402,13 @@ int Game() {
 						
 						if (physicsStarted) {
 							currentReplayKey = theReplays[i]->GetNextKey();
+							//printf("pushing key %d\n", currentReplayKey);
 							theReplays[i]->PushNextKey();
 							//printf("currentReplayKey = %d\n", currentReplayKey);
 						
 							// Push the next key if it's okay
 							//if (currentReplayKey != 100) {
 								//if (replayKeyWorked == false) printf("Key didn't do anything.  Trying again.\n");
-								//printf("pushing key %d\n", currentReplayKey);
 								
 								//theReplays[i]->PushKey(currentReplayKey);
 								/*
@@ -551,7 +563,7 @@ int Game() {
 						}
 						else {
 							if (recordingReplay) theReplays[i]->SaveKey(1); // Save the keypress in the replay
-							if (showingReplay) replayKeyWorked = true;
+							//if (showingReplay) replayKeyWorked = true;
 
 							blocks[i].SetDir(1);
 							
@@ -690,7 +702,7 @@ int Game() {
 						}
 					}
 					
-					if (pushedKey == false && recordingReplay && levelTimeRunning && wonLevel < 2) {
+					if (pushedKey == false && recordingReplay && (levelTimeRunning || currentLevel == 0) && wonLevel < 2) {
 						theReplays[i]->SaveKey(-1); // Save the non-keypress (sleep) in the replay
 					}
 					
@@ -790,7 +802,7 @@ int Game() {
 				// Is player on a spike?
 				if (BoxContents(blocks[i].GetX(), blocks[i].GetY() + blocks[i].GetH(), blocks[i].GetW(),1) == -3) {
 					blocks[i].SetFace(4); // scared mouth
-					blocks[i].SetDir(2); // Face the camera
+					blocks[i].SetDir(3); // Face the camera and lock movement
 					if (blocks[i].GetH() > TILE_H - 2) blocks[i].SetH(blocks[i].GetH() - 2);
 					
 					// If this is player 0
@@ -820,7 +832,7 @@ int Game() {
 						PlaySound(8);
 						
 						blocks[i].SetFace(3); // happy mouth
-						blocks[i].SetDir(2); // Face the camera
+						blocks[i].SetDir(3); // Face the camera & lock movement
 
 						wonLevel = 3;
 						wonLevelTimer = SDL_GetTicks();
@@ -968,7 +980,7 @@ int Game() {
 				// If the telepad is waiting to teleport (flashing red)
 				else if (telepads[i].GetState() == 1) {
 					if (telepads[i].GetOccupant1() == 0 || telepads[i].GetOccupant2() == 0) {
-						SpeechTrigger(0, "I think there's something blocking the other telepad.", FPS, 1, false, 1);
+						SpeechTrigger(0, "I think there's something blocking the other telepad.", FPS * 2, 1, false, 1);
 					}
 				}
 			}
@@ -1042,15 +1054,15 @@ int Game() {
 		// Collect garbage for global object pointers
 		CollectLevelGarbage();
 
-		// Collect garbage for replay (post-record)
+		// Finalize the replay file (post-record)
 		if (recordingReplay) {
 			for (i = 0; i < numPlayers; i++) {
 				theReplays[i]->DeInitWrite();
 			}
 		}
 
-		// Collect garbage for replay (post-play)
-		if (showingReplay == false || quitGame) {
+		// Collect garbage for replay (post-play or quitting the game)
+		if (theReplays != NULL && (showingReplay == false || quitGame)) {
 			for (i = 0; i < numPlayers; i++) {
 				if (remove(theReplays[i]->GetFilename()) != 0) {
 					fprintf(stderr, "File error: Could not delete %s\n", replayTempFile);
@@ -1229,6 +1241,15 @@ char * LoadLevel(uint level) {
 	
 	/** Check Level for Errors ******/
 	
+	// TODO: Check for too many objects & things that would cause buffer overflow
+	/*
+	if (numBlocks > sizeof(int) * 8) {
+		sprintf(temp, "There are too many blocks!");
+		strcat(errorMsg, temp);
+		syntaxError = true;
+	}
+	*/
+
 	// Check for telepad errors
 	for (uint i = 0; i < numTelepads; i++) {
 		if (telepadMates[i] != 1) {
@@ -1585,7 +1606,81 @@ char * LoadLevel(uint level) {
 
 
 
+void TutorialSpeech(bool reset) {
+	// This function is called in the game loop only during level 0
+	// It makes the player say something, wait for a certain game
+	// state, then say the next thing.
+	/*
+	   If I come to a block, I'll climb it myself.
+	   I can't jump any higher than that.
+	   My legs *are* pretty short...
+	 */
+	static uchar step = 0; // Remembers which step in the tutorial we are on
+	char temp[64]; // for holding strings
 
+	if (reset) step = 0;
+
+	switch (step) {
+		case 0:
+			blocks[0].SetDir(2);
+			Speak(0, "Um.");
+			Speak(0, "", false, true);
+			Speak(0, "Excuse me...", false, true);
+			Speak(0, "Can you help me get to that door over there?", false, true, 0);
+
+			sprintf(temp, "Push %s to make me go left!", KeyName(option_playerKeys[0].sym));
+			Speak(0, temp, false, true);
+
+			// Go to the next step
+			step++;
+
+			break;
+		case 1:
+			// If the player is standing to the right of the block
+			if (blocks[0].GetX() == blocks[1].GetX() + blocks[1].GetW()) {
+				Speak(0, "Hey!");
+				Speak(0, "A block!", false, true);
+
+				sprintf(temp, "Push %s and I'll pick it up!", KeyName(option_playerKeys[2].sym));
+					Speak(0, temp, false, true);
+
+					step++;
+			}
+			break;
+		case 2:
+			// If the player is holding the block
+			if (blocks[1].GetX() == blocks[0].GetX() && (blocks[1].GetY() + blocks[1].GetH()) == blocks[0].GetY()) {
+				Speak(0, "Ugh!");
+
+				step++;
+			}
+
+			break;
+		case 3:
+			// Wait a second before saying this:
+			SpeechTrigger(0, "I think I should take it toward the door...", 45, 1, false, 100);
+
+			if (blocks[0].GetX() == exitX + (TILE_W * 3)) {
+				step++;
+			}
+			break;
+		case 4:
+			Speak(0, "Okay.");
+			sprintf(temp, "Push %s to make me set it down", KeyName(option_playerKeys[3].sym));
+			Speak(0, temp, false, true);
+			step++;
+
+			break;
+		case 5:
+			// If the player set the block down in the right place
+			if (blocks[1].GetX() == exitX + (TILE_W * 2) && blocks[1].GetY() == exitY + (TILE_H * 2)) {
+				Speak(0, "If I walk toward a block, I'll climb onto it.");
+				step++;
+			}
+
+			break;
+	}
+}
 
 
 

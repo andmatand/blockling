@@ -23,10 +23,10 @@ void AnimateSpeech();
 void ClearBubbles();
 void ClearSpeechTriggers();
 void DrawBubbles(bool decrementTTLs);
-void Speak(int block, char *text, bool important, bool polite);
-void Speak(int block, const char *text, bool important, bool polite);
-void Speak(int block, const char *text);
-void Speak(int block, char *text);
+void Speak(int block, const char *text, bool important = false, bool polite = false, char postDir = -1);
+void Speak(int block, char *text, bool important = false, bool polite = false, char postDir = -1);
+//void Speak(int block, const char *text);
+//void Speak(int block, char *text);
 void SpeechTrigger(int block, char *text, int targetFrames, char type, bool important, int id);
 void SpeechTrigger(int block, const char *text, int targetFrames, char type, bool important, int id);
 
@@ -49,6 +49,9 @@ class bubble {
 			x = other.GetX();
 			y = other.GetY();
 			ttl = other.GetTTL();
+			important = other.GetImportant();
+			polite = other.GetPolite();
+			postDir = other.GetPostDir();
 			
 			return *this;
 		}
@@ -66,6 +69,7 @@ class bubble {
 		void SetTTL(uint frames) { ttl = frames; };
 		void SetImportant(bool thisIsSerious) { important = thisIsSerious; };
 		void SetPolite(bool itCanWait) { polite = itCanWait; };
+		void SetPostDir(char turnThisWay) { postDir = turnThisWay; };
 	
 		char* GetText() const { return text; };
 		int GetBlock() const { return block; };
@@ -74,6 +78,7 @@ class bubble {
 		uint GetTTL() const { return ttl; };
 		bool GetImportant() const { return important; };
 		bool GetPolite() const { return polite; };
+		char GetPostDir() const { return postDir; };
 
 		void DelText() { delete [] text; text = NULL; };
 	
@@ -86,6 +91,7 @@ class bubble {
 		uint ttl;       // Time to live (in frames)
 		bool important; // If false, this speech bubble can be cut short by another one's creation
 		bool polite;    // If true, this speech bubble will go to the end of the queue and wait its turn
+		char postDir;   // Direction for player to turn after he's finished speaking (-1 = disabled)
 };
 
 
@@ -154,7 +160,7 @@ class trigger {
 
 
 /** Globals ****/
-const uint MAX_BUBBLES = 3; // Maximum number of queued speech "bubbles"
+const uint MAX_BUBBLES = 5; // Maximum number of queued speech "bubbles"
 bubble *bubbles = new bubble[MAX_BUBBLES];
 
 const uint MAX_TRIGGERS = 3;
