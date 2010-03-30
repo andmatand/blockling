@@ -621,7 +621,7 @@ int PauseMenu() {
 	pauseMenu.NameItem(1, "Options");
 	pauseMenu.NameItem(2, "Help");
 	
-	pauseMenu.NameItem(3, "Resart Level");
+	pauseMenu.NameItem(3, "Restart Level");
 	pauseMenu.NameItem(4, "Change Level");
 	pauseMenu.NameItem(5, "Quit Game");
 	

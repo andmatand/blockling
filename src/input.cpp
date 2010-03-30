@@ -568,6 +568,9 @@ const char* KeyName(SDLKey sym) {
 		case SDLK_END:
 			return "END";
 			break;
+		case SDLK_BACKSPACE:
+			return "BACKSPACE";
+			break;
 
 		case SDLK_LSHIFT:
 			return "LEFT SHIFT";
