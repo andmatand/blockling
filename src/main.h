@@ -21,7 +21,7 @@
 typedef unsigned int uint;
 typedef unsigned char uchar;
 
-/******* INCLUDES (part 1) *******/
+/******* EXTERNAL INCLUDES *******/
 #include <iostream>
 #include <ctime>
 #include <SDL/SDL.h>

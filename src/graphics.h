@@ -32,7 +32,16 @@ void ManualCameraMovement();
 void MoveCamera();
 SDL_Surface* MakeSurface(int width, int height);
 void PutPixel(SDL_Surface *surface, int x, int y, Uint32 pixel);
-void Render(char flag);
+
+void Render(char flags);
+// Flags:
+enum {
+	RENDER_UPDATESCREEN = 0x1,
+	RENDER_MOVECAMERA   = 0x2,
+	RENDER_ANIMATE      = 0x4,
+	RENDER_BG           = 0x8
+};	
+
 void SetCameraTargetBlock(uint b);
 SDL_Surface* TileSurface(char *path, const char *file, bool transparent);
 void ToggleFullscreen();

@@ -196,7 +196,7 @@ int Game() {
 
 					// If this filename doesn't exist, we can exit the loop
 					FILE *f = NULL;
-					f = fopen(replayTempFile, "r");
+					f = fopen(replayTempFile, "rt");
 					if (f == NULL) {
 						break;
 					}
@@ -873,7 +873,7 @@ int Game() {
 				if (blocks[i].GetWon() == 1) {
 					blocks[i].SetFace(1); // open mouth
 					while (wonLevel < 2) {
-						Render(0b00001111);
+						Render(RENDER_UPDATESCREEN | RENDER_MOVECAMERA | RENDER_ANIMATE | RENDER_BG);
 					}
 					
 					blocks[i].SetWon(2); // player can now finish walking into the door
@@ -987,7 +987,7 @@ int Game() {
 			
 			// Render
 			if (showingReplay == false || frameNumber == 0) {
-				Render(0b00000101);
+				Render(RENDER_UPDATESCREEN | RENDER_ANIMATE);
 			}
 			else {
 				// Do stuff that would normally be done
@@ -1047,7 +1047,7 @@ int Game() {
 					blocks[0].SetFace(4); // Scared
 				
 				CenterCamera(2);
-				Render(0b00001101);
+				Render(RENDER_UPDATESCREEN | RENDER_ANIMATE | RENDER_BG);
 			}
 		}
 		
@@ -1108,7 +1108,7 @@ FILE * OpenLevel(uint level) {
 	printf("filename: \"%s\"\n", filename);
 	#endif
 
-	return fopen(filename, "r");
+	return fopen(filename, "rt");
 }
 
 

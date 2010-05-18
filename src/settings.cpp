@@ -26,7 +26,7 @@ void SaveSettings() {
 	printf("\nWriting to settings file \"%s\"...\n", filename);
 	#endif
 
-	FILE *f = fopen(filename, "w");
+	FILE *f = fopen(filename, "wt");
 	
 	if (f == NULL) {
 		fprintf(stderr, "\nFile error: Could not write settings to \"%s\"\n", filename);
@@ -146,7 +146,7 @@ void LoadSettings() {
 	printf("\nLoading settings from file \"%s\"...\n", filename);
 	#endif
 
-	FILE *f = fopen(filename, "r");
+	FILE *f = fopen(filename, "rt");
 	
 	if (f == NULL) {
 		fprintf(stderr, "\nFile error: Could not open settings file \"%s\"\n", filename);

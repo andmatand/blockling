@@ -86,7 +86,7 @@ SDL_Surface* TileSurface(char *path, const char *filename, bool transparent) {
 	sprintf(fullPath, "%s%s", path, filename);
 	
 	// Check if the requested file exists in this path
-	FILE *fp = fopen(fullPath, "r");
+	FILE *fp = fopen(fullPath, "rt");
 	if (!fp) { // If it doesn't exist
 		fprintf(stderr, "Error: %s does not exist in this tileset's directory (%s); using the default tile instead.\n", filename, path);
 		
@@ -821,12 +821,7 @@ void DrawBackground() {
 }
 
 
-// flags
-// 0b00000001 = screen update
-// 0b00000010 = process camera movements
-// 0b00000100 = ambient animations
-// 0b00001000 = draw background
-void Render (const char flag) {
+void Render (const char flags) {
 	static uint torchTimer = 0;
 	static uint doorFrame, doorFramePause;
 	static uint timerPos;
@@ -836,13 +831,13 @@ void Render (const char flag) {
 
 	//if (LockSurface(screenSurface) == false) return;
 
-	if (flag & 0b00000010) {
+	if (flags & RENDER_MOVECAMERA) {
 		MoveCamera();
 		CenterCamera(0);
 	}
 		
 	/*** Background ***/
-	if (flag & 0b00001000) {
+	if (flags & RENDER_BG) {
 		DrawBackground();
 	}
 	
@@ -881,7 +876,7 @@ void Render (const char flag) {
 	
 	/*** TORCHES ***/
 	// Change flames
-	if ((flag & 0b00000100) && SDL_GetTicks() > torchTimer + 5) {
+	if ((flags & RENDER_ANIMATE) && SDL_GetTicks() > torchTimer + 5) {
 		for (i = 0; i < numTorches; i++) {
 			torches[i].FlickerFlame();
 	    	}
@@ -897,7 +892,7 @@ void Render (const char flag) {
 	
 	/*** BLOCKS ***/
 	// Deactivate stickyPlayer when he's lined up in the new level's position.
-	if (stickyPlayer && (flag & 0b00000100) && blocks[0].GetX() - cameraX <= stickyPlayerX && blocks[0].GetY() - cameraY == stickyPlayerY) {
+	if (stickyPlayer && (flags & RENDER_ANIMATE) && blocks[0].GetX() - cameraX <= stickyPlayerX && blocks[0].GetY() - cameraY == stickyPlayerY) {
 		stickyPlayer = false;
 		blocks[0].SetFace(0); // normal
 	}
@@ -912,11 +907,11 @@ void Render (const char flag) {
 	}
 
 	// Move mouths of speaking players
-	if (flag & 0b00000100) AnimateSpeech();
+	if (flags & RENDER_ANIMATE) AnimateSpeech();
 	
 	for (i = 0; i < numBlocks; i++) {
 		if (blocks[i].GetType() >= 0) {
-			if (flag & 0b00000100) blocks[i].Animate();
+			if (flags & RENDER_ANIMATE) blocks[i].Animate();
 			
 			if (i != 0 || !stickyPlayer) {
 				ApplySurface(blocks[i].GetX() - cameraX, blocks[i].GetY() - cameraY, blocks[i].GetSurface(), screenSurface);
@@ -930,13 +925,13 @@ void Render (const char flag) {
 		ApplySurface(
 			telepads[i].GetX1() - cameraX,
 			telepads[i].GetY1() - cameraY,
-			telepads[i].GetSurface((flag & 0b00000100) ? true : false),
+			telepads[i].GetSurface((flags & RENDER_ANIMATE) ? true : false),
 			screenSurface);
 		
 		ApplySurface(
 			telepads[i].GetX2() - cameraX,
 			telepads[i].GetY2() - cameraY,
-			telepads[i].GetSurface((flag & 0b00000100) ? true : false),
+			telepads[i].GetSurface((flags & RENDER_ANIMATE) ? true : false),
 			screenSurface);
 	}
 
@@ -951,7 +946,7 @@ void Render (const char flag) {
 	//PutPixel(screenSurface, cameraX + 10, cameraY + 10, SDL_MapRGB(screenSurface->format, 0x00, 0xff, 0x00));
 
 	/** Draw any Speech "Bubbles" above players' heads *****/
-	DrawBubbles((flag & 0b00000100) ? true : false);
+	DrawBubbles((flags & RENDER_ANIMATE) ? true : false);
 
 	char message[128];
 	
@@ -997,7 +992,7 @@ void Render (const char flag) {
 	}
 
 	/** Screen Update ****/
-	if ((flag & 0b00000001)) {
+	if ((flags & RENDER_UPDATESCREEN)) {
 		UpdateScreen();
 	}
 }

@@ -159,7 +159,7 @@ replay::~replay() {
 
 void replay::InitRead() {
 	pos = 0;
-	fp = fopen(filename, "r");
+	fp = fopen(filename, "rt");
 	
 	if (fp == NULL) {
 		fprintf(stderr, "File error: Could not open file \"%s\" for reading.", filename);
@@ -185,7 +185,7 @@ void replay::DeInitRead() {
 void replay::InitWrite() {
 	pos = 0;
 	lastTimestamp = 0;
-	fp = fopen(filename, "w");
+	fp = fopen(filename, "wt");
 	
 	if (fp == NULL) {
 		fprintf(stderr, "File error: Could not open file \"%s\" for writing.", filename);
