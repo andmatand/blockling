@@ -33,7 +33,7 @@ void SaveSettings() {
 		return;
 	}
 	
-	char line[17];
+	char line[32];
 	char name[12];
 	char value[4];
 	
