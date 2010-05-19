@@ -13,4 +13,3 @@ hard coding paths) & add text notice when tileset is changed e.g.
 "Tileset: Default" in upper left corner for 1 sec
 
 ==Bugs==
--In Windows, controls aren't written to settings file for some reason??
