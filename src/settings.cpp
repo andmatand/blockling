@@ -35,7 +35,7 @@ void SaveSettings() {
 	
 	char line[32];
 	char name[12];
-	char value[4];
+	char value[sizeof(option_tileset) + 1];
 	
 	// Write the options
 	for (uchar i = 0; i < NUM_OPTIONS; i++) {
@@ -71,6 +71,9 @@ void SaveSettings() {
 			case 9:
 				strcpy(name, "fullscreen");
 				break;
+			case 10:
+				strcpy(name, "tileset");
+				break;
 		}		
 
 		// Get the string form of this option's value
@@ -104,6 +107,9 @@ void SaveSettings() {
 				break;
 			case 9:
 				sprintf(value, "%u", option_fullscreen);
+				break;
+			case 10:
+				sprintf(value, "%s", option_tileset);
 				break;
 		}
 		
@@ -155,7 +161,7 @@ void LoadSettings() {
 	
 	char line[32];
 	char name[13];
-	char value[4]; // string form of the value
+	char value[sizeof(option_tileset) + 1]; // string form of the value
 	uint uintVal = 0;  // uint form of the value
 	uint midpoint; // position of '=' in the string
 	uchar n;       // holds string position when filling string, and parsed key number (e.g. 3 at end of "gameKeySym3")
@@ -183,8 +189,11 @@ void LoadSettings() {
 		/** Get the part of the string before the "=" ****/
 		n = 0; // Position in the "name" string
 		for (uint i = 0; i < midpoint; i++) {
-			// If this character is not a space or a tab
-			if (line[i] != 32 && line[i] != 9) {
+			// If this character is valid (alphanumeric)
+			if ((line[i] >= 48 && line[i] <= 57) ||     // numb3r5
+				(line[i] >= 65 && line[i] <= 90) || // CAPITAL
+				(line[i] >= 97 && line[i] <= 122))  // lowercase
+			{
 				// Add this character to the end
 				name[n] = line[i];
 				
@@ -200,8 +209,11 @@ void LoadSettings() {
 		/** Get the part after the "=" ****/
 		n = 0; // position in the "value" string
 		for (uint i = midpoint + 1; i < strlen(line); i++) {
-			// If this character is not a space or a tab
-			if (line[i] != 32 && line[i] != 9) {
+			// If this character is valid (alphanumeric)
+			if ((line[i] >= 48 && line[i] <= 57) ||     // numb3r5
+				(line[i] >= 65 && line[i] <= 90) || // CAPITAL
+				(line[i] >= 97 && line[i] <= 122))  // lowercase
+			{
 				// Add this character to the end
 				value[n] = line[i];
 				
@@ -253,6 +265,9 @@ void LoadSettings() {
 		}
 		else if (strcmp(name, "fullscreen") == 0) {
 			option_fullscreen = static_cast<bool>(uintVal);
+		}
+		else if (strcmp(name, "tileset") == 0) {
+			strncpy(option_tileset, value, sizeof(option_tileset));
 		}
 		else {
 			// Get the number on the end of the setting name

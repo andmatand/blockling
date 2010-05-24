@@ -21,7 +21,7 @@
 
 
 
-void ApplySurface(int x, int y, SDL_Surface* source, SDL_Surface* destination) {
+void ApplySurface(int x, int y, SDL_Surface *source, SDL_Surface *destination) {
 	//Make a temporary rectangle to hold the offsets
 	SDL_Rect offset;
 	
@@ -81,14 +81,15 @@ void ToggleFullscreen() {
 
 SDL_Surface* TileSurface(char *path, const char *filename, bool transparent) {
 	// Form the full path (path + filename)
-	char *fullPath;
-	fullPath = new char[strlen(path) + strlen(filename) + 1];
+	char *fullPath = new char[strlen(path) + strlen(filename) + 1];
 	sprintf(fullPath, "%s%s", path, filename);
 	
 	// Check if the requested file exists in this path
-	FILE *fp = fopen(fullPath, "rt");
+	FILE *fp = fopen(fullPath, "r");
 	if (!fp) { // If it doesn't exist
-		fprintf(stderr, "Error: %s does not exist in this tileset's directory (%s); using the default tile instead.\n", filename, path);
+		#ifdef DEBUG
+		printf("'%s' does not exist in this tileset's directory (%s); using the default tile instead.\n", filename, path);
+		#endif
 		
 		// Change the fullPath to the default tile path + the filename
 		delete [] fullPath;
@@ -566,15 +567,156 @@ SDL_Surface* brick::GetSurface() {
 
 
 
+void Notify(char *text) {
+	delete [] notifyText;
+	notifyText = new char[strlen(text) + 1];
+	sprintf(notifyText, "%s", text);
+	notifyFrames = FPS * 1.5;
+}
 
 
+// Reads the next line from the file, ignoring lines beginning with # or
+// exceeding maxLineLength
+char* ReadLine(FILE *file, uint maxLineLength) {
+	maxLineLength += 1; // Make room for newline character on the end
+	char *line = new char[maxLineLength]; // For holding the current line
+	bool lineHasBreak;
+
+	while (!feof(file)) {
+		fgets(line, maxLineLength, file);
+		lineHasBreak = false;
+
+		// Remove the trailing newline character(s), LF or CR
+		while (line[strlen(line) - 1] == '\n' or line[strlen(line) - 1] == 13) {
+			lineHasBreak = true;
+			line[strlen(line) - 1] = '\0';
+		}
+
+		// If there is no linebreak on this "line" (i.e. the line is
+		// too long and thus invalid) or this line is a comment.
+		if (lineHasBreak == false || line[0] == '#') {
+			// Skip over the rest of this line until we get to the
+			// end of it
+			while (!feof(file)) {
+				fgets(line, maxLineLength, file);
+				if (strchr(line, '\n')) {
+					break;
+				}
+			}
+
+			// Back to top of while-loop to get next line
+			continue;
+		}
+
+		return line;
+	}
+
+	return NULL;
+}
 
 
+// Reads the list of tileset directories to load the next/previous
+// tileset directory
+//     dir:
+//       0 = previous
+//       1 = next
+void SelectTileset(bool dir) {
+	char msg[43]; // For holding the notification message
+	char *line; // For holding the current line (+1 for newline character)
+	char prevLine[sizeof(option_tileset)]; // For holding the previous line (+1 for newline character)
+	prevLine[0] = '\0'; // Make it start with 0 length
+	bool foundCurrentTileset = false;
+	char tilesetName[16];
 
-// Loads the tiles of the currently selected tileset, defaulting back
-// to the default tileset for (and only for) any tiles not found in
-// the tilesetDir.
-void LoadTileset(const char *tilesetDir) {
+	// Determine the path to the list file
+	char *path = new char[strlen(DATA_PATH) + strlen(TILE_PATH) + 5];
+	sprintf(path, "%s%slist", DATA_PATH, TILE_PATH);
+
+	FILE *file;
+	file = fopen(path, "rt");
+
+	if (file == NULL) {
+		strncpy(msg, "ERROR: The tileset list file doesn't exist", sizeof(msg));
+	}
+	else {
+		// Search through the list file until the current tileset's name is
+		// found, at which point we look at the previous line if dir == 0, or
+		// the next line if dir == 1
+		while ((line = ReadLine(file, sizeof(option_tileset))) != NULL) {
+			#ifdef DEBUG
+			printf("line = '%s'\n", line);
+			#endif
+
+			// If the current tileset was found on the previous line (on
+			// the previous loop)
+			if (foundCurrentTileset) {
+				// Store this line in option_tileset and exit the loop
+				strcpy(option_tileset, line);
+				break;
+			}
+
+			// If this line matches the currently displayed tileset
+			if (strcmp(line, option_tileset) == 0) {
+				#ifdef DEBUG
+				printf("Line matches!");
+				#endif
+				foundCurrentTileset = true;
+
+				if (dir == 0) {
+					if (strlen(prevLine) > 0) {
+						// Store the previous line in option_tileset
+						strcpy(option_tileset, prevLine);
+					}
+					// exit the loop
+					break;
+				}
+			}
+
+			// Store this line as the "previous line"
+			strcpy(prevLine, line);
+
+			// Free heap memory
+			delete [] line;
+			line = NULL;
+		}
+		delete [] line;
+		line = NULL;
+
+		if (foundCurrentTileset == false) {
+			strncpy(option_tileset, DEFAULT_TILESET, sizeof(option_tileset));
+		}
+		fclose(file);
+
+		// Determine the path to the tileset's name file
+		char *path = new char[strlen(DATA_PATH) + strlen(TILE_PATH) + strlen(option_tileset) + 6];
+		sprintf(path, "%s%s%s/name", DATA_PATH, TILE_PATH, option_tileset);
+
+		file = fopen(path, "rt");
+		if (file == NULL) {
+			// If there is no 'name' file in the tileset's directory
+			strncpy(tilesetName, "[untitled]", sizeof(tilesetName));
+		}
+		else {
+			// Read the first line from the name file
+			char *temp = ReadLine(file, sizeof(tilesetName));
+			strncpy(tilesetName, temp, sizeof(tilesetName));
+			delete [] temp;
+			fclose(file);
+		}
+
+		sprintf(msg, "TILESET: %s", tilesetName);
+		
+		LoadTileset(option_tileset);
+	}
+
+	Notify(msg);
+}
+
+
+// Loads the tiles from the specified tilesetDir, defaulting back
+// to the default tileset for (and only for) any tiles not found
+// in tilesetDir.
+void LoadTileset(char *tilesetDir) {
 	
 	/*** Free all old surfaces ***/
 	UnloadTileset();
@@ -826,6 +968,7 @@ void Render (const char flags) {
 	static uint doorFrame, doorFramePause;
 	static uint timerPos;
 	static int levelTextX = 10;
+	static signed char notifyY = -FONT_H;
 	uint i;
 	
 
@@ -950,6 +1093,27 @@ void Render (const char flags) {
 
 	char message[128];
 	
+	/** Notification Message at top of screen **/
+	if (notifyText != NULL) {
+		notifyFrames--;
+		if (notifyFrames <= FONT_H) {
+			if (notifyFrames <= FONT_H) notifyY -= (FPS / 4);
+		}
+		else if (notifyY < 4) {
+			notifyY += (FPS / 4);
+			if (notifyY > 4) notifyY = 4;
+		}
+		if (notifyY <= -FONT_H) {
+			delete [] notifyText;
+			notifyText = NULL;
+		}
+		else {
+
+			DrawText(SCREEN_W / 2, notifyY, notifyText, true, SCREEN_W / 8, 0, 1);
+		}
+	}
+
+
 	/** Draw Level # ****/
 	sprintf(message, "Level %d", currentLevel);
 

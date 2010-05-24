@@ -7,7 +7,7 @@ CC = g++
 CFLAGS = -ggdb -Wall -Wextra -lSDL -lSDL_mixer -DDATA_PATH="\"$(DATADIR)\""
 
 # Comment out the line below to disable debug mode
-DEFINE=-DDEBUG
+#DEFINE=-DDEBUG
 
 default: all
 

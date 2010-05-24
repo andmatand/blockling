@@ -80,6 +80,7 @@ int Init() {
 	option_timerOn = true;
 	option_cameraMode = 0;
 	option_fullscreen = false;
+	strcpy(option_tileset, DEFAULT_TILESET);
 	currentLevel = 0;
 
 	/** Load any settings found in the settings file ***/
@@ -128,7 +129,7 @@ int Init() {
 
 	/*** Load Graphics ***/
 	LoadFont("font.bmp");
-	LoadTileset(DEFAULT_TILESET);
+	LoadTileset(option_tileset);
 
 	
 	/*** Load Sound ***/
@@ -152,6 +153,10 @@ void DeInit() {
 	/** Free speech bubble-related memory ****/
 	delete [] bubbles;
 	delete [] triggers;
+
+	/** Free notification string in case it hasn't disappeared yet **/
+	delete [] notifyText;
+	notifyText = NULL;
 	
 	/** Clean up SDL surfaces ****/
 	UnloadTileset();

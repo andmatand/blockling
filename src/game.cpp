@@ -1104,7 +1104,7 @@ FILE * OpenLevel(uint level) {
 	sprintf(filename, "%s%s%s/%s", DATA_PATH, LEVEL_PATH, levelSet, levelFile);
 
 	#ifdef DEBUG
-	printf("\nLoading level %d...\n", level);
+	printf("\nOpening level %d...\n", level);
 	printf("filename: \"%s\"\n", filename);
 	#endif
 
@@ -1146,7 +1146,7 @@ char * LoadLevel(uint level) {
 	FILE *f;
 	f = OpenLevel(level);
 	if (f == NULL) {
-		// Signal that the file could not be opened
+		// Signal to calling function that the file could not be opened
 		sprintf(errorMsg, "!");
 		return errorMsg;
 	}
@@ -1163,49 +1163,65 @@ char * LoadLevel(uint level) {
 	}
 	bool addNewTelepad;
 	
-	bool charOnThisLine = false;
+	bool validChar;
+	bool charOnThisLine = false; // begin by assuming there is not a valid character on the first line
 	bool restOfLineIsComment = false;
 	int numExits = 0;
 	while (!feof(f)) {
 		c = fgetc(f);
 
-		if (c > 32 && restOfLineIsComment == false) {
+		validChar = false; // being by assuming the current char is not valid
+
+		if (restOfLineIsComment == false) {
 			switch (c) {
 				case '#': // Comment
 					restOfLineIsComment = true;
 					break;
+				case '.':
+					validChar = true;
+					break;
 				case '@': // First Player
+					validChar = true;
 					numFirstPlayers ++;
 					numPlayers ++;
 					numBlocks ++;
 					break;
 				case 'A': // Unintelligent NPC
+					validChar = true;
 					numPlayers ++;
 					numBlocks ++;
 					break;
 				case '*': // exit
+					validChar = true;
 					numExits ++;
 					break;
 				case '^':
+					validChar = true;
 					numSpikes ++;
 					break;
 				case 'T':
+					validChar = true;
 					numTorches ++;
 				case '0':
 				case '1':
 				case '2':
+					validChar = true;
 					numBricks ++;
 					break;
 				case 'x':
 				case 'X':
+					validChar = true;
 					numBlocks ++;
 					break;
 				default:
 					break;
 			}
-			
+		}
+
+		if (restOfLineIsComment == false) {
 			// Check for lowercase a - z (telepad pairs)
 			if (c >= 97 && c <= 122) {
+				validChar = true;
 				addNewTelepad = true;
 				for (uint i = 0; i < numTelepads; i++) {
 					if (telepadLetter[i] == static_cast<char>(c)) {
@@ -1219,20 +1235,20 @@ char * LoadLevel(uint level) {
 					numTelepads ++;
 				}
 			}
-			
-			// Only increment the level height if there is a character on this line
-			if (charOnThisLine == false && restOfLineIsComment == false) {
-				height += TILE_H;
-				charOnThisLine = true;
-			}
+		}
 
+		if (validChar) {
+			charOnThisLine = true;
 			x += TILE_W;
 			if (x > width) width = x;
 		}
-
+	
 		// New Line (LF)
 		if (c == 10) {
-			charOnThisLine = false;
+			// If there was a valid character on the previous line, increment the height
+			if (charOnThisLine) height += TILE_H;
+
+			charOnThisLine = false; // begin by assuming there is not a valid character on the next line
 			restOfLineIsComment = false;
 			x = 0;
 		}
@@ -1353,44 +1369,48 @@ char * LoadLevel(uint level) {
 		telepadMates[i] = -1;
 	}
 
+	charOnThisLine = false; // begin by assuming there is not a valid character on the first line
 	rewind(f); // Go back to the beginning of the file
 	while (!feof(f)) {
 		c = fgetc(f);
 		
-		if (c > 32 && restOfLineIsComment == false) {
-			// Only increment the y coordinate if there is a character on this line
-			if (charOnThisLine == false && restOfLineIsComment == false) {
-				y += TILE_H;
-				charOnThisLine = true;
-			}
+		validChar = false; // being by assuming the current char is not valid
 
+		if (restOfLineIsComment == false) {
 			switch (c) {
 				case '#': // Comment
 					restOfLineIsComment = true;
-					y -= TILE_H;
+					break;
+				case '.':
+					validChar = true;
 					break;
 				case '@': // player
+					validChar = true;
 					blocks[numPlayers].SetX(x);
 					blocks[numPlayers].SetY(y);
 					blocks[numPlayers].SetType(10);
 					numPlayers ++;
 					break;
 				case 'A': // Unintelligent NPC
+					validChar = true;
 					blocks[numPlayers].SetX(x);
 					blocks[numPlayers].SetY(y);
 					blocks[numPlayers].SetType(11);
 					numPlayers ++;
 					break;
 				case '*': // exit
+					validChar = true;
 					exitX = x;
 					exitY = y;
 					break;
 				case '^':
+					validChar = true;
 					spikes[numSpikes].SetX(x);
 					spikes[numSpikes].SetY(y);
 					numSpikes ++;
 					break;
 				case 'T': // torch
+					validChar = true;
 					torches[numTorches].SetX(x);
 					torches[numTorches].SetY(y);
 					numTorches ++;
@@ -1398,23 +1418,27 @@ char * LoadLevel(uint level) {
 					                              //we're about to make is a "wall" brick
 					// Proceed down to next case (put a brick behind the torch)
 				case '0': // normal brick (type automatically selected)
+					validChar = true;
 					bricks[numBricks].SetX(x);
 					bricks[numBricks].SetY(y);
 					numBricks ++;
 					break;
 				case '1': // wall brick (manual override)
+					validChar = true;
 					bricks[numBricks].SetX(x);
 					bricks[numBricks].SetY(y);
 					bricks[numBricks].SetType(0);
 					numBricks ++;
 					break;
 				case '2': // grass brick (manual override)
+					validChar = true;
 					bricks[numBricks].SetX(x);
 					bricks[numBricks].SetY(y);
 					bricks[numBricks].SetType(-2);
 					numBricks ++;
 					break;
 				case 'X': // block
+					validChar = true;
 					blocks[numBlocks].SetX(x);
 					blocks[numBlocks].SetY(y);
 					numBlocks ++;
@@ -1422,9 +1446,12 @@ char * LoadLevel(uint level) {
 				default:
 					break;
 			}
+		}
 
+		if (restOfLineIsComment == false) {
 			// Check for lowercase a - z (telepad pairs)
 			if (c >= 97 && c <= 122) {
+				validChar = true;
 				addNewTelepad = true;
 				for (uint i = 0; i < numTelepads; i++) {
 					if (telepadLetter[i] == c) {
@@ -1446,23 +1473,28 @@ char * LoadLevel(uint level) {
 							
 							#ifdef DEBUG
 							std::cout << "Telepad #" << i << " " << telepadLetter[i] << "1" << " (" << x << ", " << y << ")\n";
-							#endif
+#endif
 						}
-					
+
 						break;
 					}
 				}
 
 			}
+		}
 
+		if (validChar) {
+			charOnThisLine = true;
 			x += TILE_W;
 		}
 
 
 		// New Line (LF)
 		if (c == 10) {
-			charOnThisLine = false;
 			restOfLineIsComment = false;
+
+			// If there was a character on the previous line, increment the y
+			if (charOnThisLine) y += TILE_H;
 			
 			x = -(width / 2);
 			x += (abs(x) % TILE_W); // Align to grid

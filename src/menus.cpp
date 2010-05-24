@@ -788,7 +788,7 @@ int SelectLevelMenu() {
 	
 	FILE *testFile;
 	bool refreshLevel = true;
-	uint numLevels = 999;
+	uint numLevels = 1000;
 	char *levelError = NULL; // For pointing to the (actual) error message returned by LoadLevel
 	
 	int action;
@@ -805,17 +805,32 @@ int SelectLevelMenu() {
 				delete [] levelError;
 				levelError = LoadLevel(currentLevel);
 				
-				// If the level could not be loaded
+				// If the level could not be loaded (NULL file handle was returned)
 				sprintf(text, "!");
+				/*
 				if (levelError != NULL && strcmp(levelError, text) == 0) {
 					numLevels = currentLevel;
 					
-					if (currentLevel <= 0) break;
+					if (currentLevel <= 0) {
+						sprintf(levelError, "The file for level %d doesn't exist!\n", currentLevel);
+						numLevels = 1000;
+						break;
+					}
+
+					// Try the previous level
 					currentLevel--;
 					continue;
 				}
+				*/
+
+				if (levelError != NULL) {
+					if (strcmp(levelError, text) == 0) {
+						sprintf(levelError, "The file for level %d doesn't exist!\n", currentLevel);
+					}
+				}
 				
-				
+				// Try to open the next level file, to see if it exists, so we
+				// know whether to display a right arrow
 				testFile = OpenLevel(currentLevel + 1);
 				if (testFile != NULL) {
 					fclose(testFile);
@@ -905,7 +920,7 @@ int SelectLevelMenu() {
 				switch (lvlMenu.GetSel()) {
 					case 0:
 						if (option_levelSet > 0) option_levelSet--;
-						numLevels = 999;
+						numLevels = 1000;
 						refreshLevel = true;
 						break;
 					case 1:
@@ -918,7 +933,7 @@ int SelectLevelMenu() {
 				switch (lvlMenu.GetSel()) {
 					case 0:
 						if (option_levelSet < NUM_LEVEL_SETS - 1) option_levelSet++;
-						numLevels = 999;
+						numLevels = 1000;
 						refreshLevel = true;
 						break;
 					case 1:
@@ -940,6 +955,6 @@ int SelectLevelMenu() {
 		}
 
 		// Limit currentLevel
-		if (currentLevel > numLevels) currentLevel = numLevels;
+		if (currentLevel > numLevels - 1) currentLevel = numLevels - 1;
 	}
 }

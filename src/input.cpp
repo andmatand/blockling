@@ -165,10 +165,10 @@ int GameInput(char mode) {
 					case SDLK_PLUS:
 					case SDLK_KP_MINUS:
 					case SDLK_PAGEUP:
-						LoadTileset("default");
+						SelectTileset(0);
 						break;
 					case SDLK_PAGEDOWN:
-						LoadTileset("scifi");
+						SelectTileset(1);
 						break;
 						
 					#ifdef DEBUG
