@@ -39,7 +39,7 @@ own touches such as "telepads" and new abilities to push blocks and turn around
 without walking.  These additions gave the game a somewhat different dynamic,
 and I was pleased overall with the result, except for one big problem:  I had
 written the whole thing in Microsoft QBasic!  As my code grew larger and larger,
-eventually reaching the size limit of the feeble QBasic interpreter, I came to
+eventually reaching the size-limit of the feeble QBasic interpreter, I came to
 the harsh realization that I would need to learn a real programming language if
 I ever wanted to finish my version of Block-Man.
 
@@ -60,16 +60,16 @@ F1            Help
 F2            Toggle Music
 F3            Toggle Sound
 F5            Restart the current level
-U             Undo
 Alt + Enter   Toggle Fullscreen
 PAGE UP / DN  Change tile set
 
 -- GAME CONTROLS (Customizable) --
 UP      Pick up a block
 DOWN	Set down a block
-LEFT    Move left
-RIGHT   Move right
+LEFT    Move/turn left
+RIGHT   Move/turn right
 ENTER   Push a block
+U       Undo
 
 -- CAMERA CONTROLS (Customizable) --
 w  Move camera up

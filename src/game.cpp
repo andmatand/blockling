@@ -1495,6 +1495,8 @@ char * LoadLevel(uint level) {
 
 			// If there was a character on the previous line, increment the y
 			if (charOnThisLine) y += TILE_H;
+
+			charOnThisLine = false; // begin by assuming there is not a valid character on the next line
 			
 			x = -(width / 2);
 			x += (abs(x) % TILE_W); // Align to grid
