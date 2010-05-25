@@ -214,7 +214,7 @@ int Game() {
 		}
 
 		// Reset tutorial state if this is level 0
-		if (currentLevel == 0) {
+		if (currentLevel == 0 && option_levelSet == 0) {
 			TutorialSpeech(true);
 		}
 
@@ -250,7 +250,7 @@ int Game() {
 			}
 
 			// Show tutorial on level 0
-			if (currentLevel == 0 && physicsStarted) {
+			if (currentLevel == 0 && option_levelSet == 0 && physicsStarted) {
 				TutorialSpeech(false);
 			}
 

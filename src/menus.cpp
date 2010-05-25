@@ -807,9 +807,8 @@ int SelectLevelMenu() {
 				
 				// If the level could not be loaded (NULL file handle was returned)
 				sprintf(text, "!");
-				/*
 				if (levelError != NULL && strcmp(levelError, text) == 0) {
-					numLevels = currentLevel;
+					//numLevels = currentLevel;
 					
 					if (currentLevel <= 0) {
 						sprintf(levelError, "The file for level %d doesn't exist!\n", currentLevel);
@@ -821,13 +820,14 @@ int SelectLevelMenu() {
 					currentLevel--;
 					continue;
 				}
-				*/
 
+				/*
 				if (levelError != NULL) {
 					if (strcmp(levelError, text) == 0) {
 						sprintf(levelError, "The file for level %d doesn't exist!\n", currentLevel);
 					}
 				}
+				*/
 				
 				// Try to open the next level file, to see if it exists, so we
 				// know whether to display a right arrow

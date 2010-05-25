@@ -3,7 +3,7 @@
 # Delete previous tarballs
 rm blockling-src*.tar.gz
 
-# Find the current svn revision numbe
+# Find the current svn revision number
 rev=$(svnversion | cut -d ":" -f 2 | egrep "[0-9]+" -o)
 
 # Construct the filename from current svn revision number
