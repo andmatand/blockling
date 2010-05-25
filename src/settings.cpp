@@ -29,7 +29,7 @@ void SaveSettings() {
 	FILE *f = fopen(filename, "wt");
 	
 	if (f == NULL) {
-		fprintf(stderr, "\nFile error: Could not write settings to \"%s\"\n", filename);
+		fprintf(stderr, "Error: Could not write settings to \"%s\"\n", filename);
 		return;
 	}
 	
@@ -155,7 +155,7 @@ void LoadSettings() {
 	FILE *f = fopen(filename, "rt");
 	
 	if (f == NULL) {
-		fprintf(stderr, "\nFile error: Could not open settings file \"%s\"\n", filename);
+		fprintf(stdout, "Notice: Could not open settings file \"%s\"; Using defaults...\n", filename);
 		return;
 	}
 	

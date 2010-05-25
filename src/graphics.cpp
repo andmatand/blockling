@@ -41,7 +41,7 @@ SDL_Surface* FillSurface(const char *file, bool transparent) {
 	SDL_Surface *surface = NULL;
 	
 	if (temp == NULL) {
-		printf("Failed to load image %s\n", file);
+		fprintf(stderr, "Error: Failed to load image %s\n", file);
 		return NULL;
 	}
 
@@ -63,7 +63,9 @@ void ToggleFullscreen() {
 	option_fullscreen = (option_fullscreen ? false : true);
 	
 	#ifdef _WIN32
-		printf("Windows fullscreen toggle\n");
+		#ifdef DEBUG
+			printf("Windows fullscreen toggle\n");
+		#endif
 		//SDL_FreeSurface(screenSurface);
 		screenSurface = SDL_SetVideoMode(screenSurface->w,
 				screenSurface->h,
@@ -73,7 +75,10 @@ void ToggleFullscreen() {
 					SDL_ANYFORMAT
 					);
 	#else
-		printf("X11 fullscreen toggle: %d\n", SDL_WM_ToggleFullScreen(screenSurface));
+		#ifdef DEBUG
+			printf("X11 fullscreen toggle\n");
+		#endif
+		SDL_WM_ToggleFullScreen(screenSurface);
 	#endif
 }
 

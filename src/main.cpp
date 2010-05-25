@@ -89,28 +89,29 @@ int Init() {
 
 	/** Initialize SDL ****/
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {
-		fprintf(stderr, "Unable to init SDL: %s\n", SDL_GetError());
+		fprintf(stderr, "Error: Unable to initialize SDL: %s\n", SDL_GetError());
 		exit(1);
 	}
 
 	/** Initialize SDL_mixer ****/
 	if (Mix_OpenAudio(22050, AUDIO_S16SYS, 2, 1024) < 0) {
-    		printf("Error initializing SDL_mixer: %s\n", Mix_GetError());
+    		fprintf(stderr, "Error: Unable to initialize SDL_mixer: %s\n", Mix_GetError());
     		exit(1);
 	}
 
-/*
-	char musicFile[256];
+/* The music part is commented out right now because I don't have any music yet =)
+
+   	char musicFile[256];
 	//sprintf(musicFile, "%s%s%s", DATA_PATH, MUSIC_PATH, "lizard_-_hip_chip.mod");
 	sprintf(musicFile, "%s%s%s", DATA_PATH, MUSIC_PATH, "test.xm");
 	bgMusic = Mix_LoadMUS(musicFile);
 	if (bgMusic == NULL) {
-		fprintf(stderr, "Unable to load audio file: %s\n", Mix_GetError());
+		fprintf(stderr, "Error: Unable to load audio file: %s\n", Mix_GetError());
 	}
 
 	// Fade-in the music
 	if (Mix_FadeInMusic(bgMusic, -1, 500) == -1) {
-		fprintf(stderr, "Unable to play music file: %s\n", Mix_GetError());
+		fprintf(stderr, "Error: Unable to play music file: %s\n", Mix_GetError());
 	}
 */
 
@@ -118,7 +119,7 @@ int Init() {
 	/** Initialize SDL Video ****/
 	screenSurface = SDL_SetVideoMode(SCREEN_W, SCREEN_H, SCREEN_BPP, SDL_HWSURFACE | (option_fullscreen ? SDL_FULLSCREEN : 0));
 	if (screenSurface == NULL) {
-		fprintf(stderr, "Unable to set up video: %s\n", SDL_GetError());
+		fprintf(stderr, "Error: Unable to set up video: %s\n", SDL_GetError());
 		exit(1);
 	}
 	
