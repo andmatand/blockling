@@ -24,7 +24,7 @@ void DrawText(int x, int y, char *text, bool centered, int wrapWidth, int spacin
 void DrawText(int x, int y, char *text, int color);
 int GetTextW(char *text, int spacing);
 int GetTextH(char *text, int wrapWidth, int spacing);
-
+char LoadFont(const char *file);
 
 
 /*** Variable/Constant Declarations ***/

@@ -6,10 +6,6 @@ possible (without falling off a cliff two blocks high)
 -Replay saving code needs to be rewritten to account for multiple
  players (replays do not currently work on levels with > 1 player)
 
--Make file errors fail gracefully (i.e. no segfaulting)
-
--Make the program actually read the list in data/tiles/list (instead of
-hard coding paths) & add text notice when tileset is changed e.g.
-"Tileset: Default" in upper left corner for 1 sec
+-Make all file errors fail gracefully (i.e. no segfaulting)
 
 ==Bugs==

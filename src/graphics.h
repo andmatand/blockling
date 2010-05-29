@@ -26,14 +26,13 @@ void DrawBackground();
 SDL_Surface* FillSurface(const char *file, bool transparent);
 Uint32 GetPixel(SDL_Surface *surface, int x, int y);
 void LimitFPS();
-void LoadTileset(char *tilesetDir);
+char LoadTileset(char *tilesetDir);
 bool LockSurface(SDL_Surface *surf);
 void ManualCameraMovement();
 void MoveCamera();
 SDL_Surface* MakeSurface(int width, int height);
 void Notify(char *text);
 void PutPixel(SDL_Surface *surface, int x, int y, Uint32 pixel);
-char* ReadLine(FILE *file, uint maxLineLength);
 
 void Render(char flags);
 // Flags:

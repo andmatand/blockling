@@ -19,6 +19,7 @@
 
 
 /** Function Prototypes ***/
+char* ReadLine(FILE *file, uint maxLineLength);
 void SaveSettings();
 void LoadSettings();
 

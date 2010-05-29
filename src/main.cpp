@@ -65,7 +65,7 @@ int main(int argc, char** argv) {
 
 
 
-int Init() {
+char Init() {
 	/** Set default game keyboard layout ****/
 	ResetDefaultKeys();
 	
@@ -90,13 +90,12 @@ int Init() {
 	/** Initialize SDL ****/
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {
 		fprintf(stderr, "Error: Unable to initialize SDL: %s\n", SDL_GetError());
-		exit(1);
+		return 1;	
 	}
 
 	/** Initialize SDL_mixer ****/
 	if (Mix_OpenAudio(22050, AUDIO_S16SYS, 2, 1024) < 0) {
     		fprintf(stderr, "Error: Unable to initialize SDL_mixer: %s\n", Mix_GetError());
-    		exit(1);
 	}
 
 /* The music part is commented out right now because I don't have any music yet =)
@@ -120,17 +119,17 @@ int Init() {
 	screenSurface = SDL_SetVideoMode(SCREEN_W, SCREEN_H, SCREEN_BPP, SDL_HWSURFACE | (option_fullscreen ? SDL_FULLSCREEN : 0));
 	if (screenSurface == NULL) {
 		fprintf(stderr, "Error: Unable to set up video: %s\n", SDL_GetError());
-		exit(1);
+		return 1;
 	}
 	
 	SDL_WM_SetCaption(GAME_TITLE, NULL);
 	SDL_ShowCursor(SDL_DISABLE);
 
 	
-
 	/*** Load Graphics ***/
-	LoadFont("font.bmp");
-	LoadTileset(option_tileset);
+	if (LoadFont("font.bmp") != 0 || LoadTileset(option_tileset) != 0) {
+		return 1;
+	}
 
 	
 	/*** Load Sound ***/
@@ -165,7 +164,7 @@ void DeInit() {
 	SDL_FreeSurface(screenSurface);
 
 	/** Clean up SDL_mixer ****/
-	for (int i = 0; i < NUM_SOUNDS; i++) {
+	for (uchar i = 0; i < NUM_SOUNDS; i++) {
 		Mix_FreeChunk(sounds[i]);
 	}
 	

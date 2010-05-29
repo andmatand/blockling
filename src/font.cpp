@@ -128,7 +128,7 @@ int GetTextH(char *text, int wrapWidth, int spacing) {
 
 
 
-void LoadFont(const char *file) {
+char LoadFont(const char *file) {
 	char fullPath[256];
 	sprintf(fullPath, "%s%s%s", DATA_PATH, FONT_PATH, file);
 	#ifdef DEBUG
@@ -137,6 +137,9 @@ void LoadFont(const char *file) {
 	
 	// The surface holding the big long list of characters
 	SDL_Surface *fontSurf = FillSurface(fullPath, 0);
+	if (fontSurf == NULL) {
+		return 1;
+	}
 	
 	// For holding the rgb values for pre-rendering differently-colored letters
 	SDL_Color palette[256];
@@ -248,6 +251,8 @@ void LoadFont(const char *file) {
 	}
 	
 	SDL_FreeSurface(fontSurf);
+
+	return 0;
 }
 
 

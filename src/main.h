@@ -63,17 +63,17 @@ const char SETTINGS_PATH[] = "./";
 
 
 /******* GLOBAL VARIABLES (part 1) ********/
-SDL_Surface *screenSurface;
-SDL_Surface *brickSurface[NUM_BRICK_SURFACES];
-SDL_Surface *blockSurface;
-SDL_Surface *torchSurface[NUM_TORCH_FLAMES];
-SDL_Surface *spikeSurface;
-SDL_Surface *itemSurface[NUM_ITEM_TYPES];
-SDL_Surface *telepadSurface[NUM_TELEPAD_STATES];
-SDL_Surface *exitSurface[NUM_EXIT_FRAMES];
-SDL_Surface *bgSurface;
-SDL_Surface *playerSurface[NUM_PLAYER_SURFACES];
-SDL_Surface *player2Surface[NUM_PLAYER_SURFACES];
+SDL_Surface *screenSurface = NULL;
+SDL_Surface *brickSurface[NUM_BRICK_SURFACES] = {NULL};
+SDL_Surface *blockSurface = NULL;
+SDL_Surface *torchSurface[NUM_TORCH_FLAMES] = {NULL};
+SDL_Surface *spikeSurface = NULL;
+SDL_Surface *itemSurface[NUM_ITEM_TYPES] = {NULL};
+SDL_Surface *telepadSurface[NUM_TELEPAD_STATES] = {NULL};
+SDL_Surface *exitSurface[NUM_EXIT_FRAMES] = {NULL};
+SDL_Surface *bgSurface = NULL;
+SDL_Surface *playerSurface[NUM_PLAYER_SURFACES] = {NULL};
+SDL_Surface *player2Surface[NUM_PLAYER_SURFACES] = {NULL};
 
 int blockXSpeed;
 int blockYSpeed;
@@ -116,7 +116,7 @@ int stickyPlayerOrigX, stickyPlayerOrigY; // The player's game coordinates
 
 /******* HEADER INCLUDES *******/
 /* main.cpp */
-int Init();
+char Init();
 void DeInit();
 
 #include "blocks.h"

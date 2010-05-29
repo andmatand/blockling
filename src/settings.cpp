@@ -18,6 +18,54 @@
  */
 
 
+// Reads the next line from the file, ignoring # comments or lines which exceed
+// maxLineLength
+char* ReadLine(FILE *file, uint maxLineLength) {
+	maxLineLength += 1; // Make room for newline character on the end
+	char *line = new char[maxLineLength]; // For holding the current line
+	bool lineHasBreak;
+
+	while (!feof(file)) {
+		fgets(line, maxLineLength, file);
+		lineHasBreak = false;
+
+		// Remove the trailing newline character(s), LF or CR
+		while (line[strlen(line) - 1] == '\n' or line[strlen(line) - 1] == 13) {
+			lineHasBreak = true;
+			line[strlen(line) - 1] = '\0';
+		}
+
+		// Remove any # comment from the end of the line
+		char *commentPos = strchr(line, '#');
+		if (commentPos) {
+			if (line[commentPos - line] == '#') {
+				line[commentPos - line] = '\0';
+			}
+		}
+
+		// If there is no linebreak on this "line" (i.e. the line is
+		// too long and thus invalid) or this line is a comment.
+		if (lineHasBreak == false || line[0] == '#') {
+			// Skip over the rest of this line until we get to the
+			// end of it
+			while (!feof(file)) {
+				fgets(line, maxLineLength, file);
+				if (strchr(line, '\n')) {
+					break;
+				}
+			}
+
+			// Back to top of while-loop to get next line
+			continue;
+		}
+
+		return line;
+	}
+
+	return NULL;
+}
+
+
 void SaveSettings() {
 	char filename[256];
 	sprintf(filename, "%s%s", SETTINGS_PATH, SETTINGS_FILE);
@@ -159,7 +207,7 @@ void LoadSettings() {
 		return;
 	}
 	
-	char line[32];
+	char *line = NULL;
 	char name[13];
 	char value[sizeof(option_tileset) + 1]; // string form of the value
 	uint uintVal = 0;  // uint form of the value
@@ -167,18 +215,11 @@ void LoadSettings() {
 	uchar n;       // holds string position when filling string, and parsed key number (e.g. 3 at end of "gameKeySym3")
 	char c[2];     // holds one character
 	
-	while (!feof(f)) {
-		fgets(line, sizeof(line), f);
-		
+	while ((line = ReadLine(f, 16 + sizeof(option_tileset))) != NULL) {
 		// If this line doesn't contain an equals sign, skip it
 		if (strchr(line, '=') == NULL)
 			continue;
-		
-		// Remove the trailing newline character(s), LF or CR
-		while (line[strlen(line) - 1] == '\n' or line[strlen(line) - 1] == 13) {
-			line[strlen(line) - 1] = '\0';
-		}
-		
+
 		// Find where the "=" is
 		midpoint = static_cast<uint>(strchr(line, '=') - line);
 		
@@ -286,7 +327,10 @@ void LoadSettings() {
 			}
 		}
 
+		// Free heap memory
+		delete [] line;
+		line = NULL;
 	}
-	
+
 	fclose(f);
 }

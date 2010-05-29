@@ -580,45 +580,6 @@ void Notify(char *text) {
 }
 
 
-// Reads the next line from the file, ignoring lines beginning with # or
-// exceeding maxLineLength
-char* ReadLine(FILE *file, uint maxLineLength) {
-	maxLineLength += 1; // Make room for newline character on the end
-	char *line = new char[maxLineLength]; // For holding the current line
-	bool lineHasBreak;
-
-	while (!feof(file)) {
-		fgets(line, maxLineLength, file);
-		lineHasBreak = false;
-
-		// Remove the trailing newline character(s), LF or CR
-		while (line[strlen(line) - 1] == '\n' or line[strlen(line) - 1] == 13) {
-			lineHasBreak = true;
-			line[strlen(line) - 1] = '\0';
-		}
-
-		// If there is no linebreak on this "line" (i.e. the line is
-		// too long and thus invalid) or this line is a comment.
-		if (lineHasBreak == false || line[0] == '#') {
-			// Skip over the rest of this line until we get to the
-			// end of it
-			while (!feof(file)) {
-				fgets(line, maxLineLength, file);
-				if (strchr(line, '\n')) {
-					break;
-				}
-			}
-
-			// Back to top of while-loop to get next line
-			continue;
-		}
-
-		return line;
-	}
-
-	return NULL;
-}
-
 
 // Reads the list of tileset directories to load the next/previous
 // tileset directory
@@ -627,7 +588,7 @@ char* ReadLine(FILE *file, uint maxLineLength) {
 //       1 = next
 void SelectTileset(bool dir) {
 	char msg[43]; // For holding the notification message
-	char *line; // For holding the current line (+1 for newline character)
+	char *line = NULL; // For holding the current line (+1 for newline character)
 	char prevLine[sizeof(option_tileset)]; // For holding the previous line (+1 for newline character)
 	prevLine[0] = '\0'; // Make it start with 0 length
 	bool foundCurrentTileset = false;
@@ -721,7 +682,7 @@ void SelectTileset(bool dir) {
 // Loads the tiles from the specified tilesetDir, defaulting back
 // to the default tileset for (and only for) any tiles not found
 // in tilesetDir.
-void LoadTileset(char *tilesetDir) {
+char LoadTileset(char *tilesetDir) {
 	
 	/*** Free all old surfaces ***/
 	UnloadTileset();
@@ -732,11 +693,17 @@ void LoadTileset(char *tilesetDir) {
 	sprintf(path, "%s%s%s/", DATA_PATH, TILE_PATH, tilesetDir);
 	
 	bgSurface = TileSurface(path, "bg.bmp", 0);
+	if (bgSurface == NULL) {
+		return 1;
+	}
 	bgW = bgSurface->w;
 	bgH = bgSurface->h;
 
 	blockSurface = TileSurface(path, "block.bmp", 1);
 	spikeSurface = TileSurface(path, "spike.bmp", 1);
+	if (blockSurface == NULL || spikeSurface == NULL) {
+		return 1;
+	}
 
 	int a = 0, b = 0;
 	char fn[32]; // filename
@@ -810,7 +777,10 @@ void LoadTileset(char *tilesetDir) {
 	for (uint i = 0; i < NUM_BRICK_SURFACES; i++) {
 		n = sprintf(fn, "brick%d.bmp", i);
 		brickSurface[i] = TileSurface(path, fn, 1);
-		
+		if (brickSurface[i] == NULL) {
+			return 1;
+		}
+
 		#ifdef DEBUG
 		std::cout << "Loading " << fn << "\n";
 		#endif
@@ -857,7 +827,7 @@ void LoadTileset(char *tilesetDir) {
 		#endif
 	}
 
-
+	return 0;
 }
 
 
