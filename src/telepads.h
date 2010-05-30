@@ -185,15 +185,16 @@ bool telepad::NeedsToTeleport() {
 	}
 
 	if (doIt == true) {
-		// The "free" telepad must be clear of any blocks that may be in the way even
-		// if they are not directly on the telepad (e.g. a falling block)
+		// The "free" telepad must be clear of anything that may be in the way even
+		// if they are not directly on the telepad (e.g. a falling
+		// block or a piece of land directly above.
 		if (occupant1 == -1) {
-			if (BlockNumber(x1, y1 - TELEPAD_H, TILE_W, TILE_H) != -1) {
+			if (BoxContents(x1, y1 - TELEPAD_H, TILE_W, TILE_H) != -1) {
 				doIt = false;
 			}
 		}
 		if (occupant2 == -1) {
-			if (BlockNumber(x2, y2 - TELEPAD_H, TILE_W, TILE_H) != -1) {
+			if (BoxContents(x2, y2 - TELEPAD_H, TILE_W, TILE_H) != -1) {
 				doIt = false;
 			}
 		}
