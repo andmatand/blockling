@@ -108,26 +108,28 @@ int Game() {
 			maxUndo = option_undoSize;
 		}
 
+		// Load Level without a menu (e.g. from in-game "Next Level" or "Restart Level")
 		if (stickyPlayer || showingReplay || currentLevel != oldLevel || restartLevel) {
-			// Load Level without a menu (e.g. from in-game "Next Level" or "Restart Level")
-			while (true) {
-				if (LoadLevel(currentLevel) != NULL) {
-					fprintf(stderr, "Error: Loading level %d failed.\n", currentLevel);
-	
-					if (currentLevel == 0) {
-						return -1;
-					}
-					else {
-						currentLevel = 0;
-					}
-					continue;
-				}
-				break;
+			// Store the error message returned by LoadLevel
+			buf1 = LoadLevel(currentLevel);
+
+			// If there was an error message
+			if (buf1 != NULL) {
+				// Free the heap memory taken up by the error message
+				delete [] buf1;
+				buf1 = NULL;
+
+				// Go to the SelectLevelMenu
+				selectingLevel = true;
 			}
 		}
 		else {
-			// Load Level Menu
 			selectingLevel = true;
+		}
+
+		if (selectingLevel) {
+			stickyPlayer = false;
+			// Show the Level-Selection Menu
 			switch (SelectLevelMenu()) {
 				case 0:
 					break;

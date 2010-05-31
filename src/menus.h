@@ -326,14 +326,6 @@ int menu::Input() {
 			sel = numItems - 1;
 			arrowTimer = SDL_GetTicks();
 			break;
-		case 10: // Page Up
-			sel -= 7;
-			arrowTimer = SDL_GetTicks();
-			break;
-		case 11: // Page Down
-			sel += 7;
-			arrowTimer = SDL_GetTicks();
-			break;
 		case 8: // Esc
 			PlaySound(7);
 			return -1;

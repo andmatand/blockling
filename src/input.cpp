@@ -39,11 +39,19 @@ void GlobalInput(SDL_Event event) {
 						ToggleFullscreen();
 					}
 					break;
-				
+
+				// Change tilesets
+				case SDLK_PAGEUP:
+					SelectTileset(0);
+					break;
+				case SDLK_PAGEDOWN:
+					SelectTileset(1);
+					break;
+
 				default:
 					break;
 			}
-		break;
+			break;
 	}
 }
 
@@ -161,16 +169,7 @@ int GameInput(char mode) {
 
 				
 				switch (event.key.keysym.sym) {
-					case SDLK_KP_PLUS:
-					case SDLK_PLUS:
-					case SDLK_KP_MINUS:
-					case SDLK_PAGEUP:
-						SelectTileset(0);
-						break;
-					case SDLK_PAGEDOWN:
-						SelectTileset(1);
-						break;
-						
+											
 					#ifdef DEBUG
 					case SDLK_1:
 						if (blockXSpeed == 8) {
@@ -349,8 +348,6 @@ void CameraInput(SDL_Event event) {
 //	7 End
 //	8 Esc
 //	9 Window close button
-//	10 Page Up
-//	11 Page Down
 //	A negative value means that the key is being held down and this is a repetition
 signed char MenuInput() {
 	// Keep track of which key is currently held down
@@ -394,12 +391,6 @@ signed char MenuInput() {
 						break;
 					case SDLK_END:
 						return 7;
-						break;
-					case SDLK_PAGEUP:
-						return 10;
-						break;
-					case SDLK_PAGEDOWN:
-						return 11;
 						break;
 					case SDLK_BACKSPACE:
 					case SDLK_ESCAPE:

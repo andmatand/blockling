@@ -89,7 +89,7 @@ uint numTelepads;
 uint numItems;
 
 uint currentLevel;
-bool selectingLevel; // If we are currently in the pseudo-menu for selecting a level
+bool selectingLevel; // If we are currently in the menu for selecting a level
 bool levelTimeRunning; // If the level timer is running
 uint levelTime;	//How long the player has taken on this level (in milliseconds)
 uint levelTimeTick; // For tracking how long each frame takes
