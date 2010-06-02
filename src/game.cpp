@@ -74,6 +74,7 @@ int Game() {
 	char previousKey;
 	bool quitGame = false;
 	bool restartLevel = false;
+	bool showedPushHint = false;
 	uint oldLevel = currentLevel;
 	uint wonLevelTimer = 0;
 
@@ -219,6 +220,8 @@ int Game() {
 		if (currentLevel == 0 && option_levelSet == 0) {
 			TutorialSpeech(true);
 		}
+		
+		
 
 
 		/******* GAME LOOP *******/
@@ -254,6 +257,33 @@ int Game() {
 			// Show tutorial on level 0
 			if (currentLevel == 0 && option_levelSet == 0 && physicsStarted) {
 				TutorialSpeech(false);
+			}
+
+			// Show PUSH hint on level 5
+			if (showedPushHint == false && currentLevel == 5 && option_levelSet == 0 && physicsStarted) {
+				showedPushHint = true;
+				blocks[0].SetDir(2);
+				Speak(0, "Oh!", false, true);
+				Speak(0, "I just remembered something...", false, true);
+				buf1 = new char[45 + strlen(KeyName(option_playerKeys[4].sym))];
+				sprintf(
+						buf1,
+						"If you press %s, I can push blocks!",
+						KeyName(option_playerKeys[4].sym)
+				       );
+				Speak(0, buf1, false, true, 1);
+				delete [] buf1;
+				buf1 = NULL;
+
+				Speak(0, "", false, true);
+				switch (rand() % 2) {
+					case 0:
+						Speak(0, "I don't know why I just thought of that.", false, true);
+						break;
+					case 1:
+						Speak(0, "Anyway...", false, true);
+						break;
+				}
 			}
 
 			/** Set speed of replay ****/
@@ -836,6 +866,9 @@ int Game() {
 						blocks[i].SetFace(3); // happy mouth
 						blocks[i].SetDir(3); // Face the camera & lock movement
 
+						// Stop any active speech bubbles
+						ClearBubbles();
+
 						wonLevel = 3;
 						wonLevelTimer = SDL_GetTicks();
 					}
@@ -898,7 +931,12 @@ int Game() {
 			}
 
 
-			/*** Draw the Background (underneath teleportation animation) ***/
+			// Process camera movements only on real frames
+			if (showingReplay == false || frameNumber == 0) {
+				MoveCamera();
+			}
+
+			// Draw the Background (underneath teleportation animation)
 			DrawBackground();
 
 			if (showingReplay) {				
@@ -961,11 +999,7 @@ int Game() {
 				}
 			}
 
-			// Process camera movements only on real frames
-			if (showingReplay == false || frameNumber == 0) {
-				MoveCamera();
-			}
-			
+		
 			// Do auto camera centering every frame
 			CenterCamera(0);
 
@@ -1702,7 +1736,7 @@ void TutorialSpeech(bool reset) {
 			break;
 		case 4:
 			Speak(0, "Okay.");
-			sprintf(temp, "Push %s to make me set it down", KeyName(option_playerKeys[3].sym));
+			sprintf(temp, "Push %s to make me set it down.", KeyName(option_playerKeys[3].sym));
 			Speak(0, temp, false, true);
 			step++;
 

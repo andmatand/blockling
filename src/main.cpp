@@ -61,10 +61,6 @@ int main(int argc, char** argv) {
 
 
 
-
-
-
-
 char Init() {
 	/** Set default game keyboard layout ****/
 	ResetDefaultKeys();
@@ -76,7 +72,7 @@ char Init() {
 	option_levelSet = 0;
 	option_replayOn = true;
 	option_replaySpeed = 3;
-	option_background = 2;
+	option_background = 3;
 	option_timerOn = true;
 	option_cameraMode = 0;
 	option_fullscreen = false;
@@ -131,6 +127,10 @@ char Init() {
 		return 1;
 	}
 
+	// Make camera start in default position for a level that fits onscreen
+	levelX = levelY = levelW = levelH = 0;
+	CenterCamera(-1);
+
 	
 	/*** Load Sound ***/
 	LoadSound("pickup.wav", 0);
@@ -145,7 +145,6 @@ char Init() {
 	
 	return 0;
 }
-
 
 
 

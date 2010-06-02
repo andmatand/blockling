@@ -337,7 +337,7 @@ int OptionsMenu(bool inGame) {
 	uint maxUndoSize = 500;
 	char change_undoSize;
 	
-	char maxBackground = 2;
+	char maxBackground = 3;
 	
 	char maxCameraMode = 1;
 	
@@ -421,6 +421,9 @@ int OptionsMenu(bool inGame) {
 				strcat(text, "STATIC");
 				break;
 			case 2:
+				strcat(text, "PARALLAX");
+				break;
+			case 3:
 				strcat(text, "SCROLLING");
 				break;
 		}

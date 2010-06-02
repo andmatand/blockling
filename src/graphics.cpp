@@ -41,7 +41,7 @@ SDL_Surface* FillSurface(const char *file, bool transparent) {
 	SDL_Surface *surface = NULL;
 	
 	if (temp == NULL) {
-		fprintf(stderr, "Error: Failed to load image %s\n", file);
+		fprintf(stderr, "Error: Failed to load image \"%s\"\n", file);
 		return NULL;
 	}
 
@@ -89,11 +89,15 @@ SDL_Surface* TileSurface(char *path, const char *filename, bool transparent) {
 	char *fullPath = new char[strlen(path) + strlen(filename) + 1];
 	sprintf(fullPath, "%s%s", path, filename);
 	
+	#ifdef DEBUG
+		printf("Loading \"%s\"\n", fullPath);
+	#endif
+
 	// Check if the requested file exists in this path
 	FILE *fp = fopen(fullPath, "r");
 	if (!fp) { // If it doesn't exist
 		#ifdef DEBUG
-		printf("'%s' does not exist in this tileset's directory (%s); using the default tile instead.\n", filename, path);
+		printf("\"%s\" does not exist in this tileset's directory (%s); using the default tile instead.\n", filename, path);
 		#endif
 		
 		// Change the fullPath to the default tile path + the filename
@@ -683,7 +687,6 @@ void SelectTileset(bool dir) {
 // to the default tileset for (and only for) any tiles not found
 // in tilesetDir.
 char LoadTileset(char *tilesetDir) {
-	
 	/*** Free all old surfaces ***/
 	UnloadTileset();
 
@@ -707,16 +710,14 @@ char LoadTileset(char *tilesetDir) {
 
 	int a = 0, b = 0;
 	char fn[32]; // filename
-	int n;
 	
 	// Player surfaces
 	for (uint i = 0; i < NUM_PLAYER_SURFACES; i++) {
 		sprintf(fn, "player%d_%d.bmp", a, b);
 		playerSurface[i] = TileSurface(path, fn, 1);
-		
-		#ifdef DEBUG
-		std::cout << "Loading " << fn << "\n";
-		#endif
+		if (playerSurface[i] == NULL) {
+			return 1;
+		}	
 		
 		b++;
 		if (b > (NUM_PLAYER_SURFACES / 3) - 1) {
@@ -738,6 +739,9 @@ char LoadTileset(char *tilesetDir) {
 	for (uint i = 0; i < NUM_PLAYER_SURFACES; i++) {
 		sprintf(fn, "player%d_%d.bmp", a, b);
 		player2Surface[i] = TileSurface(path, fn, 1);
+		if (player2Surface[i] == NULL) {
+			return 1;
+		}
 		
 		// Set the palette of the dark color
 		//for (uint k = 0; k <= 200; k++) {
@@ -762,10 +766,6 @@ char LoadTileset(char *tilesetDir) {
 		// Change the palette of the surface
 		SDL_SetPalette(player2Surface[i], SDL_LOGPAL, palette, 0, 256);
 		
-		#ifdef DEBUG
-		std::cout << "Loading " << fn << "\n";
-		#endif
-		
 		b++;
 		if (b > (NUM_PLAYER_SURFACES / 3) - 1) {
 			b = 0;
@@ -775,56 +775,48 @@ char LoadTileset(char *tilesetDir) {
 
 	// Brick surfaces
 	for (uint i = 0; i < NUM_BRICK_SURFACES; i++) {
-		n = sprintf(fn, "brick%d.bmp", i);
+		sprintf(fn, "brick%d.bmp", i);
 		brickSurface[i] = TileSurface(path, fn, 1);
 		if (brickSurface[i] == NULL) {
 			return 1;
 		}
-
-		#ifdef DEBUG
-		std::cout << "Loading " << fn << "\n";
-		#endif
 	}
 
 
 	// Torch surfaces
 	for (uint i = 0; i < NUM_TORCH_FLAMES; i++) {
-		n = sprintf(fn, "torch%d.bmp", i);
+		sprintf(fn, "torch%d.bmp", i);
 		torchSurface[i] = TileSurface(path, fn, 1);
-		
-		#ifdef DEBUG
-		std::cout << "Loading " << fn << "\n";
-		#endif
+		if (torchSurface[i] == NULL) {
+			return 1;
+		}
 	}
 
 	// Telepad surfaces
 	for (uint i = 0; i < NUM_TELEPAD_STATES; i++) {
-		n = sprintf(fn, "telepad%d.bmp", i);
+		sprintf(fn, "telepad%d.bmp", i);
 		telepadSurface[i] = TileSurface(path, fn, 1);
-		
-		#ifdef DEBUG
-		std::cout << "Loading " << fn << "\n";
-		#endif
+		if (telepadSurface[i] == NULL) {
+			return 1;
+		}
 	}
 
 	// Exit surfaces
 	for (uint i = 0; i < NUM_EXIT_FRAMES; i++) {
-		n = sprintf(fn, "exit%d.bmp", i);
+		sprintf(fn, "exit%d.bmp", i);
 		exitSurface[i] = TileSurface(path, fn, 1);
-		
-		#ifdef DEBUG
-		std::cout << "Loading " << fn << "\n";
-		#endif
+		if (exitSurface[i] == NULL) {
+			return 1;
+		}
 	}
 
 	// Item surfaces
 	for (uint i = 0; i < NUM_ITEM_TYPES; i++) {
-		n = sprintf(fn, "item%d.bmp", i);
+		sprintf(fn, "item%d.bmp", i);
 		itemSurface[i] = TileSurface(path, fn, 1);
-		
-		#ifdef DEBUG
-		std::cout << "Loading " << fn << "\n";
-		#endif
+		if (itemSurface[i] == NULL) {
+			return 1;
+		}
 	}
 
 	return 0;
@@ -907,33 +899,48 @@ void PutPixel(SDL_Surface *surface, int x, int y, Uint32 pixel) {
 
 
 void DrawBackground() {
-	static int bgX, bgY;
+	const float parallaxConst = .5f;
+	static int bgX = 0, bgY = 0;
 	static uint bgTimer = 0;
+
+	switch (option_background) {
+		// Draw blackness and exit if background is disabled
+		case 0:
+			SDL_FillRect(screenSurface, NULL, 0x000000);
+			return;
+			break;
+
+		// Position the parallax background
+		case 2:
+			bgX = (-cameraX * parallaxConst);
+			if (bgX >= bgW) bgX %= bgW;
+			if (bgX < 0) bgX = bgW - (abs(bgX) % bgW);
+
+			bgY = (-cameraY * parallaxConst);
+			if (bgY >= bgH) bgY %= bgH;
+			if (bgY < 0) bgY = bgH - (abs(bgY) % bgH);
+
+			break;
 	
-	// Move background offset X and Y (to scroll it)
-	if (option_background == 2 && SDL_GetTicks() > bgTimer + 60) {
-	//if (option_background == 2) {
-		bgX += 1;
-		if (bgX >= bgW) bgX = 0;
-		
-		bgY += 1;
-		if (bgY >= bgH) bgY = 0;
-		
-		bgTimer = SDL_GetTicks();
-	}
-	
-	// Draw background
-	if (option_background > 0) {
-		for (int b = -bgH; b < -bgH + (((SCREEN_H / bgH) + 2) * bgH); b+= bgH) {
-			for (int a = -bgW; a < -bgW + (((SCREEN_W /bgW) + 2) * bgW); a+= bgW) {
-				ApplySurface(a + bgX, b + bgY, bgSurface, screenSurface);
+		// Scroll the background
+		case 3:
+			if (SDL_GetTicks() > bgTimer + 60) {
+				bgX += 1;
+				if (bgX >= bgW) bgX = 0;
+
+				bgY += 1;
+				if (bgY >= bgH) bgY = 0;
+
+				bgTimer = SDL_GetTicks();
 			}
-		}
+			break;
 	}
-	
-	// Draw blackness if background is disabled
-	if (option_background == 0) {
-		SDL_FillRect(screenSurface, NULL, 0x000000);
+
+	// Draw the background
+	for (int b = -bgH; b < -bgH + (((SCREEN_H / bgH) + 2) * bgH); b += bgH) {
+		for (int a = -bgW; a < -bgW + (((SCREEN_W /bgW) + 2) * bgW); a += bgW) {
+			ApplySurface(a + bgX, b + bgY, bgSurface, screenSurface);
+		}
 	}
 }
 

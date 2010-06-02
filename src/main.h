@@ -23,7 +23,6 @@ typedef unsigned char uchar;
 
 /******* EXTERNAL INCLUDES *******/
 #include <iostream>
-#include <ctime>
 #include <SDL/SDL.h>
 #include <SDL/SDL_mixer.h>
 
