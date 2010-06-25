@@ -118,13 +118,12 @@ int stickyPlayerOrigX, stickyPlayerOrigY; // The player's game coordinates
 char Init();
 void DeInit();
 
-#include "blocks.h"
-#include "game.h"
+#include "block.h"
 #include "graphics.h"
 #include "input.h"
 #include "font.h"
 #include "sound.h"
-#include "menus.h"	// Needs sound.h
+#include "menu.h"	// Needs sound.h
 #include "physics.h"
 #include "settings.h"
 #include "replay.h"
@@ -137,40 +136,38 @@ void DeInit();
 // Bricks are stationary "land"
 class brick {
 	public:
-		/** Constructor **/
+		// Constructor
 		brick():
 			w(TILE_W),
 			h(TILE_H)
 			{};
 	
-		/** Get **/
+		// Get
 		int GetX() const { return x; };
 		int GetY() const { return y; };
 		
 		int GetW() const { return w; };
 		int GetH() const { return h; };
-
 		
 		int GetType() const { return type; };
 	
-		/** Set **/
+		// Set
 		void SetX(int xPos) { x = xPos; };
 		void SetY(int yPos) { y = yPos; };
 		
 		void SetType(char t) { type = t; };
 		
-		/** Other **/
-		SDL_Surface* GetSurface();	// in graphics.cpp
+		// Other
+		SDL_Surface* GetSurface(); // in graphics.cpp
 	private:
 		int x, y;
 		int w, h;
-		char type;	// 0 wall (vertical sections & behind torches)
-				// 1 left side
-				// 2 middle
-				// 3 right side
-				// 4 singe piece of land
+		char type; // 0 wall (vertical sections & behind torches)
+		           // 1 left side
+		           // 2 middle
+		           // 3 right side
+		           // 4 singe piece of land
 };
-
 
 
 
@@ -199,17 +196,26 @@ class torch {
 };
 
 void torch::FlickerFlame() {
-	if (rand() % 2 == 0) {
+	// Default
+	//if (option_tileset == 0) {
 		if (rand() % 2 == 0) {
-			flame -= (rand() % 2) + 1;
+			if (rand() % 2 == 0) {
+				flame -= (rand() % 2) + 1;
+			}
+			else {
+				flame += (rand() % 2) + 1;
+			}
 		}
-		else {
-			flame += (rand() % 2) + 1;
-		}
-	}
-		
-	if (flame < 0) flame += 2;
-	if (flame > NUM_TORCH_FLAMES - 1) flame -= 2;
+
+		if (flame < 0) flame += 2;
+		if (flame > NUM_TORCH_FLAMES - 1) flame -= 2;
+	//}
+	// Sci-Fi
+	//else {
+		//if (rand() % 4 == 0) {
+			//flame = rand() % NUM_TORCH_FLAMES;
+		//}
+	//}
 }
 
 
@@ -233,7 +239,7 @@ class spike {
 
 // Items are "power-ups" that have no physics.  They disappear when
 // a player touches them, and they cause something to happen.
-class item : public brick {
+class item : public spike {
 	private:
 		char type;	// Types
 				// 0 spinach
@@ -256,10 +262,10 @@ bool physicsStarted; // Whether the physics have started running for the current
 
 
 /*** MORE INCLUDES ***/
-#include "telepads.h"	// Needs *blocks
+#include "telepad.h"	// Needs *blocks
 telepad *telepads = NULL;
 
-
+#include "game.h"
 
 
 /*** GLOBAL VARIABLES THAT REFERENCE STUFF ABOVE ***/
@@ -275,7 +281,7 @@ telepad **undoTelepads = NULL;	// Needs telepad class
 #include "game.cpp"
 #include "graphics.cpp"
 #include "input.cpp"
-#include "menus.cpp"
+#include "menu.cpp"
 #include "physics.cpp"
 #include "sound.cpp"
 #include "settings.cpp"

@@ -45,7 +45,6 @@ enum {
 
 void SelectTileset(bool dir);
 void SetCameraTargetBlock(uint b);
-SDL_Surface* TileSurface(char *path, const char *file, bool transparent);
 void ToggleFullscreen();
 void UnlockSurface(SDL_Surface *surf);
 void UnloadTileset();
@@ -54,4 +53,4 @@ void UpdateScreen();
 
 // Globals
 char *notifyText = NULL; // For holding the "TILESET: X" message
-uchar notifyFrames;
+uchar notifyFrames; // How many frames notifyText has been onscreen

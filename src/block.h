@@ -95,8 +95,10 @@ class block {
 		/** Others **/
 		void Animate();              // Change block/player face (blinking, etc.)
 		
-		int Climb(char direction);  // Makes the player climb over the obstacle in the
-		                             // specified direction (same as dir)
+		int Climb(char direction,    // Makes the player climb over the obstacle in the
+		          bool autoClimb);   // specified direction (same as dir)
+		                             //
+		                             // autoClimb = false is used in retro BLOCK-MAN 1 mode
 		                             //
 		                             // returns false if the block has something immediately
 		                             // above it blocking its path

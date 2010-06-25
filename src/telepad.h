@@ -77,7 +77,8 @@ class telepad {
 		int *ba; // Array to keep track of which blocks are going to get teleported
 		SDL_Surface *sourceSurf;
 		SDL_Surface *destSurf;
-		bool *map; // Keeps track of which squares have been teleported (false = hasn't been moved, true = has)
+		bool *map; // Array to keep track of which squares have been teleported
+		           // (false = hasn't been moved, true = has)
 		int dX, dY; // Destination x and y
 		int sX, sY; // Source x and y
 		int sH; // source height
@@ -224,27 +225,19 @@ void telepad::DeInitTeleport(bool freePointers) {
 	state = 0; // Off
 
 	// Delete block array
-	//if (ba != NULL) {
-		if (freePointers) delete [] ba;
-		ba = NULL;
-	//}
+	if (freePointers) delete [] ba;
+	ba = NULL;
 
 	// Delete pixel map array
-	//if (map != NULL) {
-		if (freePointers) delete [] map;
-		map = NULL;
-	//}
+	if (freePointers) delete [] map;
+	map = NULL;
 
 	// Free the surfaces
-	//if (sourceSurf != NULL) {
-		if (freePointers) SDL_FreeSurface(sourceSurf);
-		sourceSurf = NULL;
-	//}
-	
-	//if (destSurf != NULL) {
-		if (freePointers) SDL_FreeSurface(destSurf);
-		destSurf = NULL;
-	//}
+	if (freePointers) SDL_FreeSurface(sourceSurf);
+	sourceSurf = NULL;
+
+	if (freePointers) SDL_FreeSurface(destSurf);
+	destSurf = NULL;
 }
 
 

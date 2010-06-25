@@ -131,7 +131,7 @@ bool block::OnSolidGround() {
 // returns BoxContents return value of thing in the way (directly above)
 // with the exception that 0 = a block and there is no value > 0
 // (-1 = there's nothing in the way)
-int block::Climb(char direction) {
+int block::Climb(char direction, bool autoClimb) {
 	int b;
 	char s[11];
 	int x1, y1; // Destination x and y
@@ -146,7 +146,7 @@ int block::Climb(char direction) {
 	b = BoxContents(x1, y, TILE_W, h);
 
 	// If the tile to the left/right is empty, simply move.
-	if (b == -1) {
+	if (b == -1 || autoClimb == false) {
 		xMoving = x1 - x;
 	}
 	// If the space to the left/right is occupied

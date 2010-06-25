@@ -86,7 +86,6 @@ int Game() {
 	bool recordingReplay = false;
 	showingReplay = false;
 	int currentReplayKey;
-	bool replayKeyWorked;
 	menu *replayMenu = NULL;
 	uint frameNumber; // counts frames for doing frameskipping for fast replays
 	char replayTempFile[256]; // Will hold filenames for replay temp files
@@ -100,6 +99,7 @@ int Game() {
 		levelTime = 0;
 		levelTimeRunning = false;
 		physicsStarted = false;
+		bool movementStarted = false;
 
 		// Don't sync the real undo memory size with the
 		// (possibly changed) option if we are doing a replay
@@ -170,7 +170,6 @@ int Game() {
 
 		/*** Initialze replay ***/
 		recordingReplay = (option_replayOn ? true : false);	
-		replayKeyWorked = false;
 	
 		if (showingReplay) {
 			// Initialize the replay files for reading
@@ -387,7 +386,8 @@ int Game() {
 			
 			/*** Handle Player Movement ***/
 			for (i = 0; i < numPlayers; i++) {
-				pushedKey = false; // This will forbid multiple actions from happening in the same frame
+				// This will forbid multiple actions from happening in the same frame
+				pushedKey = false;
 				triedKey = false;
 				
 				if (showingReplay) {
@@ -405,24 +405,25 @@ int Game() {
 				// Undo
 				if (i == 0 && gameKeys[4].on > 0) {
 					if (recordingReplay) theReplays[i]->SaveKey(5); // Save the keypress in the replay
-					//if (showingReplay) replayKeyWorked = true;
 					
 					Undo(1);
 					pushedKey = true;
 				}
 
 				// If the player is not already moving
-				if (blocks[i].GetPathLength() == 0 &&blocks[i].GetXMoving() == 0 && blocks[i].GetYMoving() == 0 
+				if (blocks[i].GetPathLength() == 0 &&
+					blocks[i].GetXMoving() == 0 &&
+					blocks[i].GetYMoving() == 0 &&
 					// and is on solid ground
-					&& blocks[i].OnSolidGround()
+					blocks[i].OnSolidGround() &&
 					// and a key hasn't been pushed yet
-					&& !pushedKey
+					!pushedKey &&
 					// and the block is not disabled
-					&& blocks[i].GetType() >= 0
+					blocks[i].GetType() >= 0 &&
 					// and the player is still playing (hasn't won)
-					&& blocks[i].GetWon() == 0
+					blocks[i].GetWon() == 0 &&
 					// and the player is not facing the camera with locked movement
-					&& blocks[i].GetDir() < 3)
+					blocks[i].GetDir() < 3)
 				{
 					
 					/*** Perform next keypress from replay file ***/
@@ -437,27 +438,17 @@ int Game() {
 							//printf("pushing key %d\n", currentReplayKey);
 							theReplays[i]->PushNextKey();
 							//printf("currentReplayKey = %d\n", currentReplayKey);
-						
-							// Push the next key if it's okay
-							//if (currentReplayKey != 100) {
-								//if (replayKeyWorked == false) printf("Key didn't do anything.  Trying again.\n");
-								
-								//theReplays[i]->PushKey(currentReplayKey);
-								/*
-								if (currentReplayKey == -1) {
-									replayKeyWorked = true;
-								}
-								else {
-									replayKeyWorked = false;
-								}
-								*/
-							//}
 						}
 					}
 					
 					
 					// Enter (push a block)
-					if (pushedKey == false && playerBlock[i] == -1 && playerKeys[(i * NUM_PLAYER_KEYS) + 4].on > 0) {
+					if (
+						pushedKey == false &&
+						playerBlock[i] == -1 &&
+						playerKeys[(i * NUM_PLAYER_KEYS) + 4].on > 0 &&
+						option_levelSet != 1) // For retro BLOCKMAN-1 mode, disable pushing
+					{
 						
 						// Determine which tile the player is looking at.
 						if (blocks[i].GetDir() == 0) {	// Facing left
@@ -484,8 +475,8 @@ int Game() {
 							if (x == -1 || blocks[i].GetStrong() > 0) {
 								PlaySound(2); // Play sound
 
-								if (recordingReplay) theReplays[i]->SaveKey(4); // Save the keypress in the replay
-								//if (showingReplay) replayKeyWorked = true;
+								// Save the keypress in the replay
+								if (recordingReplay) theReplays[i]->SaveKey(4);
 
 								// If this is player 0
 								if (i == 0) {
@@ -541,43 +532,74 @@ int Game() {
 					
 					// Left
 					if (pushedKey == false && playerKeys[(i * NUM_PLAYER_KEYS) + 0].on > 0) {
+						// For retro BLOCKMAN-1 mode, disable turning "in place"
+						j = 1; // Autoclimb = on
+						if (option_levelSet == 1) {
+							if (blocks[i].GetDir() == 1 && playerBlock[i] == -1) {
+								// Flag that the player should not climb
+								j = 0;
+
+								// Save the keypress in the replay
+								if (recordingReplay) theReplays[i]->SaveKey(0);
+
+								blocks[i].SetDir(0);
+								pushedKey = true;
+							}
+						}
+
 						if (blocks[i].GetDir() == 0) {
 							// Player musn't be waiting for a block he's acted upon
 							if (playerBlock[i] == -1) {
 								// Try to set block's path to climb/walk left
-								blocks[i].Climb(0);
+								blocks[i].Climb(0, j);
 								
 								// If the player is actually going to move
 								if (blocks[i].GetPathLength() > 0 || blocks[i].GetXMoving() != 0) {
 									// If this is player 0
 									if (i == 0) {
-										Undo(0); // Save Undo state
+										// Save Undo state
+										Undo(0);
 									}
 
-									if (recordingReplay) theReplays[i]->SaveKey(0); // Save the keypress in the replay
-									//if (showingReplay) replayKeyWorked = true;
+									// Save the keypress in the replay
+									if (recordingReplay) theReplays[i]->SaveKey(0);
 									
-									pushedKey = true; // Now player can't push other buttons this frame
+									// Now player can't push other buttons this frame
+									pushedKey = true;
 								}
 							}
 						}
-						else {
-							if (recordingReplay) theReplays[i]->SaveKey(0); // Save the keypress in the replay
-							//if (showingReplay) replayKeyWorked = true;
+						else if (option_levelSet != 1) {
+							// Save the keypress in the replay
+							if (recordingReplay) theReplays[i]->SaveKey(0);
 							
 							blocks[i].SetDir(0);
-							
 							pushedKey = true;
 						}
 					}
 
 					// Right
 					if (pushedKey == false && playerKeys[(i * NUM_PLAYER_KEYS) + 1].on > 0) {
+						// For retro BLOCKMAN-1 mode, disable turning "in place"
+						j = 1; // Autoclimb = on
+						if (option_levelSet == 1) {
+							if (blocks[i].GetDir() == 0 && playerBlock[i] == -1) {
+								// Flag that the player should not climb
+								j = 0;
+
+								// Save the keypress in the replay
+								if (recordingReplay) theReplays[i]->SaveKey(1);
+
+								blocks[i].SetDir(1);
+								pushedKey = true;
+							}
+						}
+
 						if (blocks[i].GetDir() == 1) {
 							// Player musn't be waiting for a block he's acted upon
 							if (playerBlock[i] == -1) {
 								// Try to set block's path to climb/walk right
-								blocks[i].Climb(1);
+								blocks[i].Climb(1, j);
 
 								// If the player is actually going to move
 								if (blocks[i].GetPathLength() > 0 || blocks[i].GetXMoving() != 0) {
@@ -587,19 +609,19 @@ int Game() {
 									}
 									
 									if (recordingReplay) theReplays[i]->SaveKey(1); // Save the keypress in the replay	
-									//if (showingReplay) replayKeyWorked = true;
 
 									pushedKey = true; // Now player can't push other buttons this frame
 								}
 							}
 						}
-						else {
-							if (recordingReplay) theReplays[i]->SaveKey(1); // Save the keypress in the replay
-							//if (showingReplay) replayKeyWorked = true;
+						else if (option_levelSet != 1) {
+							// Save the keypress in the replay
+							if (recordingReplay) theReplays[i]->SaveKey(1);
 
 							blocks[i].SetDir(1);
 							
-							pushedKey = true; // Now player can't push other buttons this frame
+							// Now player can't push other buttons this frame
+							pushedKey = true;
 						}
 					}
 		
@@ -612,7 +634,6 @@ int Game() {
 						if (b >= 0 && blocks[b].GetXMoving() == 0 && blocks[b].GetYMoving() == 0) {
 							PlaySound(1); // Play sound
 							if (recordingReplay) theReplays[i]->SaveKey(3); // Save the keypress in the replay
-							//if (showingReplay) replayKeyWorked = true;
 							
 							// If this is player 0
 							if (i == 0) {
@@ -643,7 +664,10 @@ int Game() {
 					}
 								
 					// Up (pick up block)
-					if (pushedKey == false && playerBlock[i] == -1 && playerKeys[(i * NUM_PLAYER_KEYS) + 2].on > 0) {
+					if (pushedKey == false &&
+							playerBlock[i] == -1 &&
+							playerKeys[(i * NUM_PLAYER_KEYS) + 2].on > 0)
+					{
 						// Determine which tile the player is looking at.
 						if (blocks[i].GetDir() == 0) {  // Facing left
 							x = blocks[i].GetX() - 1;
@@ -656,7 +680,6 @@ int Game() {
 						// If it's a block, make it climb up onto the player =)
 						if (b >= 0 && blocks[b].GetType() >= 0) {
 							if (recordingReplay) theReplays[i]->SaveKey(2); // Save the keypress in the replay
-							//if (showingReplay) replayKeyWorked = true;
 							
 							// If this is player 0
 							if (i == 0) {
@@ -668,7 +691,7 @@ int Game() {
 							
 							// Try to make the block climb onto the player's head
 							// (re-use the x variable for this)
-							x = blocks[b].Climb(static_cast<char>((blocks[i].GetDir() == 0) ? 1 : 0));
+							x = blocks[b].Climb(static_cast<char>((blocks[i].GetDir() == 0) ? 1 : 0), true);
 							
 							// If there was room for the block to climb
 							if (x == -1) {
@@ -733,8 +756,13 @@ int Game() {
 							}
 						}
 					}
+
+					// Mark the moment when any player
+					// moves for the first time (to start
+					// the other repays recording sleeps)
+					if (pushedKey && movementStarted == false) movementStarted = true;
 					
-					if (pushedKey == false && recordingReplay && (levelTimeRunning || currentLevel == 0) && wonLevel < 2) {
+					if (pushedKey == false && recordingReplay && movementStarted && wonLevel < 2) {
 						theReplays[i]->SaveKey(-1); // Save the non-keypress (sleep) in the replay
 					}
 					
@@ -748,26 +776,30 @@ int Game() {
 					if (i == 0 && playerBlock[i] == -1 && pushedKey == false && triedKey == false) {
 						previousKey = -1;
 					}
-					
-					// Only count a replay key as pushed if it did something
-					/*
-					if (showingReplay && replayKeyWorked) {
-						theReplays[i]->DecrementKey();
-					}
-					*/
 				}
 				
 
 				// Check if player is waiting for a block he's acted upon to finish moving
 				if (playerBlock[i] != -1) {
 					// If it's not moving (along a path) anymore
-					if (blocks[playerBlock[i]].GetPathLength() == 0 && blocks[playerBlock[i]].GetXMoving() == 0 && blocks[playerBlock[i]].GetYMoving() == 0) {
+					if (blocks[playerBlock[i]].GetPathLength() == 0 &&
+						blocks[playerBlock[i]].GetXMoving() == 0 &&
+						blocks[playerBlock[i]].GetYMoving() == 0)
+					{
 						// Not strong anymore
 						blocks[playerBlock[i]].SetStrong(0);
 						
 						// No longer wait for it.
 						playerBlock[i] = -1;
 					}
+				}
+
+				// Start the timer when the first movement is made by the human player
+				if (levelTimeRunning == false && i == 0 && pushedKey) {
+					levelTimeRunning = true;
+					levelTimeTick = SDL_GetTicks();
+					// Also start physics if they haven't already
+					physicsStarted = true; 
 				}
 			}
 
@@ -801,21 +833,39 @@ int Game() {
 				// no block on his head, and he is not on
 				// a spike, make him rise
 				for (i = 0; i < numPlayers; i++) {
-					if (blocks[i].GetType() >= 10 && blocks[i].GetH() < TILE_H && BlockNumber(blocks[i].GetX(), blocks[i].GetY() - 1, blocks[i].GetW(), 1) < 0 && BoxContents(blocks[i].GetX(), blocks[i].GetY() + blocks[i].GetH(), blocks[i].GetW(), 1) != -3) {
-						b = blocks[i].GetY(); 			// Save old y position
-						blocks[i].SetYMoving(-blockYSpeed);	// Set the block to move up
+					if (blocks[i].GetType() >= 10 &&
+						blocks[i].GetH() < TILE_H &&
+						BlockNumber(blocks[i].GetX(),
+							blocks[i].GetY() - 1,
+							blocks[i].GetW(),
+							1) < 0 &&
+						BoxContents(blocks[i].GetX(),
+							blocks[i].GetY() + blocks[i].GetH(),
+							blocks[i].GetW(),
+							1) != -3)
+					{
+						// Save old y position
+						b = blocks[i].GetY();
+
+						// Set the block to move up
+						blocks[i].SetYMoving(-blockYSpeed);
+
 						if (blocks[i].GetYMoving() < -2) blocks[i].SetYMoving(-2);
 						
 						// Temporarily disable xMoving
 						x = blocks[i].GetXMoving(); // Save it
 						blocks[i].SetXMoving(0); // Set it to 0
 						
-						blocks[i].Physics(); 			// Try to move the block up
+						// Try to move the block up
+						blocks[i].Physics();
 						
-						blocks[i].SetXMoving(x); // Restore xMoving
+						// Restore xMoving
+						blocks[i].SetXMoving(x);
 						
-						if (blocks[i].GetY() < b) 		// If it moved up, increase the height by the amount moved
+						// If it moved up, increase the height by the amount moved
+						if (blocks[i].GetY() < b) {
 							blocks[i].SetH(blocks[i].GetH() + (b - blocks[i].GetY()));
+						}
 					}
 				}
 
@@ -917,19 +967,17 @@ int Game() {
 
 			/** Timer **/
 			// Increment the timer
-			if (levelTimeRunning && wonLevel == 0 && SDL_GetTicks() >= levelTimeTick + 1000) {
-				if (showingReplay == false || option_replaySpeed == 1) {
+			if (levelTimeRunning && wonLevel == 0
+				&& SDL_GetTicks() >= levelTimeTick + 1000)
+			{
+				if (showingReplay == false ||
+					option_replaySpeed == 1)
+				{
 					levelTime ++;
 					levelTimeTick = SDL_GetTicks();
 				}
 			}
-			// Start the timer when the first movement is made
-			if (levelTimeRunning == false && pushedKey) {
-				levelTimeRunning = true;
-				levelTimeTick = SDL_GetTicks();
-				physicsStarted = true; // Also start physics if they haven't already
-			}
-
+	
 
 			// Process camera movements only on real frames
 			if (showingReplay == false || frameNumber == 0) {
@@ -1420,18 +1468,17 @@ char * LoadLevel(uint level) {
 				case '.':
 					validChar = true;
 					break;
-				case '@': // player
+				case '@': // first player
 					validChar = true;
-					blocks[numPlayers].SetX(x);
-					blocks[numPlayers].SetY(y);
-					blocks[numPlayers].SetType(10);
-					numPlayers ++;
+					blocks[0].SetX(x);
+					blocks[0].SetY(y);
+					blocks[0].SetType(10);
 					break;
 				case 'A': // Unintelligent NPC
 					validChar = true;
-					blocks[numPlayers].SetX(x);
-					blocks[numPlayers].SetY(y);
-					blocks[numPlayers].SetType(11);
+					blocks[1 + numPlayers].SetX(x);
+					blocks[1 + numPlayers].SetY(y);
+					blocks[1 + numPlayers].SetType(11);
 					numPlayers ++;
 					break;
 				case '*': // exit
@@ -1540,6 +1587,9 @@ char * LoadLevel(uint level) {
 	}
 	fclose(f);
 	
+	// Add the first player to numPlayers
+	numPlayers ++;
+
 	/** Change brick types based on their placement next to other bricks ****/
 	int leftBrick, rightBrick, topBrick, bottomBrick;
 	// Make vertical bricks into "wall" bricks

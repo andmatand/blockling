@@ -47,6 +47,7 @@ SDL_Surface* FillSurface(const char *file, bool transparent) {
 
 	surface = SDL_DisplayFormat(temp);
 	SDL_FreeSurface(temp);
+	temp = NULL;
 
 	if (transparent) {
 		//Make bright pink #ff00ff transparent
@@ -84,52 +85,12 @@ void ToggleFullscreen() {
 
 
 
-SDL_Surface* TileSurface(char *path, const char *filename, bool transparent) {
-	// Form the full path (path + filename)
-	char *fullPath = new char[strlen(path) + strlen(filename) + 1];
-	sprintf(fullPath, "%s%s", path, filename);
-	
-	#ifdef DEBUG
-		printf("Loading \"%s\"\n", fullPath);
-	#endif
-
-	// Check if the requested file exists in this path
-	FILE *fp = fopen(fullPath, "r");
-	if (!fp) { // If it doesn't exist
-		#ifdef DEBUG
-		printf("\"%s\" does not exist in this tileset's directory (%s); using the default tile instead.\n", filename, path);
-		#endif
-		
-		// Change the fullPath to the default tile path + the filename
-		delete [] fullPath;
-		fullPath = new char[strlen(DATA_PATH) + strlen(TILE_PATH) + strlen(DEFAULT_TILESET) + 1 + strlen(filename) + 1];
-		sprintf(fullPath, "%s%s%s/%s", DATA_PATH, TILE_PATH, DEFAULT_TILESET, filename);
-	}
-	else { // If it does exist
-		fclose(fp);
-	}
-	
-	// Copy fullPath to a stack variable, instead of being on the
-	// heap, so we can exit the function without having to clean up
-	// the memory in the calling function.
-	char temp[strlen(fullPath) + 1];
-	sprintf(temp, "%s", fullPath);
-	
-	// Free the memory used by fullPath
-	delete [] fullPath;
-	
-	return FillSurface(temp, transparent);
-}
-
-
 // Surface must be locked before calling this:
 Uint32 GetPixel(SDL_Surface *surface, int x, int y) {
 	Uint8 *p = (Uint8 *)surface->pixels + y * surface->pitch + x;
 
 	return *p;
 }
-
-
 
 
 
@@ -591,9 +552,13 @@ void Notify(char *text) {
 //       0 = previous
 //       1 = next
 void SelectTileset(bool dir) {
+	// Save the old tileset
+	char oldTileset[strlen(option_tileset)];
+	strcpy(oldTileset, option_tileset);
+
 	char msg[43]; // For holding the notification message
-	char *line = NULL; // For holding the current line (+1 for newline character)
-	char prevLine[sizeof(option_tileset)]; // For holding the previous line (+1 for newline character)
+	char *line = NULL; // For holding the current line
+	char prevLine[sizeof(option_tileset)]; // For holding the previous line
 	prevLine[0] = '\0'; // Make it start with 0 length
 	bool foundCurrentTileset = false;
 	char tilesetName[16];
@@ -614,7 +579,7 @@ void SelectTileset(bool dir) {
 		// the next line if dir == 1
 		while ((line = ReadLine(file, sizeof(option_tileset))) != NULL) {
 			#ifdef DEBUG
-			printf("line = '%s'\n", line);
+				printf("line = '%s'\n", line);
 			#endif
 
 			// If the current tileset was found on the previous line (on
@@ -628,7 +593,7 @@ void SelectTileset(bool dir) {
 			// If this line matches the currently displayed tileset
 			if (strcmp(line, option_tileset) == 0) {
 				#ifdef DEBUG
-				printf("Line matches!");
+					printf("Line matches!");
 				#endif
 				foundCurrentTileset = true;
 
@@ -674,150 +639,125 @@ void SelectTileset(bool dir) {
 			fclose(file);
 		}
 
-		sprintf(msg, "TILESET: %s", tilesetName);
 		
-		LoadTileset(option_tileset);
+		// Load the new tileset, and if it fails, go back to the old
+		// one
+		if (LoadTileset(option_tileset) == 0) {
+			sprintf(msg, "TILESET: %s", tilesetName);
+		}
+		else {
+			sprintf(msg, "Error loading tileset \"%s\"", option_tileset);
+			strcpy(option_tileset, oldTileset);
+			LoadTileset(option_tileset);
+		}
 	}
 
 	Notify(msg);
 }
 
 
-// Loads the tiles from the specified tilesetDir, defaulting back
-// to the default tileset for (and only for) any tiles not found
-// in tilesetDir.
+// Loads all the tiles from the tiles.bmp in the specified tilesetDir
 char LoadTileset(char *tilesetDir) {
-	/*** Free all old surfaces ***/
+	// Y position where the tiles start
+	int tilesY = 256;
+
+	// Free all old surfaces
 	UnloadTileset();
 
-	/*** Load new tile bmps into surfaces ***/
 	// Set the path
-	char path[strlen(DATA_PATH) + strlen(TILE_PATH) + strlen(tilesetDir) + 2];
-	sprintf(path, "%s%s%s/", DATA_PATH, TILE_PATH, tilesetDir);
-	
-	bgSurface = TileSurface(path, "bg.bmp", 0);
-	if (bgSurface == NULL) {
+	char path[strlen(DATA_PATH) + strlen(TILE_PATH) + strlen(tilesetDir) + 11];
+	sprintf(path, "%s%s%s/tiles.bmp", DATA_PATH, TILE_PATH, tilesetDir);
+
+	// The big surface holding all the tiles
+	SDL_Surface *bigSurf = FillSurface(path, 0);
+	if (bigSurf == NULL) {
 		return 1;
 	}
-	bgW = bgSurface->w;
-	bgH = bgSurface->h;
-
-	blockSurface = TileSurface(path, "block.bmp", 1);
-	spikeSurface = TileSurface(path, "spike.bmp", 1);
-	if (blockSurface == NULL || spikeSurface == NULL) {
-		return 1;
-	}
-
-	int a = 0, b = 0;
-	char fn[32]; // filename
-	
-	// Player surfaces
-	for (uint i = 0; i < NUM_PLAYER_SURFACES; i++) {
-		sprintf(fn, "player%d_%d.bmp", a, b);
-		playerSurface[i] = TileSurface(path, fn, 1);
-		if (playerSurface[i] == NULL) {
-			return 1;
-		}	
 		
-		b++;
-		if (b > (NUM_PLAYER_SURFACES / 3) - 1) {
-			b = 0;
-			a++;
+	// Lock the surface (for subsequent GetPixel calls)
+	SDL_LockSurface(bigSurf);
+	uint transColor = SDL_MapRGB(bigSurf->format, 0xff, 0x00, 0xff);
+
+	// Detect the background height
+	for (int y = tilesY - 1; y > 0; y--) {
+		if (GetPixel(bigSurf, 0, y) != transColor) {
+			bgH = y + 1;
+			break;
 		}
 	}
 
-
-
-	/** Make NPC surfaces by changing the palette of the player tiles ****/
-
-	// For holding the rgb values for changing palette
-	SDL_Color palette[256];
-	//uint r, g, b;
-
-	a = 0;
-	b = 0;
-	for (uint i = 0; i < NUM_PLAYER_SURFACES; i++) {
-		sprintf(fn, "player%d_%d.bmp", a, b);
-		player2Surface[i] = TileSurface(path, fn, 1);
-		if (player2Surface[i] == NULL) {
-			return 1;
-		}
-		
-		// Set the palette of the dark color
-		//for (uint k = 0; k <= 200; k++) {
-			palette[172].r = static_cast<Uint8>(59);
-			palette[172].g = static_cast<Uint8>(59);
-			palette[172].b = static_cast<Uint8>(177);
-		//}
-
-		// Set the palette of the light color
-		//for (uint k = 201; k <= 255; k++) {
-			palette[244].r = static_cast<Uint8>(142);
-			palette[244].g = static_cast<Uint8>(142);
-			palette[244].b = static_cast<Uint8>(217);
-		//}
-
-		//for (uint k = 0; k < 256; k++) {
-		//	palette[k].r = static_cast<Uint8>(255);
-		//	palette[k].g = static_cast<Uint8>(255);
-		//	palette[k].b = static_cast<Uint8>(255);
-		//}
-		
-		// Change the palette of the surface
-		SDL_SetPalette(player2Surface[i], SDL_LOGPAL, palette, 0, 256);
-		
-		b++;
-		if (b > (NUM_PLAYER_SURFACES / 3) - 1) {
-			b = 0;
-			a++;
+	// Detect the background width
+	for (int x = bigSurf->w - 1; x > 0; x--) {
+		if (GetPixel(bigSurf, x, 0) != transColor) {
+			bgW = x + 1;
+			break;
 		}
 	}
 
-	// Brick surfaces
-	for (uint i = 0; i < NUM_BRICK_SURFACES; i++) {
-		sprintf(fn, "brick%d.bmp", i);
-		brickSurface[i] = TileSurface(path, fn, 1);
-		if (brickSurface[i] == NULL) {
-			return 1;
+	// Unlock the surface
+	SDL_UnlockSurface(bigSurf);
+
+	// Blit the background part to a new background surface
+	bgSurface = MakeSurface(bgW, bgH);
+	ApplySurface(0, 0, bigSurf, bgSurface);
+
+	SDL_Surface *tempSurf = NULL;
+	uint tileNum = 0;
+
+	// Move the x,y offset of the bigSurf to put each tile in the correct position
+	for (int y = -tilesY; y >= -(bigSurf->h - TILE_H); y -= TILE_H) {
+		for (int x = 0; x >= -(bigSurf->w - TILE_W); x -= TILE_W) {
+			// Prepare a surface for this tile
+			tempSurf = MakeSurface(TILE_W, TILE_H);
+			
+			// Blit the current section of bigSurf onto this tile's
+			// surface
+			ApplySurface(x, y, bigSurf, tempSurf);
+
+			// Point the correct surface to this temporary surface
+			if (tileNum == 0) {
+				blockSurface = tempSurf;
+				tempSurf = NULL;
+			}
+			else if (tileNum == 1) {
+				spikeSurface = tempSurf;
+				tempSurf = NULL;
+			}
+			else if (tileNum >= 2 && tileNum <= 2 + (NUM_BRICK_SURFACES - 1)) {
+				brickSurface[tileNum - 2] = tempSurf;
+				tempSurf = NULL;
+			}
+			else if (tileNum >= 7 && tileNum <= 7 + (NUM_EXIT_FRAMES - 1)) {
+				exitSurface[tileNum - 7] = tempSurf;
+				tempSurf = NULL;
+			}
+			else if (tileNum == 10) {
+				itemSurface[tileNum - 10] = tempSurf;
+				tempSurf = NULL;
+			}
+			else if (tileNum >= 11 && tileNum <= 11 + (NUM_TORCH_FLAMES - 1)) {
+				torchSurface[tileNum - 11] = tempSurf;
+				tempSurf = NULL;
+			}
+			else if (tileNum >= 19 && tileNum <= 19 + (NUM_TELEPAD_STATES - 1)) {
+				telepadSurface[tileNum - 19] = tempSurf;
+				tempSurf = NULL;
+			}
+			else if (tileNum >= 22 && tileNum <= 22 + (NUM_PLAYER_SURFACES - 1)) {
+				playerSurface[tileNum - 22] = tempSurf;
+				tempSurf = NULL;
+			}
+			else if (tileNum >= 37 && tileNum <= 37 + (NUM_PLAYER_SURFACES - 1)) {
+				player2Surface[tileNum - 37] = tempSurf;
+				tempSurf = NULL;
+			}
+
+			if (tempSurf != NULL) SDL_FreeSurface(tempSurf);
+			tileNum ++;
 		}
 	}
 
-
-	// Torch surfaces
-	for (uint i = 0; i < NUM_TORCH_FLAMES; i++) {
-		sprintf(fn, "torch%d.bmp", i);
-		torchSurface[i] = TileSurface(path, fn, 1);
-		if (torchSurface[i] == NULL) {
-			return 1;
-		}
-	}
-
-	// Telepad surfaces
-	for (uint i = 0; i < NUM_TELEPAD_STATES; i++) {
-		sprintf(fn, "telepad%d.bmp", i);
-		telepadSurface[i] = TileSurface(path, fn, 1);
-		if (telepadSurface[i] == NULL) {
-			return 1;
-		}
-	}
-
-	// Exit surfaces
-	for (uint i = 0; i < NUM_EXIT_FRAMES; i++) {
-		sprintf(fn, "exit%d.bmp", i);
-		exitSurface[i] = TileSurface(path, fn, 1);
-		if (exitSurface[i] == NULL) {
-			return 1;
-		}
-	}
-
-	// Item surfaces
-	for (uint i = 0; i < NUM_ITEM_TYPES; i++) {
-		sprintf(fn, "item%d.bmp", i);
-		itemSurface[i] = TileSurface(path, fn, 1);
-		if (itemSurface[i] == NULL) {
-			return 1;
-		}
-	}
+	SDL_FreeSurface(bigSurf);
 
 	return 0;
 }
@@ -837,52 +777,79 @@ bool LockSurface(SDL_Surface *surf) {
 
 void UnloadTileset() {
 	SDL_FreeSurface(bgSurface);
+	bgSurface = NULL;
+
 	SDL_FreeSurface(blockSurface);
+	blockSurface = NULL;
+
 	SDL_FreeSurface(spikeSurface);
+	spikeSurface = NULL;
+
 	for (uint i = 0; i < NUM_PLAYER_SURFACES; i++) {
 		SDL_FreeSurface(playerSurface[i]);
+		playerSurface[i] = NULL;
+
 		SDL_FreeSurface(player2Surface[i]);
+		player2Surface[i] = NULL;
+		
 	}
 	for (uint i = 0; i < NUM_BRICK_SURFACES; i++) {
 		SDL_FreeSurface(brickSurface[i]);
+		brickSurface[i] = NULL;
 	}	
 	for (uint i = 0; i < NUM_TORCH_FLAMES; i++) {
 		SDL_FreeSurface(torchSurface[i]);
+		torchSurface[i] = NULL;
 	}
 	for (uint i = 0; i < NUM_TELEPAD_STATES; i++) {
 		SDL_FreeSurface(telepadSurface[i]);
+		telepadSurface[i] = NULL;
 	}
 	for (uint i = 0; i < NUM_EXIT_FRAMES; i++) {
 		SDL_FreeSurface(exitSurface[i]);
+		exitSurface[i] = NULL;
 	}
 	for (uint i = 0; i < NUM_ITEM_TYPES; i++) {
 		SDL_FreeSurface(itemSurface[i]);
+		itemSurface[i] = NULL;
 	}
 }
 
 
 
 
-// Makes a surface with certain characteristics (used for teleportation animation)
+// Makes a surface with the correct BPP, tranparent color, etc. for this game
 SDL_Surface* MakeSurface(int width, int height) {
-	//return FillSurface("data/bmp/block0.bmp", true);
-
-	SDL_Surface *temp = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height, SCREEN_BPP, screenSurface->format->Rmask, screenSurface->format->Gmask, screenSurface->format->Bmask, 0); //screenSurface->format->Amask
+	SDL_Surface *temp = SDL_CreateRGBSurface(
+			SDL_SWSURFACE,
+			width,
+			height,
+			SCREEN_BPP,
+			screenSurface->format->Rmask,
+			screenSurface->format->Gmask,
+			screenSurface->format->Bmask,
+			//screenSurface->format->Amask
+			0); 
+	
 	SDL_Surface *surface = NULL;
 	
 	surface = SDL_DisplayFormat(temp);
 	SDL_FreeSurface(temp);
+	temp = NULL;
 	
 	// Make bright pink #ff00ff transparent
 	uint colorKey = SDL_MapRGB(surface->format, 0xff, 0x00, 0xff);
 	SDL_SetColorKey(surface, SDL_SRCCOLORKEY | SDL_RLEACCEL, colorKey);
 
 	// Fill surface with transparent color
+	SDL_FillRect(surface, NULL, colorKey);
+	/*
 	for (int j = 0; j < height; j++) {
 		for (int i = 0; i < width; i++) {
 			PutPixel(surface, i, j, colorKey);
 		}
 	}
+	*/
 
 	return surface;
 }
@@ -1009,7 +976,7 @@ void Render (const char flags) {
 	}
 	// Draw torches
 	for (i = 0; i < numTorches; i++) {
-		ApplySurface(torches[i].GetX() + 1 - cameraX, torches[i].GetY() - cameraY, torchSurface[torches[i].GetFlame()], screenSurface);
+		ApplySurface(torches[i].GetX() - cameraX, torches[i].GetY() - cameraY, torchSurface[torches[i].GetFlame()], screenSurface);
 	}
 	
 	

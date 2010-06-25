@@ -20,8 +20,8 @@
 
 #include "main.h"
 
-
-int main(int argc, char** argv) {
+//int main(int argc, char** argv) {
+int main() {
 	if (Init() != 0) return 1;
 
 	bool quitProgram = false;
@@ -123,7 +123,7 @@ char Init() {
 
 	
 	/*** Load Graphics ***/
-	if (LoadFont("font.bmp") != 0 || LoadTileset(option_tileset) != 0) {
+	if (LoadTileset(option_tileset) != 0 || LoadFont("font.bmp") != 0) {
 		return 1;
 	}
 

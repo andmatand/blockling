@@ -129,10 +129,10 @@ int GetTextH(char *text, int wrapWidth, int spacing) {
 
 
 char LoadFont(const char *file) {
-	char fullPath[256];
+	char fullPath[strlen(DATA_PATH) + strlen(FONT_PATH) + strlen(file) + 1];
 	sprintf(fullPath, "%s%s%s", DATA_PATH, FONT_PATH, file);
 	#ifdef DEBUG
-		printf("fullPath = %s\n", fullPath);
+		printf("Font path = %s\n", fullPath);
 	#endif
 	
 	// The surface holding the big long list of characters
@@ -185,20 +185,6 @@ char LoadFont(const char *file) {
 		//std::cout << "\nWidth of character " << static_cast<char>(i + 33) << " is " << font[i].w << "\n";
 		//std::cout << "leftSide = " << leftSide << "\n";
 		//std::cout << "rightSide = " << rightSide << "\n";
-
-		/*
-		// Determine the letter's yOffset
-		font[i].yOffset = -1; // Serves as a flag that yOffset hasn't been set yet.
-		for (int y2 = y; y2 < y + FONT_H; y2++) {
-			for (int x2 = 0; x2 < chrW; x2++) {
-				if (GetPixel(fontSurf, x2, y2) != transColor) {
-					font[i].yOffset = y2 - y;
-					break;
-				}
-			}
-			if (font[i].yOffset != -1) break;
-		}
-		*/
 
 		SDL_UnlockSurface(fontSurf);
 		

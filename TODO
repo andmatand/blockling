@@ -3,9 +3,6 @@
 
 -Spinach/other items?
 
--Replay saving code needs to be rewritten to account for multiple players
-(replays do not currently work on levels with > 1 player)
-
 -Make all file errors fail gracefully (i.e. no segfaulting)
 
 -Fix GetTextW() and then use it in DrawBubbles()
@@ -14,3 +11,4 @@
 parallax background
 
 ==Bugs==
+-Replays still don't work sometimes with multiple players
