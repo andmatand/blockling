@@ -739,11 +739,15 @@ char LoadTileset(char *tilesetDir) {
 				torchSurface[tileNum - 11] = tempSurf;
 				tempSurf = NULL;
 			}
-			else if (tileNum >= 19 && tileNum <= 19 + (NUM_TELEPAD_STATES - 1)) {
+			else if (tileNum >= 19 &&
+			         tileNum <= 19 + (NUM_TELEPAD_STATES - 1))
+			{
 				telepadSurface[tileNum - 19] = tempSurf;
 				tempSurf = NULL;
 			}
-			else if (tileNum >= 22 && tileNum <= 22 + (NUM_PLAYER_SURFACES - 1)) {
+			else if (tileNum >= 22 &&
+			         tileNum <= 22 + (NUM_PLAYER_SURFACES - 1))
+			{
 				playerSurface[tileNum - 22] = tempSurf;
 				tempSurf = NULL;
 			}
@@ -1014,23 +1018,16 @@ void Render (const char flags) {
 
 	/*** TELEPADS ***/
 	for (i = 0; i < numTelepads; i++) {
-		ApplySurface(
-			telepads[i].GetX1() - cameraX,
-			telepads[i].GetY1() - cameraY,
-			telepads[i].GetSurface((flags & RENDER_ANIMATE) ? true : false),
-			screenSurface);
-		
-		ApplySurface(
-			telepads[i].GetX2() - cameraX,
-			telepads[i].GetY2() - cameraY,
-			telepads[i].GetSurface((flags & RENDER_ANIMATE) ? true : false),
-			screenSurface);
+		telepads[i].Render(flags & RENDER_ANIMATE ? true : false);
 	}
 
 
 	// Draw player on top of everything when sticky
 	if (stickyPlayer) {
-		ApplySurface(stickyPlayerX, stickyPlayerY, blocks[0].GetSurface(), screenSurface);
+		ApplySurface(stickyPlayerX,
+		             stickyPlayerY,
+			     blocks[0].GetSurface(),
+			     screenSurface);
 	}
 
 
@@ -1057,13 +1054,15 @@ void Render (const char flags) {
 			notifyText = NULL;
 		}
 		else {
-
-			DrawText(SCREEN_W / 2, notifyY, notifyText, true, SCREEN_W / 8, 0, 1);
+			txt note(SCREEN_W / 2, notifyY, notifyText);
+			note.Center();
+			note.Wrap(SCREEN_W / 8);
+			note.Render();
 		}
 	}
 
 
-	/** Draw Level # ****/
+	/** Draw Level # **/
 	sprintf(message, "Level %d", currentLevel);
 
 	// If we are selecting a level, center the level text
@@ -1071,9 +1070,11 @@ void Render (const char flags) {
 		levelTextX = (SCREEN_W / 2) - (GetTextW(message, 0) / 2);
 	}
 	else {
+		// Slide the text to the left
 		levelTextX -= FPS * 2;
 		if (levelTextX < 10) levelTextX = 10;
-		DrawText(levelTextX, SCREEN_H - FONT_H - 4, message, 1);
+
+		DrawText(levelTextX, SCREEN_H - FONT_H - 4, message);
 		
 		// Determine position of "Replay"
 		i = levelTextX + GetTextW(message, 0) + FONT_W;

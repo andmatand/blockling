@@ -19,20 +19,23 @@
 
 
 void ClearBubbles() {
-	for (uint i = 0; i < MAX_BUBBLES; i++) {
-		bubbles[i].SetTTL(0);
-		bubbles[i].DelText();
+	bubble* temp;
+	while (curBubble != NULL) {
+		temp = curBubble->GetNext();
+		delete curBubble;
+		curBubble = temp;
 	}
 }
 
-
-
 void ClearSpeechTriggers() {
-	/** Get rid of all inactive triggers and then reset active bits for the next check ****/
+	// Get rid of all inactive triggers and then reset active bits for the
+	// next check
 	for (uint i = 0; i < MAX_TRIGGERS; i++) {
 		// If this trigger was not pushed last frame, and it is
 		// not permanently disabled
-		if (triggers[i].GetActive() == false && triggers[i].GetFrames() != -1) {
+		if (triggers[i].GetActive() == false &&
+		    triggers[i].GetFrames() != -1)
+		{
 			triggers[i].SetID(-1);
 		}
 		
@@ -42,174 +45,140 @@ void ClearSpeechTriggers() {
 }
 
 
-
-
-// Overloaded for <const char *> instead of <char *>
-void Speak(int block, const char *text, bool important, bool polite, char postDir) {
+// Overloaded for both <const char*> and <char*>
+void Speak(int block, const char* text, bool polite, char postDir) {
+	// Copy the <const char*> to a <char*>
 	char temp[strlen(text) + 1];
 	strcpy(temp, text);
 	
-	Speak(block, temp, important, polite, postDir);
+	Speak(block, temp, polite, postDir);
 }
+void Speak(int block, char* text, bool polite, char postDir) {
+	bubble* lastBubble = NULL;
 
-// important = this bubble with not be cut short by the appearance of any other bubble
-// polite    = The bubble will go to the end of the queue and wait for the ones before it to finish
-void Speak(int block, char *text, bool important, bool polite, char postDir) {
-	/** Find the first empty spot in the bubbles array (queue) ****/
-	for (uint i = 0; i < MAX_BUBBLES; i++) {
-		if (bubbles[i].GetTTL() == 0 || (polite == false && bubbles[i].GetImportant() == false)) {
-			// Set the block/player number
-			bubbles[i].SetBlock(block);
-			
-			// Position the bubble above the block/player (in actual screen coordinates)
-			bubbles[i].SetX(blocks[block].GetX() + (blocks[block].GetW() / 2) - cameraX);
-			bubbles[i].SetY(blocks[block].GetY() - cameraY);
-			
-			/** Set the TTL ****/
-			// If the text is blank, pause a little
-			if (text == NULL || text[0] == '\0') {
-				bubbles[i].SetTTL(30);
-			}
-			else {  // otherwise set it based on the length of the text
-				bubbles[i].SetTTL(static_cast<uint>(strlen(text)) * 2);
-				
-				// enforce a minimum TTL
-				if (bubbles[i].GetTTL() < static_cast<int>(FPS)) {
-					bubbles[i].SetTTL(FPS);
-				}
-			}
-			
-			
-			// Set the text
-			bubbles[i].SetText(text);
-			
-			// Set the "important" value
-			bubbles[i].SetImportant(important);
-
-			// Set the postDir
-			bubbles[i].SetPostDir(postDir);
-
-			// Clear all the bubbles after this one
-			for (uint j = i + 1; j < MAX_BUBBLES; j++) {
-				bubbles[j].SetTTL(0);
-			}
-
-			// Stop looking for empty bubbles
-			break;
+	// If the new bubble is not polite
+	if (polite == false) {
+		// Get rid of all existing bubbles
+		ClearBubbles();
+	} else if (curBubble != NULL) {
+ 		// Find the last bubble in the linked list
+		lastBubble = curBubble;
+		while (lastBubble->GetNext() != NULL) {
+			lastBubble = lastBubble->GetNext();
 		}
 	}
-}
 
+	// Make the new bubble
+	bubble* bp = new bubble();
+
+	// Set the block/player number
+	bp->SetBlock(block);
+	
+	// Position the bubble above the block/player (in actual screen
+	// coordinates)
+	bp->SetX(blocks[block].GetX() + (blocks[block].GetW() / 2) -
+			cameraX);
+	bp->SetY(blocks[block].GetY() - cameraY);
+	
+	/** Set the TTL ****/
+	// If the text is blank, pause a little
+	if (text == NULL || text[0] == '\0') {
+		bp->SetTTL(30);
+	}
+	else {  // otherwise set it based on the length of the text
+		bp->SetTTL(static_cast<uint>(strlen(text)) * 2);
+		
+		// enforce a minimum TTL
+		if (bp->GetTTL() < static_cast<int>(FPS)) {
+			bp->SetTTL(FPS);
+		}
+	}
+	
+	bp->SetText(text);
+	bp->SetPostDir(postDir);
+
+	// Attach the new bubble to the end of the list
+	if (lastBubble != NULL) {
+		lastBubble->SetNext(bp);
+	} else {
+		// Set current bubble pointer to the new bubble
+		curBubble = bp;
+	}
+}
 
 
 void DrawBubbles(bool decrementTTLs) {
-	int wrapW = FONT_W * 25;
-	int x, y, w, h;
-	int xMargin = FONT_W / 2;
-	int yMargin = FONT_W + 2; // Applies only to bottom of screen
-	bool ok;
+	if (curBubble == NULL) return;
+
+	int x, y;
 	
-	uint i = 0;
-	if (bubbles[i].GetTTL() > 0) {
-		/** Determine the optimal X position ****/
-		x = blocks[bubbles[i].GetBlock()].GetX() - cameraX;	
-		do {
-			//w = GetTextW(bubbles[i].GetText(), 0);
-			w = wrapW;
-			
-			ok = true;
-			if (x - (w / 2) < xMargin) {
-				x = xMargin + (w / 2);
-				ok = false;
-			}
-			if (x + (w / 2) > SCREEN_W - xMargin) {
-				x = SCREEN_W - xMargin - (w / 2);
-				
-				// If the bubble is going off BOTH edges of the screen
-				if (ok == false) {
-					// Enforce minimum wrap width
-					if (wrapW > FONT_W * 10) {
-						// Make the wrap width smaller
-						wrapW -= FONT_W;
-					}
-					else {
-						break;
-					}
-				}
-				
-				ok = false;
-			}
-		} while (ok == false);
-		
-		
-		/** Determine the optimal Y position ****/
-		y = blocks[bubbles[i].GetBlock()].GetY() - cameraY - GetTextH(bubbles[i].GetText(), wrapW, 0) - FONT_H - 2;
-		
-		// If it's a player
-		if (bubbles[i].GetBlock() < static_cast<int>(numPlayers)) {
-			// It he's carrying a block
-			if (BlockNumber(blocks[bubbles[i].GetBlock()].GetX(), blocks[bubbles[i].GetBlock()].GetY() - 1, blocks[bubbles[i].GetBlock()].GetW(), 1) >= 0) {
-				y -= TILE_H;
-			}
-		}
-			
-		do {
-			h = GetTextH(bubbles[i].GetText(), wrapW, 0);
-			
-			ok = true;
-			if (y < 0) {
-				y = 0;
-				ok = false;
-			}
-			if (y + h > SCREEN_H - yMargin) {
-				y = SCREEN_H - yMargin - h;
-				if (ok == false) {
-					break;
-				}
-				
-				ok = false;
-			}
-		} while (ok == false);
-
-		
-		
-		/** Draw the text ****/
-		DrawText(x, y, bubbles[i].GetText(), true, wrapW, 0, 1);
-
-		// Decrement the TTL
-		if (decrementTTLs) {
-			bubbles[i].SetTTL(bubbles[i].GetTTL() - 1);
-		
-			// If this speech bubble is done
-			if (bubbles[i].GetTTL() == 0) {
-				// Turn the player the direction specified by postDir
-				if (bubbles[i].GetPostDir() > -1) {
-					blocks[bubbles[i].GetBlock()].SetDir(bubbles[i].GetPostDir());
-				}
-
-				// rotate the queue
-				for (uint i = 0; i < MAX_BUBBLES - 1; i++) {
-					bubbles[i] = bubbles[i + 1];
-				}
-				bubbles[MAX_BUBBLES - 1].SetTTL(0);
-			}
+	y = blocks[curBubble->GetBlock()].GetY() - TILE_H - cameraY;
+	
+	// If it's a player
+	if (curBubble->GetBlock() < static_cast<int>(numPlayers)) {
+		// It he's carrying a block
+		if (BlockNumber(
+			blocks[curBubble->GetBlock()].GetX(),
+			blocks[curBubble->GetBlock()].GetY() - 1,
+			blocks[curBubble->GetBlock()].GetW(),
+			1) >= 0)
+		{
+			// Move the y up a little so it doesn't cover up his
+			// block
+			y -= TILE_H;
 		}
 	}
-}
 
+	x = blocks[curBubble->GetBlock()].GetX() - cameraX;	
+
+	// Position the text
+	curBubble->GetText()->SetX(x);
+	curBubble->GetText()->SetY(y);
+	curBubble->GetText()->Center();
+	curBubble->GetText()->AlignY(1); // Align to bottom
+	curBubble->GetText()->Wrap(FONT_W * 25);
+
+	// Draw the text
+	curBubble->GetText()->Render();
+
+	// If we aren't to decrement the TTL, turn back here
+	if (decrementTTLs == false)
+		return;
+
+	curBubble->SetTTL(curBubble->GetTTL() - 1);
+
+	// If this speech bubble is done
+	if (curBubble->GetTTL() == 0) {
+		// Turn the player the direction specified by postDir
+		if (curBubble->GetPostDir() > -1) {
+			blocks[curBubble->GetBlock()].SetDir(
+				curBubble->GetPostDir());
+		}
+
+		// Save the address of the next bubble
+		bubble* tempNext = curBubble->GetNext();
+
+		// Free the current bubble's memory
+		delete curBubble;
+
+		// Point the current bubble pointer to the next bubble
+		curBubble = tempNext;
+	}
+}
 
 
 // Makes the speaking player's mouths move
 void AnimateSpeech() {
+	if (curBubble == NULL) return;
+
 	int b; // will hold block number
 	static char f; // holds current "face" number
 	
-	uint i = 0;
-	if (bubbles[i].GetTTL() > 0 && strlen(bubbles[i].GetText()) > 0) {
-		b = bubbles[i].GetBlock();
+	if (curBubble->GetText()->IsEmpty() == false) {
+		b = curBubble->GetBlock();
 		
 		// Every 2 frames, move the player's mouth
-		if (bubbles[i].GetTTL() % 4 == 0) {
+		if (curBubble->GetTTL() % 4 == 0) {
 			switch (blocks[b].GetFace()) {
 				case 0: // closed
 					if (rand() % 4 == 0) { // less likely
@@ -249,7 +218,7 @@ void AnimateSpeech() {
 		//}
 
 		// Close the mouth when the bubble is about to disappear
-		if (bubbles[i].GetTTL() == 1)
+		if (curBubble->GetTTL() == 1)
 			f = 0;
 
 		blocks[b].SetFace(f);
@@ -259,14 +228,16 @@ void AnimateSpeech() {
 
 
 // Overloaded for both <const char *> and <char *>
-void SpeechTrigger(int block, const char *text, int targetFrames, char type, bool important, int id) {
+void SpeechTrigger(int block, const char *text, int targetFrames, char type,
+	int id)
+{
 	char temp[strlen(text) + 1];
 	strcpy(temp, text);
 	
-	SpeechTrigger(block, temp, targetFrames, type, important, id);
+	SpeechTrigger(block, temp, targetFrames, type, id);
 }
 
-void SpeechTrigger(int block, char *text, int targetFrames, char type, bool important, int id) {
+void SpeechTrigger(int block, char *text, int targetFrames, char type, int id) {
 	int t = -1; // the trigger number in the "triggers" array
 	
 	// Check if this trigger already exists
@@ -313,7 +284,7 @@ void SpeechTrigger(int block, char *text, int targetFrames, char type, bool impo
 
 	// Check if this trigger has been held long enough
 	if (triggers[t].GetFrames() == targetFrames) {
-		Speak(block, text, important, 0);
+		Speak(block, text, 0);
 		
 		// if this is a one-time-only trigger
 		if (type == 1) {

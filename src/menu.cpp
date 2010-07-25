@@ -169,14 +169,64 @@ int ControlSetupMenu(bool inGame) {
 int Credits() {
 	int y = SCREEN_H; // Position of the scrolling credits
 	uint t = SDL_GetTicks();
-	
-	
-	while (y > -(FONT_H * 71)) {
+	txt credits(SCREEN_W / 2, 0, "BLOCKLING\n\n"
+		"Copyright 2010 Andrew Anderson <www.unfinishedblog.org>\n\n"
+		"This is free software, and you are welcome to change and " 
+			"redistribute it under the conditions of the GNU "
+			"General Public License (GPL) version 3 or later "
+			"<http://gnu.org/licenses/gpl.html>.  There is NO "
+			"WARRANTY, to the extent permitted by law.\n\n\n"
+		"PROGRAMMING\n"
+		"Andrew Anderson\n\n\n"
+
+		"SOUND\n"
+		"Andrew Anderson\n\n\n"
+
+		"GRAPHICS\n"
+		"Andrew Anderson\n\n\n"
+
+		"LEVEL DESIGN\n"
+		"Andrew Anderson\n\n\n"
+
+		"TESTING/FEEDBACK\n"
+		"Tyler Christensen\n"
+		"Aubree Dinsfriend\n"
+		"Matthew Galla\n"
+		"Anna Hyldahl\n"
+		"JeTSpice <jetspicegames.com>\n"
+		"Peter Norland\n"
+		"Jeanette Ortiz\n\n\n"
+
+		"BASED ON AN ORIGINAL CONCEPT\n"
+		"found in\n"
+		"BLOCK-MAN 1\n"
+		"Copyright 1993 Soleau Software <www.soleau.com>\n\n\n"
+
+		"SPECIAL THANKS TO\n"
+		"the teams behind the free/open-source software which made "
+		"this game possible:\n\n"
+		"Audacity <audacity.sourceforge.net>\n"
+		"Debian <www.debian.org>\n"
+		"GIMP <www.gimp.org>\n"
+		"GNU <www.gnu.org>\n"
+		"The Linux Kernel <www.kernel.org>\n"
+		"SDL <www.libsdl.org>\n"
+		"Ubuntu <www.ubuntu.com>\n"
+		"Vim <www.vim.org>\n\n\n"
+
+		"ETERNAL THANKS TO\n"
+		"Yeshua: the Way, the Truth, and the Life");
+
+	credits.Center();
+	credits.Wrap(SCREEN_W * .9);
+
+	while (y > -(FONT_H * 72)) {
 		
 		if (y > SCREEN_H) y = SCREEN_H;
 		
 		DrawBackground();
-		DrawText(SCREEN_W / 2, y, "BLOCKLING\n\nCopyright 2010 Andrew Anderson <www.billamonster.com>\n\nThis is free software, and you are welcome to change and redistribute it under the conditions of the GNU General Public License (GPL) version 3 or later <http://gnu.org/licenses/gpl.html>.  There is NO WARRANTY, to the extent permitted by law.\n\n\nPROGRAMMING\nAndrew Anderson\n\n\nSOUND\nAndrew Anderson\n\n\nGRAPHICS\nAndrew Anderson\n\n\nLEVEL DESIGN\nAndrew Anderson\n\n\nTESTING/FEEDBACK\nTyler Christensen\nAubree Dinsfriend\nMatthew Galla\nPeter Norland\nJeanette Ortiz\nJeTSpice <jetspicegames.com>\n\n\nBASED ON AN ORIGINAL CONCEPT\nfound in\nBLOCK-MAN 1\nCopyright 1993 Soleau Software <www.soleau.com>\n\n\nSPECIAL THANKS TO\nthe teams behind the free/open-source projects which made this game possible:\n\nAudacity <audacity.sourceforge.net>\nDebian <www.debian.org>\nGeany <www.geany.org>\nGIMP <www.gimp.org>\nGNU <www.gnu.org>\nThe Linux Kernel <www.kernel.org>\nSDL <www.libsdl.org>\nUbuntu <www.ubuntu.com>\nVim <www.vim.org>\n\n\nETERNAL THANKS TO\nYeshua the Resurrected Messiah", true, (SCREEN_W * .9), 0, 1);
+		credits.SetY(y);
+		credits.Render();
 		UpdateScreen();
 
 		switch (MenuInput()) {
@@ -219,20 +269,45 @@ int Credits() {
 int HelpMenu(bool inGame) {
 	int numItems = 1;
 	menu helpMenu(numItems); // Create the menu object
-	char text[256]; // Hold the help text
 	
 	int x1 = (SCREEN_W / 2) - (FONT_W * 18); // Position of titles
 	int x2 = (SCREEN_W / 2) - (FONT_W * 17); // Position of body text
 	
 	int action;
 	
-	/** Set static menu items **/
+	/** Set menu items **/
 	helpMenu.Move(inGame ? SCREEN_W / 2 : 75, (FONT_H + 2) * 1);
 	helpMenu.SetTitle("HELP");
 	helpMenu.NameItem(0, "Done");
+	helpMenu.AutoArrange(static_cast<char>(inGame ? 1 : 0));
+
+	// Postion the "Done" button
+	helpMenu.MoveItem(0, helpMenu.GetItemX(0), (FONT_H + 2) * 20); 
+
+
+	/** Create help texts **/
+	txt help1(x2, (FONT_H + 2) * 3,
+		"Pick up blocks and stack them to get to the exit!  The young "
+		"BLOCKLING can only climb up steps one block high.");
+	help1.Wrap(static_cast<int>(SCREEN_W * .9) - x2);
+
+	txt help2(x2, (FONT_H + 2) * 8,
+		"Esc\t\t\tShow the pause menu\n"
+		"F1\t\t\tShow help\n"
+		"F5\t\t\tRestart the level\n"
+		"PAGE UP/DOWN\tChange the tileset\n"
+		"(See CONTROL SETUP in the OPTIONS menu to set the movement "
+		"controls)");
+	help2.Wrap(static_cast<int>(SCREEN_W * .9) - x2);
+
+	txt help3(x2, (FONT_H + 2) * 16,
+		"F2\t\t\tToggle music ON/OFF\n"
+		"F3\t\t\tToggle sound ON/OFF\n"
+		"Alt + Enter\tToggle fullscreen mode");
+	help3.Wrap(static_cast<int>(SCREEN_W * .9) - x2);
 
 	while (true) {
-		/** Render *****************/
+		/** Render **/
 		if (inGame) {
 			MoveCamera();
 			Render(RENDER_BG);
@@ -240,31 +315,23 @@ int HelpMenu(bool inGame) {
 		else {
 			DrawBackground();
 		}
-		helpMenu.AutoArrange(static_cast<char>(inGame ? 1 : 0));
-		helpMenu.MoveItem(0, helpMenu.GetItemX(0), (FONT_H + 2) * 20); // Postion the "Done" button
 		helpMenu.Display();
 
 		/** Show the help text ****/
-		sprintf(text, "How to Play:");
-		DrawText(x1, (FONT_H + 2) * 2, text, 3);
-		sprintf(text, "Pick up blocks and stack them to get to the exit!  The young BLOCKLING can only climb up steps one block high.");
-		DrawText(x2, (FONT_H + 2) * 3, text, false, static_cast<int>(SCREEN_W * .9) - x2, 0, 1);
+		DrawText(x1, (FONT_H + 2) * 2, "How to Play:", 3);
+		help1.Render();
 
-		sprintf(text, "In-Game Controls:");
-		DrawText(x1, (FONT_H + 2) * 7, text, 3);
+		DrawText(x1, (FONT_H + 2) * 7, "In-Game Controls:", 3);
+		help2.Render();
 		
-		sprintf(text, "Esc\t\t\tShow the pause menu\nF1\t\t\tShow help\nF5\t\t\tRestart the level\nPAGE UP/DOWN\tChange the tileset\n(See CONTROL SETUP in the OPTIONS menu to set the movement controls)");
-		DrawText(x2, (FONT_H + 2) * 8, text, false, static_cast<int>(SCREEN_W * .9) - x2, 0, 1);
-
-		sprintf(text, "Global Keyboard Shortcuts:");
-		DrawText(x1, (FONT_H + 2) * 15, text, 3);
-		sprintf(text, "F2\t\t\tToggle music ON/OFF\nF3\t\t\tToggle sound ON/OFF\nAlt + Enter\tToggle fullscreen mode");
-		DrawText(x2, (FONT_H + 2) * 16, text, 1);
+		DrawText(x1, (FONT_H + 2) * 15, "Global Keyboard Shortcuts:",
+			3);
+		help3.Render();
 
 		UpdateScreen();
 		
 		
-		/** Input ******************/
+		/** Input **/
 		action = helpMenu.Input();
 		
 		switch (action) {
@@ -284,7 +351,6 @@ int HelpMenu(bool inGame) {
 		}
 	}
 }
-
 
 
 
@@ -320,7 +386,6 @@ int MainMenu() {
 				break;
 		}
 		
-		
 		DrawBackground();
 		mainMenu.Display();
 		UpdateScreen();
@@ -332,7 +397,8 @@ int MainMenu() {
 int OptionsMenu(bool inGame) {
 	int numItems = 10;
 	menu optMenu(numItems); // Create the menu object
-	char text[72]; // For temporarily holding menu items' text as it is formed
+	char text[72]; // For temporarily holding menu items' text as it is
+	               // formed
 	
 	uint maxUndoSize = 500;
 	char change_undoSize;
@@ -348,6 +414,13 @@ int OptionsMenu(bool inGame) {
 	optMenu.SetTitle("OPTIONS");
 	optMenu.NameItem(8, "Control Setup");
 	optMenu.NameItem(9, "Done");
+
+	// Make the note text
+	txt note(SCREEN_W / 2, FONT_H * 20,
+		"(Note: This setting will not take effect\n"
+		"until a new level is loaded.)");
+	note.Center();
+	note.Wrap(SCREEN_W * .9);
 
 	while (true) {
 		/** Set dynamic menu items' text *****************/
@@ -456,8 +529,10 @@ int OptionsMenu(bool inGame) {
 		optMenu.SpaceItems(9);
 		optMenu.Display();
 		// If the "replays" or "undo" options are selected
-		if (inGame && (optMenu.GetSel() == 3 || optMenu.GetSel() == 7)) {
-			DrawText(SCREEN_W / 2, FONT_H * 20, "(Note: This setting will not take effect\nuntil a new level is loaded.)", true, SCREEN_W * .9, 0, 1);
+		if (inGame &&
+ 			(optMenu.GetSel() == 3 || optMenu.GetSel() == 7))
+		{
+			note.Render();
 		}
 		UpdateScreen();
 		
@@ -792,7 +867,8 @@ int SelectLevelMenu() {
 	FILE *testFile;
 	bool refreshLevel = true;
 	uint numLevels = 1000;
-	char *levelError = NULL; // For pointing to the (actual) error message returned by LoadLevel
+	char *levelError = NULL; // For pointing to the (actual) error message
+	                         // returned by LoadLevel
 	
 	int action;
 	
@@ -800,21 +876,42 @@ int SelectLevelMenu() {
 	lvlMenu.SetTitle("");
 	lvlMenu.SetSel(1); // Select the level number menu item by default
 
+	// Make the syntax error note
+	txt errorNote(FONT_W * 3, FONT_H * 3, "");
+	errorNote.Wrap((SCREEN_W * .9) - (FONT_W * 3));
+
 	while (true) {
-		/** Load Level *****************/
+		/** Load Level ****/
 		if (refreshLevel) {
 			while (true) {
 				// Load Level
 				delete [] levelError;
 				levelError = LoadLevel(currentLevel);
 				
-				// If the level could not be loaded (NULL file handle was returned)
+				// If the level could not be loaded (NULL file
+				// handle was returned)
 				sprintf(text, "!");
-				if (levelError != NULL && strcmp(levelError, text) == 0) {
+				if (levelError != NULL &&
+					strcmp(levelError, text) == 0)
+				{
 					//numLevels = currentLevel;
 					
+					// Update the errorNote's text
+					sprintf(text,
+						"Syntax errors exist in the"
+						"level file:\n\n%s\n"
+						"Please fix the errors and try"
+						"selecting the level again.",
+						levelError);
+
+					errorNote.SetText(text);
+
 					if (currentLevel <= 0) {
-						sprintf(levelError, "The file for level %d doesn't exist!\n", currentLevel);
+						sprintf(levelError,
+							"The file for level %d"
+							"doesn't exist!\n",
+							currentLevel);
+
 						numLevels = 1000;
 						break;
 					}
@@ -823,17 +920,10 @@ int SelectLevelMenu() {
 					currentLevel--;
 					continue;
 				}
-
-				/*
-				if (levelError != NULL) {
-					if (strcmp(levelError, text) == 0) {
-						sprintf(levelError, "The file for level %d doesn't exist!\n", currentLevel);
-					}
-				}
-				*/
 				
-				// Try to open the next level file, to see if it exists, so we
-				// know whether to display a right arrow
+				// Try to open the next level file, to see if
+				// it exists, so we know whether to display a
+				// right arrow
 				testFile = OpenLevel(currentLevel + 1);
 				if (testFile != NULL) {
 					fclose(testFile);
@@ -842,7 +932,8 @@ int SelectLevelMenu() {
 					numLevels = currentLevel + 1;
 				}
 				
-				/*** Turn off all the status lights on the telepads ***/
+				// Turn off all the status lights on the
+				// telepads
 				if (levelError == NULL) {
 					for (i = 0; i < numTelepads; i++) {
 						telepads[i].NeedsToTeleport();
@@ -856,7 +947,7 @@ int SelectLevelMenu() {
 		}
 
 
-		/** Set dynamic menu items' text *****************/
+		/** Set dynamic menu items' text ****/
 		// Determine Leveset text
 		sprintf(text, "Set: ");
 		switch (option_levelSet) {
@@ -881,14 +972,14 @@ int SelectLevelMenu() {
 		lvlMenu.SetRightArrow(1, (currentLevel < numLevels - 1));
 		
 		
-		/** Render *****************/
+		/** Render ****/
 		if (levelError == NULL) {
 			Render(RENDER_BG | RENDER_MOVECAMERA);
 		}
 		else {
 			DrawBackground();
-			sprintf(text, "Syntax errors exist in the level file:\n\n%s\nPlease fix the errors and try selecting the level again.", levelError);
-			DrawText(FONT_W * 3, FONT_H * 3, text, false, (SCREEN_W * .9) - (FONT_W * 3), 0, 1);
+			
+			errorNote.Render();
 		}
 		lvlMenu.AutoArrange(static_cast<char>(1));
 		

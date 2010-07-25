@@ -92,11 +92,14 @@ bool selectingLevel; // If we are currently in the menu for selecting a level
 bool levelTimeRunning; // If the level timer is running
 uint levelTime;	//How long the player has taken on this level (in milliseconds)
 uint levelTimeTick; // For tracking how long each frame takes
-char wonLevel;	// 0 = No player has won level yet
-		// 1 = A player is opening the door (flag for Render to animate the door)
-		// 2 = The first player has won (the level is over) and is walking into the door
-		// 3 = The first player has finished walking into the door
-		// 4 = The player now becomes sticky and the level scrolls into place under him
+char wonLevel; // 0 = No player has won level yet
+               // 1 = A player is opening the door (flag for Render to animate
+               //     the door)
+               // 2 = The first player has won (the level is over) and is
+               //     walking into the door
+               // 3 = The first player has finished walking into the door
+               // 4 = The player now becomes sticky and the level scrolls into
+               //     place under him
 
 int exitX, exitY;
 
@@ -123,11 +126,13 @@ void DeInit();
 #include "input.h"
 #include "font.h"
 #include "sound.h"
-#include "menu.h"	// Needs sound.h
+#include "menu.h" // Needs sound.h
 #include "physics.h"
 #include "settings.h"
 #include "replay.h"
-#include "speech.h"
+#include "text.h"
+#include "speech.h" // Needs text.h
+#include "undo.h"
 
 
 
@@ -286,3 +291,4 @@ telepad **undoTelepads = NULL;	// Needs telepad class
 #include "sound.cpp"
 #include "settings.cpp"
 #include "speech.cpp"
+#include "undo.cpp"

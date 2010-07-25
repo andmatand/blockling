@@ -10,5 +10,8 @@
 -Figure out a way to avoid the visible hiccup when scrolling to next level with
 parallax background
 
+-Add player speech on level 0 of Block-Man 1 levels, explaining what these
+levels are and how the controls are different
+
 ==Bugs==
 -Replays still don't work sometimes with multiple players

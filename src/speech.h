@@ -23,97 +23,78 @@ void AnimateSpeech();
 void ClearBubbles();
 void ClearSpeechTriggers();
 void DrawBubbles(bool decrementTTLs);
-void Speak(int block, const char *text, bool important = false, bool polite = false, char postDir = -1);
-void Speak(int block, char *text, bool important = false, bool polite = false, char postDir = -1);
-//void Speak(int block, const char *text);
-//void Speak(int block, char *text);
-void SpeechTrigger(int block, char *text, int targetFrames, char type, bool important, int id);
-void SpeechTrigger(int block, const char *text, int targetFrames, char type, bool important, int id);
+void Speak(int block, const char* text, bool polite = false, char postDir = -1);
+void Speak(int block, char* text, bool polite = false, char postDir = -1);
+void SpeechTrigger(int block, char* text, int targetFrames, char type, int id);
+void SpeechTrigger(int block, const char* text, int targetFrames, char type,
+                   int id);
 
 
 /** Classes ****/
-// === speech "bubble" ===
+// A speech "bubble"
 class bubble {
 	public:
 		// Constructor
 		bubble():
-			text(NULL),
-			ttl(0)
+			ttl(0),
+			next(NULL)
 			{}
 		
-		bubble& operator = (const bubble& other) {
-			SetText(other.GetText());
-			//other.DelText();
-			
-			block = other.GetBlock();
-			x = other.GetX();
-			y = other.GetY();
-			ttl = other.GetTTL();
-			important = other.GetImportant();
-			polite = other.GetPolite();
-			postDir = other.GetPostDir();
-			
-			return *this;
-		}
-
-		
 		// Destructor
-		~bubble() {
-			DelText();
-		}
+		~bubble() {};
 		
-		void SetText(char *txt);
+		// Set
+		void SetText(char *str);
 		void SetBlock(int aBlock) { block = aBlock; };
 		void SetX(int xPos) { x = xPos; };
 		void SetY(int yPos) { y = yPos; };
 		void SetTTL(uint frames) { ttl = frames; };
-		void SetImportant(bool thisIsSerious) { important = thisIsSerious; };
 		void SetPolite(bool itCanWait) { polite = itCanWait; };
 		void SetPostDir(char turnThisWay) { postDir = turnThisWay; };
-	
-		char* GetText() const { return text; };
+		void SetNext(bubble* bp) { next = bp; };
+
+		// Get
+		txt* GetText() { return &text; };
 		int GetBlock() const { return block; };
 		int GetX() const { return x; };
 		int GetY() const { return y; };
 		uint GetTTL() const { return ttl; };
-		bool GetImportant() const { return important; };
 		bool GetPolite() const { return polite; };
 		char GetPostDir() const { return postDir; };
-
-		void DelText() { delete [] text; text = NULL; };
+		bubble* GetNext() const { return next; };
 	
 	private:
+		txt text;       // txt object which contains the text
 
-		char *text;     // Pointer to the text string
-		int block;      // The block/player number of the block/player speaking
+		int block;      // The block/player number of the block/player
+		                // speaking
+
 		int x;          // Text is centered around this x
 		int y;          // Top of text
+
 		uint ttl;       // Time to live (in frames)
-		bool important; // If false, this speech bubble can be cut short by another one's creation
-		bool polite;    // If true, this speech bubble will go to the end of the queue and wait its turn
-		char postDir;   // Direction for player to turn after he's finished speaking (-1 = disabled)
+
+		bubble* next;   // Pointer to next bubble
+
+		bool polite;    // true  = The bubble will go to the
+		                //         end of the queue and wait its turn.
+		                // false = The bubble will delete any current
+		                //         speech bubbles from the queue and
+		                //         begin instantly. 
+
+		char postDir;   // Direction for player to turn after he's
+		                // finished speaking (-1 = disabled)
 };
 
-
-
-		
-
-void bubble::SetText(char *txt) {
-	if (txt == NULL) return;
-	
-	DelText();
-	
-	text = new char[strlen(txt) + 1];
-	strcpy(text, txt);
+void bubble::SetText(char *str) {
+	text.SetText(str);
 }
 
 
 
-
-
-// === speech "trigger" ===
-// If a trigger is held (e.g. the player is standing in a certain spot)
-// for the target number of *consecutive* frames, then a speech bubble is generated
+// Speech "trigger"
+// If a trigger is held (e.g. the player is standing in a certain spot) for the
+// target number of *consecutive* frames, then a speech bubble is generated
 class trigger {
 	public:
 		// Constructor
@@ -125,7 +106,7 @@ class trigger {
 			}
 		
 		// Destructor
-		//~trigger() {}
+		~trigger() {};
 		
 		void SetID(int anID) { id = anID; };
 		void SetFrames(int n) { frames = n; };
@@ -157,11 +138,8 @@ class trigger {
 		             // this frame.
 };
 
-
-
 /** Globals ****/
-const uint MAX_BUBBLES = 5; // Maximum number of queued speech "bubbles"
-bubble *bubbles = new bubble[MAX_BUBBLES];
+bubble* curBubble; // Pointer to the current bubble
 
 const uint MAX_TRIGGERS = 3;
 trigger *triggers = new trigger[MAX_TRIGGERS];

@@ -83,7 +83,7 @@ int menuItem::GetW(int letterSpacing) const {
 	return GetTextW(text, letterSpacing);
 };
 
-void menuItem::SetText(char *txt) {
+void menuItem::SetText(char* txt) {
 	DelText();
 	
 	text = new char[strlen(txt) + 1];
@@ -250,19 +250,23 @@ void menu::Display() {
 		arrowTimer = SDL_GetTicks();
 	}
 
-
+	// Draw the title
 	if (title != NULL) {
-		DrawText(titleX, titleY, title, false, 0, titleLetterSpacing, 3);
+		DrawText(titleX, titleY, title, 3, titleLetterSpacing);
 	}
+
+	// Draw each item
 	for (uint i = 0; i < numItems; i++) {
 		// Draw the item's text
 		if (items[i].GetText() != NULL) {
-			DrawText(items[i].GetX(), items[i].GetY(), items[i].GetText(), false, 0, 0,
-				(i == static_cast<uint>(sel)) ? 2 : 1);
+			DrawText(items[i].GetX(), items[i].GetY(),
+				items[i].GetText(),
+				(i == static_cast<uint>(sel)) ?
+					2 : 1,
+				0);
 		}
 	
-		
-
+		// Draw flashing arrows
 		if (sel == static_cast<int>(i)) {
 			if (arrowFlash && items[i].GetLeftArrow()) {
 				x = items[i].GetX() - (FONT_W * 2);
@@ -272,7 +276,9 @@ void menu::Display() {
 			}
 		
 			if (arrowFlash && items[i].GetRightArrow()) {
-				x = items[i].GetX() + GetTextW(items[i].GetText(), 0) + FONT_W;
+				x = items[i].GetX() +
+					GetTextW(items[i].GetText(), 0) +
+					FONT_W;
 				
 				sprintf(arrow, ">");
 				DrawText(x, items[i].GetY(), arrow, 2);

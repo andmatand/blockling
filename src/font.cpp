@@ -106,8 +106,13 @@ int GetTextH(char *text, int wrapWidth, int spacing) {
 			else {
 				wordW += font[c - 33].w;
 
-				// If this is not the last character, add a bit of space
-				if ((i + 1) != static_cast<unsigned int>(strlen(text))) wordW += 2 + spacing;
+				// If this is not the last character, add a bit
+				// of space
+				if ((i + 1) != static_cast<unsigned int>(
+				               strlen(text)))
+				{
+					wordW += 2 + spacing;
+				}
 			}
 		}
 	}
@@ -115,8 +120,6 @@ int GetTextH(char *text, int wrapWidth, int spacing) {
 	if (lineW > 0) {
 		// Increase the height by the number of lines
 		// this text will take up (rounding up)
-		//double f = (staticlineW / wrapWidth) + .5;
-		//h += static_cast<int>(f);
 		h += int((double(lineW) / double(wrapWidth)) + .5);
 	}
 
@@ -141,11 +144,13 @@ char LoadFont(const char *file) {
 		return 1;
 	}
 	
-	// For holding the rgb values for pre-rendering differently-colored letters
+	// For holding the rgb values for pre-rendering differently-colored
+	// letters
 	SDL_Color palette[256];
 	uint r, g, b;
 	
-	// For finding the left and right side of each character (to determine width)
+	// For finding the left and right side of each character (to determine
+	// width)
 	int leftSide;
 	int rightSide;
 	
@@ -182,19 +187,18 @@ char LoadFont(const char *file) {
 		}
 		font[i].w = (rightSide - leftSide) + 1;
 		
-		//std::cout << "\nWidth of character " << static_cast<char>(i + 33) << " is " << font[i].w << "\n";
-		//std::cout << "leftSide = " << leftSide << "\n";
-		//std::cout << "rightSide = " << rightSide << "\n";
-
 		SDL_UnlockSurface(fontSurf);
 		
-		/*** Blit this character and pre-render different color versions of it **/
+		// Blit this character and pre-render different color versions
+		// of it
 		for (uint j = 0; j < NUM_FONT_COLORS; j++) {
 			// Prepare a surface for this color of the character
 			font[i].surf[j] = MakeSurface(FONT_W, FONT_H);
 			
-			// Blit the temporary fontSurf onto this letter's surface
-			ApplySurface(-leftSide, sourceOffset, fontSurf, font[i].surf[j]);
+			// Blit the temporary fontSurf onto this letter's
+			// surface
+			ApplySurface(-leftSide, sourceOffset, fontSurf,
+			             font[i].surf[j]);
 			
 			// Get the rgb values for this color
 			switch (j) {
@@ -227,7 +231,8 @@ char LoadFont(const char *file) {
 			}
 			
 			// Change the palette of the surface
-			SDL_SetPalette(font[i].surf[j], SDL_LOGPAL, palette, 0, 256);
+			SDL_SetPalette(font[i].surf[j], SDL_LOGPAL, palette, 0,
+			               256);
 		}
 		
 		i++;
@@ -252,174 +257,69 @@ void UnloadFont() {
 }
 
 
-// Provides an additional, more simple text function for places that
-// don't need a bunch of fancy stuff
-void DrawText(int x, int y, char *text, int color) {
-	DrawText(x, y, text, false, 0, 0, color);
-}
-
 // Overloaded to allow for <const char *>
-void DrawText(int x, int y, const char *text, bool centered, int wrapWidth, int spacing, int color) {
+void DrawText(int x, int y, const char *text, int color, int spacing) {
 	char temp[strlen(text) + 1];
 	strcpy(temp, text);
 	
-	DrawText(x, y, temp, centered, wrapWidth, spacing, color);
+	DrawText(x, y, temp, color, spacing);
 }
 
-void DrawText(int x, int y, char *text, bool centered, int wrapWidth, int spacing, int color) {
-	const int tW = FONT_W * 4; // Tab Width
-	int x2;
+void DrawText(int x, int y, char *text, int color, int spacing) {
+	int x2 = x; // The working x-coordinate (so we don't lose the real x
+	            // argument)
+	const int tabW = FONT_W * 4; // Tab width
 	int c; // current character
-	int n;
-	bool ok;
-	char *temp;
-	uint nextBreak = 0; // The next string position at which we must do a linebreak
 
-	/** Guard against invalid color values ****/
-	if (color < 0) color = 0;
-	if (color > static_cast<int>(NUM_FONT_COLORS) - 1) color = NUM_FONT_COLORS - 1;
+	// Guard against invalid color values
+	if (color < 0) {
+		color = 0;
+	} else if (color > static_cast<int>(NUM_FONT_COLORS) - 1) {
+		color = NUM_FONT_COLORS - 1;
+	}
 	
+	// Loop over each character of text
 	for (uint i = 0; i < static_cast<uint>(strlen(text)); i++) {
+		// Store the current character
 		c = text[i];
 		
-		// Line break
-		if (c == '\n' || i == nextBreak) {
-			if (c == '\n') y += FONT_H + 2;
+		// If this is a line-break character
+		if (c == '\n') {
+			// Move y down, and add a little padding
+			y += FONT_H + 2;
 			
-			if (centered) {
-				x2 = x - (GetTextW(text + i, spacing) / 2);
-			}
-			else {
-				x2 = x;
-			}
+			// Move x2 back to the original x
+			x2 = x;
 			
-			// If the reason for this linebreak is word-wrap (or the first character positioning)
-			if (i == nextBreak && wrapWidth > 0 && c != '\n') {
-				if (i > 0) {
-					if (text[i - 1] != '\n') y += FONT_H + 2;
-				}
-				
-				ok = true; // assume the line will fit
-				if (centered) {
-					if ((x + (GetTextW(text + i, spacing) / 2)) - (x - (GetTextW(text + i, spacing) / 2)) > wrapWidth) {
-						ok = false;  // the line will not fit
-					}
-				}
-				else {
-					// If the rest of the text won't fit on this line
-					if (x + GetTextW(text + i, spacing) > x + (wrapWidth - 1)) {
-						ok = false;  // the line will not fit
-					}
-				}	
-				
-				// If the line will not fit
-				if (ok == false) {
-					n = 0; // current temp string length
-					while (true) {
-						/** Find position of next space ***/
-						if (strchr(text + i + n + 1, ' ') == NULL) {
-							break;
-						}
-						else {
-							n = static_cast<int>(strchr(text + i + n + 1, ' ') - text) - i;
-						}
-						
-						/** Fill temp with the current line up to (but not including) the next space ***/
-						temp = new char[n + 1];
-						strncpy(temp, text + i, n);
-						temp[n] = '\0';
-						
-						
-						/** Check if temp will fit within the wrapWidth ****/
-						ok = false; // assume it won't fit
-						if (centered) {
-							if ((x + (GetTextW(temp, spacing) / 2)) - (x - (GetTextW(temp, spacing) / 2)) <= wrapWidth)
-								ok = true; // it will fit
-						}
-						else {
-							if (x + GetTextW(temp, spacing) <= x + (wrapWidth - 1))
-								ok = true; // it will fit
-						}
-						
-						if (ok) { // If temp will fit so far
-							nextBreak = i + n;
-							if (text[nextBreak] == ' ') nextBreak ++;
-
-							// Set the x here
-							if (centered) {
-								x2 = x - (GetTextW(temp, spacing) / 2);
-							}
-						}
-						else { // if temp will not fit, stop here (use the previous nextBreak)
-							delete [] temp;
-							temp = NULL;
-							
-							break;
-						}
-						
-						delete [] temp;
-						temp = NULL;
-					}
-				}
-			}
-			else { // This line break is caused by a '\n' character
-				/** Set the next line's x position based on whether or not the text is centered ****/
-				if (centered) {
-					// If this is not the last character
-					if (strlen(text) != i + 1) {
-						/** Find and store the next line of text ****/
-						if (strchr(text + i + 1, '\n') != NULL) {
-							n = static_cast<int>(strchr(text + i + 1, '\n') - text) - i; // length of next line
-						}
-						else {
-							n = static_cast<int>(strlen(text + i + 1)); // length of next line
-						}
-						temp = new char[n + 1]; // make temp the right size
-						strncpy(temp, text + i, n); // copy the line into temp
-						temp[n] = '\0'; // Append null terminator
-						
-						// Use the line's width to determine the starting x position
-						x2 = x - (GetTextW(temp, spacing) / 2);
-						
-						delete [] temp;
-						temp = NULL;
-					}
-				}
-			}
-						
-			// Go to next character if this is really a linebreak
-			if (c == '\n') {
-				nextBreak = i + 1;
-				continue;
-			}
-		}
-		
-		// Tab
-		if (c == '\t') {
-			x2 = (tW * static_cast<int>(x2 / tW)) + tW;
-			
-			// Go to next character
+			// Go to the next character
 			continue;
 		}
-	
-		// Get font index number (so that '!' starts at 0)
+
+		// Tab
+                if (c == '\t') {
+                        x2 = (tabW * static_cast<int>(x2 / tabW)) + tabW;
+                        
+                        // Go to next character
+                        continue;
+                }	
+
+		// Subtract 33 to find the font index number (so that '!'
+		// starts at 0)
 		c -= 33;
 
-		switch (c) {
-			case -1: // Space (32)
-				x2 += FONT_W + spacing;
-				break;
-			default:
-				//printf("printing font character #%d (%c)\n", c, c + 33);
-				
-				// Blit "shadow" character
-				ApplySurface(x2 + 2, y + 2, font[c].surf[0], screenSurface);
-				
-				// Blit the correct color version of the character
-				ApplySurface(x2, y, font[c].surf[color], screenSurface);
-				
-				x2 += (font[c].w + 2) + spacing;
-				break;
+		// If it's a space
+		if (c == -1) {
+			x2 += FONT_W + spacing;
+		} else {
+			// Blit a "shadow" character
+			ApplySurface(x2 + 2, y + 2, font[c].surf[0],
+				screenSurface);
+			
+			// Blit the correct color version of the character
+			ApplySurface(x2, y, font[c].surf[color], screenSurface);
+			
+			// Advance the x2 position
+			x2 += (font[c].w + 2) + spacing;
 		}
 	}
 }

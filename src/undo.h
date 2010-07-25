@@ -18,22 +18,4 @@
  */
 
 
-class camera {
-	public:
-
-		void SetTargetBlock(uint b);
-
-	private:
-		int x, y;
-		int xVel, yVel;
-		int targetX, targetY;
-
-		// Other objects
-		level *theLevel;
-
-};
-
-void camera::SetTargetBlock(uint b) {
-	targetX = blocks[b].GetX() + (blocks[b].GetW() / 2);
-	targetY = blocks[b].GetY() + (blocks[b].GetH() / 2);
-}
+void Undo(char action);

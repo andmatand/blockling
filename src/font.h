@@ -18,22 +18,22 @@
  */
 
 
-/*** Function Prototypes ***/
-void DrawText(int x, int y, const char *text, bool centered, int wrapWidth, int spacing, int color);
-void DrawText(int x, int y, char *text, bool centered, int wrapWidth, int spacing, int color);
-void DrawText(int x, int y, char *text, int color);
-int GetTextW(char *text, int spacing);
-int GetTextH(char *text, int wrapWidth, int spacing);
+/* Function Prototypes */
+void DrawText(int x, int y, const char *text, int color = 1, int spacing = 0);
+void DrawText(int x, int y, char *text, int color = 1, int spacing = 0);
+int GetTextW(char *text, int spacing = 0);
+int GetTextH(char *text, int wrapWidth = 0, int spacing = 0);
 char LoadFont(const char *file);
 
 
-/*** Variable/Constant Declarations ***/
+/* Variable/Constant Declarations */
 const uint FONT_ARRAY_SIZE = (122 - 33) + 1;
 const int FONT_H = 16;
 const int FONT_W = 16;
 const uint NUM_FONT_COLORS = 4; // Three colors, plus the shadow color (0)
 
 
+/* letter Struct */
 typedef struct {
 	uint w;
 	SDL_Surface * surf[NUM_FONT_COLORS];

@@ -55,6 +55,9 @@ void CollectLevelGarbage() {
 		delete [] undoTelepads;
 		undoTelepads = NULL;
 	}
+
+	// Clear all active speech bubbles
+	ClearBubbles();
 }
 
 
@@ -224,7 +227,9 @@ int Game() {
 
 
 		/******* GAME LOOP *******/
-		while (quitGame == false && selectingLevel == false && restartLevel == false) {
+		while (quitGame == false && selectingLevel == false &&
+			restartLevel == false)
+		{
 			
 			// Clear Speech Triggers
 			ClearSpeechTriggers();
@@ -254,33 +259,40 @@ int Game() {
 			}
 
 			// Show tutorial on level 0
-			if (currentLevel == 0 && option_levelSet == 0 && physicsStarted) {
+			if (currentLevel == 0 && option_levelSet == 0 &&
+				physicsStarted)
+			{
 				TutorialSpeech(false);
 			}
 
 			// Show PUSH hint on level 5
-			if (showedPushHint == false && currentLevel == 5 && option_levelSet == 0 && physicsStarted) {
+			if (showedPushHint == false && currentLevel == 5 &&
+				option_levelSet == 0 && physicsStarted)
+			{
 				showedPushHint = true;
 				blocks[0].SetDir(2);
-				Speak(0, "Oh!", false, true);
-				Speak(0, "I just remembered something...", false, true);
-				buf1 = new char[45 + strlen(KeyName(option_playerKeys[4].sym))];
-				sprintf(
-						buf1,
-						"If you press %s, I can push blocks!",
-						KeyName(option_playerKeys[4].sym)
-				       );
-				Speak(0, buf1, false, true, 1);
+				Speak(0, "Oh!", true);
+				Speak(0, "I just remembered something...",
+					true);
+
+				buf1 = new char[45 + strlen(KeyName(
+					option_playerKeys[4].sym))];
+				sprintf(buf1,
+					"If you press %s, I can push blocks!",
+					KeyName(option_playerKeys[4].sym));
+				Speak(0, buf1, true, 1);
 				delete [] buf1;
 				buf1 = NULL;
 
-				Speak(0, "", false, true);
+				Speak(0, "", true);
 				switch (rand() % 2) {
 					case 0:
-						Speak(0, "I don't know why I just thought of that.", false, true);
+						Speak(0, "I don't know why I "
+							"just thought of that.",
+							true);
 						break;
 					case 1:
-						Speak(0, "Anyway...", false, true);
+						Speak(0, "Anyway...", true);
 						break;
 				}
 			}
@@ -707,10 +719,10 @@ int Game() {
 										case 0:
 											switch (rand() % 2) {
 												case 0:
-													SpeechTrigger(0, "I can't pick it up.  There's a block on top of it.", 1, 2, false, 4);
+													SpeechTrigger(0, "I can't pick it up.  There's a block on top of it.", 1, 2, 4);
 													break;
 												case 1:
-													SpeechTrigger(0, "I'm not strong enough to pick up that block with another one on top of it.", 1, 2, false, 4);
+													SpeechTrigger(0, "I'm not strong enough to pick up that block with another one on top of it.", 1, 2, 4);
 													break;
 											}
 											break;
@@ -752,7 +764,7 @@ int Game() {
 							// Check if there is an ungrabbable block
 							if (BlockNumber(x, blocks[i].GetY() + (blocks[i].GetH() - 1), 1, 1) >= 0) {
 								Speak(0, "I can't get a grip on the bottom of it.");
-								if (rand() % 2) Speak(0, "My arms aren't very long, after all.", 0, 1);
+								if (rand() % 2) Speak(0, "My arms aren't very long, after all.", 1);
 							}
 						}
 					}
@@ -892,16 +904,16 @@ int Game() {
 						// Give a helpful hint about undoing
 						switch (rand() % 2) {
 							case 0:
-								SpeechTrigger(0, "Ow.", FPS, 0, false, 2);
+								SpeechTrigger(0, "Ow.", FPS, 0, 2);
 								break;
 							case 1:
-								SpeechTrigger(0, "Ouch.", FPS, 0, false, 2);
+								SpeechTrigger(0, "Ouch.", FPS, 0, 2);
 								break;
 						}
 						if (maxUndo >= 1) {
 							char temp[80];
 							sprintf(temp, "Umm pressing %s to undo would be really helpful right about now...", KeyName(gameKeys[4].sym));
-							SpeechTrigger(0, temp, FPS * 4, 1, false, 3);
+							SpeechTrigger(0, temp, FPS * 4, 1, 3);
 						}
 					}
 				}
@@ -1064,7 +1076,7 @@ int Game() {
 				// If the telepad is waiting to teleport (flashing red)
 				else if (telepads[i].GetState() == 1) {
 					if (telepads[i].GetOccupant1() == 0 || telepads[i].GetOccupant2() == 0) {
-						SpeechTrigger(0, "I think there's something blocking the other telepad.", FPS * 2, 1, false, 1);
+						SpeechTrigger(0, "I think there's something blocking the other telepad.", FPS * 2, 1, 1);
 					}
 				}
 			}
@@ -1167,7 +1179,7 @@ int Game() {
 
 
 
-FILE * OpenLevel(uint level) {
+FILE *OpenLevel(uint level) {
 	// Find the name of the levelset directory
 	char levelSet[16];
 	switch (option_levelSet) {
@@ -1184,8 +1196,19 @@ FILE * OpenLevel(uint level) {
 
 	char levelFile[4];
 	sprintf(levelFile, "%03d", level);
-	char filename[256];
-	sprintf(filename, "%s%s%s/%s", DATA_PATH, LEVEL_PATH, levelSet, levelFile);
+
+	char filename[
+		strlen(DATA_PATH) +
+		strlen(LEVEL_PATH) +
+		strlen(levelSet) + 1 +
+		strlen(levelFile) + 1];
+
+	sprintf(filename,
+		"%s%s%s/%s",
+		DATA_PATH,
+		LEVEL_PATH,
+		levelSet,
+		levelFile);
 
 	#ifdef DEBUG
 	printf("\nOpening level %d...\n", level);
@@ -1198,7 +1221,7 @@ FILE * OpenLevel(uint level) {
 
 
 
-char * LoadLevel(uint level) {
+char *LoadLevel(uint level) {
 	char *errorMsg = new char[256]; // For holding error messages
 	errorMsg[0] = '\0';
 	char temp[256]; // For assembling strings of error messages
@@ -1206,9 +1229,6 @@ char * LoadLevel(uint level) {
 	
 	// Free memory used by previous level
 	CollectLevelGarbage();
-	
-	// Clear all active speech bubbles
-	ClearBubbles();
 	
 	// Clear all active speech triggers
 	for (uint i = 0; i < MAX_TRIGGERS; i++) {
@@ -1744,12 +1764,14 @@ void TutorialSpeech(bool reset) {
 		case 0:
 			blocks[0].SetDir(2);
 			Speak(0, "Um.");
-			Speak(0, "", false, true);
-			Speak(0, "Excuse me...", false, true);
-			Speak(0, "Can you help me get to that door over there?", false, true, 0);
+			Speak(0, "", true);
+			Speak(0, "Excuse me...", true);
+			Speak(0, "Can you help me get to that door over there?",
+				true, 0);
 
-			sprintf(temp, "Push %s to make me go left!", KeyName(option_playerKeys[0].sym));
-			Speak(0, temp, false, true);
+			sprintf(temp, "Push %s to make me go left!",
+				KeyName(option_playerKeys[0].sym));
+			Speak(0, temp, true);
 
 			// Go to the next step
 			step++;
@@ -1757,14 +1779,17 @@ void TutorialSpeech(bool reset) {
 			break;
 		case 1:
 			// If the player is standing to the right of the block
-			if (blocks[0].GetX() == blocks[1].GetX() + blocks[1].GetW()) {
+			if (blocks[0].GetX() == blocks[1].GetX() +
+				blocks[1].GetW())
+			{
 				Speak(0, "Hey!");
-				Speak(0, "A block!", false, true);
+				Speak(0, "A block!", true);
 
-				sprintf(temp, "Push %s and I'll pick it up!", KeyName(option_playerKeys[2].sym));
-					Speak(0, temp, false, true);
+				sprintf(temp, "Push %s and I'll pick it up!",
+					KeyName(option_playerKeys[2].sym));
+				Speak(0, temp, true);
 
-					step++;
+				step++;
 			}
 			break;
 		case 2:
@@ -1778,7 +1803,8 @@ void TutorialSpeech(bool reset) {
 			break;
 		case 3:
 			// Wait a second before saying this:
-			SpeechTrigger(0, "I think I should take it toward the door...", 45, 1, false, 100);
+			SpeechTrigger(0, "I think I should take it toward the "
+			                 "door...", 45, 1, 100);
 
 			if (blocks[0].GetX() == exitX + (TILE_W * 3)) {
 				step++;
@@ -1786,15 +1812,19 @@ void TutorialSpeech(bool reset) {
 			break;
 		case 4:
 			Speak(0, "Okay.");
-			sprintf(temp, "Push %s to make me set it down.", KeyName(option_playerKeys[3].sym));
-			Speak(0, temp, false, true);
+			sprintf(temp, "Push %s to make me set it down.",
+				KeyName(option_playerKeys[3].sym));
+			Speak(0, temp, true);
 			step++;
 
 			break;
 		case 5:
 			// If the player set the block down in the right place
-			if (blocks[1].GetX() == exitX + (TILE_W * 2) && blocks[1].GetY() == exitY + (TILE_H * 2)) {
-				Speak(0, "If I walk toward a block, I'll climb onto it.");
+			if (blocks[1].GetX() == exitX + (TILE_W * 2) &&
+				blocks[1].GetY() == exitY + (TILE_H * 2))
+			{
+				Speak(0, "If I walk toward a block, I'll "
+				         "climb onto it.");
 				step++;
 			}
 
@@ -1804,158 +1834,4 @@ void TutorialSpeech(bool reset) {
 
 
 
-// -1 = reset, 0 = save, 1 = load
-void Undo(char action) {
-	static int undoSlot = 0; // The slot number in the ringbuffer that will be written to next time Undo is called
-	static int undoStart = 0; // The slot number of the oldest state.  We cannot undo past this slot.
-	static int undoEnd = 0; // The slot number of the newest state.  If Undo(1) is called, this is the state that will be loaded.
 
-	if (maxUndo <= 0) return;
-	
-	if (action == -1) {
-		undoSlot = 0;
-		undoStart = 0;
-		undoEnd = 0;
-	}
-	
-	// Save state
-	if (action == 0) {
-		/*** Hide player's movement information ***/
-		int player_xMoving;
-		int player_yMoving;
-		char *player_path = NULL;
-		
-		if (blocks[0].GetPathLength() > 0) {
-			player_path = new char[blocks[0].GetPathLength() + 1];
-	
-			strcpy(player_path, blocks[0].GetPath());
-			blocks[0].SetPath("");
-		}
-		
-		player_xMoving = blocks[0].GetXMoving();
-		blocks[0].SetXMoving(0);
-
-		player_yMoving = blocks[0].GetYMoving();
-		blocks[0].SetYMoving(0);
-		/******/
-
-		
-		if (undoEnd != undoStart && undoSlot == undoStart) {
-			undoStart ++;
-		}
-		// Wrap around undoStart position
-		if  (undoStart == static_cast<int>(maxUndo)) undoStart = 0;
-
-		#ifdef DEBUG_UNDO
-		printf("\nSaving state to undoSlot %d\n", undoSlot);
-		#endif
-		
-		// Save the state of all the blocks
-		for (uint i = 0; i < numBlocks; i++) {
-			undoBlocks[undoSlot][i] = blocks[i];
-		}
-
-		// Save the state of all the telepads
-		for (uint i = 0; i < numTelepads; i++) {
-			undoTelepads[undoSlot][i] = telepads[i];
-		}
-
-		// Make undoEnd point to the most recent state
-		undoEnd = undoSlot;
-		
-		// Increment undoSlot to use the next slot next time
-		undoSlot ++;
-
-		// Wrap around undoSlot position
-		if (undoSlot == static_cast<int>(maxUndo)) {
-			undoSlot = 0;
-		}
-
-		
-	
-		#ifdef DEBUG_UNDO
-		printf("UndoStart = %d\n", undoStart);
-		printf("UndoEnd = %d\n", undoEnd);
-		printf("UndoSlot = %d\n", undoSlot);
-		#endif
-
-		/*** Restore player's movement information ***/
-		if (player_path != NULL) {
-			blocks[0].SetPath(player_path);
-			delete [] player_path;
-			player_path = NULL;
-		}
-		blocks[0].SetXMoving(player_xMoving);
-		blocks[0].SetYMoving(player_yMoving);
-		/***/
-	}
-	
-	// Load state
-	if (action == 1) {
-		if (!(undoStart == undoEnd && undoSlot == undoEnd) || maxUndo == 1) {
-			PlaySound(4);
-			
-			#ifdef DEBUG2
-			printf("\nUndoing from slot %d\n", undoEnd);
-			#endif
-			
-			// Restore the state of all the blocks
-			for (uint i = 0; i < numBlocks; i++) {
-				blocks[i] = undoBlocks[undoEnd][i];
-			}
-
-			// Restore the state of all the telepads
-			for (uint i = 0; i < numTelepads; i++) {
-				// Free memory being dereferenced by *current*
-				// telepads which were in the process of
-				// teleporting when the Undo button was pushed.
-				telepads[i].DeInitTeleport(true);
-
-				// Restore old telepad
-				telepads[i] = undoTelepads[undoEnd][i];
-				
-				// Set old telepad state to non-teleporting state
-				telepads[i].DeInitTeleport(false);
-			}
-
-			// Restore temporarily disabled block types (for teleportation animation)
-			// to normal (positive) values
-			for (uint i = 0; i < numBlocks; i++) {
-				if (blocks[i].GetType() >= -99 && blocks[i].GetType() <= -1) {
-					blocks[i].SetType(static_cast<char>( -(blocks[i].GetType() + 1) ));
-				}
-			}
-
-			// Clear all active speech bubbles
-			ClearBubbles();
-			// Change all players' face back to normal, in case they were currently talking
-			for (uint i = 0; i < numPlayers; i++) {
-				blocks[i].SetFace(0);
-			}
-
-			if (undoEnd != undoStart) {
-				// Move undoEnd back, so it points to the now most recent undo state
-				undoEnd --;
-				if (undoEnd == -1) undoEnd = maxUndo - 1;
-			}
-			
-			// Move undoSlot back, so we can overwrite this state next time
-			undoSlot --;
-			if (undoSlot == -1) undoSlot = maxUndo - 1;
-
-			
-			// Instantly move camera back to player
-			if (option_cameraMode == 0) { // If the camera is set to "auto"
-				SetCameraTargetBlock(0);
-				CenterCamera(-1);
-			}
-			
-			
-			#ifdef DEBUG_UNDO
-			printf("UndoEnd = %d\n", undoEnd);
-			printf("UndoSlot = %d\n", undoSlot);
-			#endif
-		}
-	
-	}
-}

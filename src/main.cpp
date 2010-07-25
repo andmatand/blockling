@@ -84,13 +84,20 @@ char Init() {
 
 	/** Initialize SDL ****/
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {
-		fprintf(stderr, "Error: Unable to initialize SDL: %s\n", SDL_GetError());
+		fprintf(
+			stderr,
+			"Error: Unable to initialize SDL: %s\n",
+			SDL_GetError());
+
 		return 1;	
 	}
 
 	/** Initialize SDL_mixer ****/
 	if (Mix_OpenAudio(22050, AUDIO_S16SYS, 2, 1024) < 0) {
-    		fprintf(stderr, "Error: Unable to initialize SDL_mixer: %s\n", Mix_GetError());
+    		fprintf(
+			stderr,
+			"Error: Unable to initialize SDL_mixer: %s\n",
+			Mix_GetError());
 	}
 
 /* The music part is commented out right now because I don't have any music yet =)
@@ -100,12 +107,18 @@ char Init() {
 	sprintf(musicFile, "%s%s%s", DATA_PATH, MUSIC_PATH, "test.xm");
 	bgMusic = Mix_LoadMUS(musicFile);
 	if (bgMusic == NULL) {
-		fprintf(stderr, "Error: Unable to load audio file: %s\n", Mix_GetError());
+		fprintf(
+			stderr,
+			"Error: Unable to load audio file: %s\n",
+			Mix_GetError());
 	}
 
 	// Fade-in the music
 	if (Mix_FadeInMusic(bgMusic, -1, 500) == -1) {
-		fprintf(stderr, "Error: Unable to play music file: %s\n", Mix_GetError());
+		fprintf(
+			stderr,
+			"Error: Unable to play music file: %s\n",
+			Mix_GetError());
 	}
 */
 
@@ -148,8 +161,7 @@ char Init() {
 
 
 void DeInit() {
-	/** Free speech bubble-related memory ****/
-	delete [] bubbles;
+	// Free speech bubble-related memory
 	delete [] triggers;
 
 	/** Free notification string in case it hasn't disappeared yet **/
