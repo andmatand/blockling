@@ -179,10 +179,10 @@ int Credits() {
 		"PROGRAMMING\n"
 		"Andrew Anderson\n\n\n"
 
-		"SOUND\n"
+		"GRAPHICS\n"
 		"Andrew Anderson\n\n\n"
 
-		"GRAPHICS\n"
+		"SOUND\n"
 		"Andrew Anderson\n\n\n"
 
 		"LEVEL DESIGN\n"
@@ -208,10 +208,8 @@ int Credits() {
 		"the teams behind the free/open-source software which made "
 		"this game possible:\n\n"
 		"Audacity <audacity.sourceforge.net>\n"
-		"Debian <www.debian.org>\n"
 		"GIMP <www.gimp.org>\n"
-		"GNU <www.gnu.org>\n"
-		"The Linux Kernel <www.kernel.org>\n"
+		"GCC <gcc.gnu.org>\n"
 		"SDL <www.libsdl.org>\n"
 		"Ubuntu <www.ubuntu.com>\n"
 		"Valgrind <www.valgrind.org>\n"
@@ -223,7 +221,7 @@ int Credits() {
 	credits.Center();
 	credits.Wrap(SCREEN_W * .9);
 
-	while (y > -(FONT_H * 72)) {
+	while (y > -(FONT_H * 73)) {
 		
 		if (y > SCREEN_H) y = SCREEN_H;
 		
