@@ -27,6 +27,8 @@ char* ReadLine(FILE *file, uint maxLineLength) {
 
 	while (!feof(file)) {
 		fgets(line, maxLineLength, file);
+		if (strlen(line) < 1) continue;
+
 		lineHasBreak = false;
 
 		// Remove the trailing newline character(s), LF or CR

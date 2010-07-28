@@ -341,6 +341,8 @@ void txt::Wrap(int wrapWidth) {
 }
 
 void txt::WrapLine(txtLine* line) {
+	if (strlen(line->GetStr()) < 1) return;
+
 	int x2 = x; // Working x coordinate
 	char c; // For holding the current character
 	bool ok;
@@ -458,7 +460,7 @@ void txt::WrapLine(txtLine* line) {
 		// Store a version of the string without trailing spaces
 		char* temp;
 		if (spaceStart < strlen(line->GetStr()) && spaceStart > 0) {
-			temp = new char[spaceStart];
+			temp = new char[spaceStart + 1];
 			strncpy(temp, line->GetStr(), spaceStart);
 			temp[spaceStart] = '\0';
 		}

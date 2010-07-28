@@ -191,9 +191,11 @@ int Credits() {
 		"TESTING/FEEDBACK\n"
 		"Tyler Christensen\n"
 		"Aubree Dinsfriend\n"
+		"Scott Jonathan Dinsfriend\n"
 		"Matthew Galla\n"
 		"Anna Hyldahl\n"
 		"JeTSpice <jetspicegames.com>\n"
+		"Aaron McGinn\n"
 		"Peter Norland\n"
 		"Jeanette Ortiz\n\n\n"
 
@@ -212,6 +214,7 @@ int Credits() {
 		"The Linux Kernel <www.kernel.org>\n"
 		"SDL <www.libsdl.org>\n"
 		"Ubuntu <www.ubuntu.com>\n"
+		"Valgrind <www.valgrind.org>\n"
 		"Vim <www.vim.org>\n\n\n"
 
 		"ETERNAL THANKS TO\n"
