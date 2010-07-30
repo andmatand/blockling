@@ -504,7 +504,10 @@ int Game() {
 									blocks[i].SetXMoving(TILE_W);
 									blocks[b].SetXMoving(TILE_W);
 								}
-								if (blocks[i].GetStrong() == 1) blocks[b].SetStrong(1); // If player is strong, make this block strong for now
+
+								// If player is strong, make this block strong for now
+								if (blocks[i].GetStrong() == 1) blocks[b].SetStrong(1);
+
 								playerBlock[i] = b; // Player can't move until this block stops moving
 								pushedKey = true; // Now player can't push other buttons this frame
 							}
@@ -517,6 +520,7 @@ int Game() {
 									previousKey = 4;
 									
 									// If there's another block blocking it
+									/*
 									if (x >= 0) {
 										switch (rand() % 2) {
 											case 0:
@@ -528,15 +532,21 @@ int Game() {
 										}
 									}
 									else {
-										switch (rand() % 2) {
+									*/
+										switch (rand() % 3) {
 											case 0:
-												Speak(0, "I can't move it.  I think there's something blocking it.");
+												Speak(0, "I can't move it.");
 												break;
 											case 1:
-												Speak(0, "It won't move.  I think there's something on the other side.");
+												Speak(0, "It won't budge.");
+												break;
+											case 2:
+												Speak(0, "It won't move.");
 												break;
 										}
+									/*
 									}
+									*/
 								}
 							}
 						}

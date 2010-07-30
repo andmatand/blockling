@@ -3,10 +3,6 @@
 
 -Spinach/other items?
 
--Make all file errors fail gracefully (i.e. no segfaulting)
-
--Fix GetTextW() and then use it in DrawBubbles()
-
 -Figure out a way to avoid the visible hiccup when scrolling to next level with
 parallax background
 

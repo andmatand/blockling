@@ -192,6 +192,9 @@ int GameInput(char mode) {
 						blocks[0].SetWon(3);
 						wonLevel = 3;
 						break;
+					case SDLK_z:
+						blocks[0].SetStrong(1);
+						break;
 					#endif
 					
 					default:

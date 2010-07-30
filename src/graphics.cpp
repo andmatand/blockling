@@ -1056,7 +1056,7 @@ void Render (const char flags) {
 		else {
 			txt note(SCREEN_W / 2, notifyY, notifyText);
 			note.Center();
-			note.Wrap(SCREEN_W / 8);
+			note.Wrap();
 			note.Render();
 		}
 	}
