@@ -24,8 +24,8 @@
 // Function Prototypes
 int Game ();
 void TutorialSpeech(bool reset);
-char* LoadLevel(uint level);
-FILE* OpenLevel(uint level);
+char* LoadLevel(int level);
+FILE* OpenLevel(int level);
 
 
 // Variables

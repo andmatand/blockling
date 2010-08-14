@@ -230,7 +230,6 @@ int Game() {
 		while (quitGame == false && selectingLevel == false &&
 			restartLevel == false)
 		{
-			
 			// Clear Speech Triggers
 			ClearSpeechTriggers();
 			
@@ -270,9 +269,9 @@ int Game() {
 				option_levelSet == 0 && physicsStarted)
 			{
 				showedPushHint = true;
-				blocks[0].SetDir(2);
-				Speak(0, "Oh!", true);
-				Speak(0, "I just remembered something...",
+				if (option_helpSpeech) blocks[0].SetDir(2);
+				HelpSpeak(0, "Oh!");
+				HelpSpeak(0, "I just remembered something...",
 					true);
 
 				buf1 = new char[45 + strlen(KeyName(
@@ -280,19 +279,19 @@ int Game() {
 				sprintf(buf1,
 					"If you press %s, I can push blocks!",
 					KeyName(option_playerKeys[4].sym));
-				Speak(0, buf1, true, 1);
+				HelpSpeak(0, buf1, true, 1);
 				delete [] buf1;
 				buf1 = NULL;
 
-				Speak(0, "", true);
+				HelpSpeak(0, "", true);
 				switch (rand() % 2) {
 					case 0:
-						Speak(0, "I don't know why I "
-							"just thought of that.",
-							true);
+						HelpSpeak(0, "I don't know why "
+							"I just thought of "
+							"that.", true);
 						break;
 					case 1:
-						Speak(0, "Anyway...", true);
+						HelpSpeak(0, "Anyway...", true);
 						break;
 				}
 			}
@@ -524,10 +523,10 @@ int Game() {
 									if (x >= 0) {
 										switch (rand() % 2) {
 											case 0:
-												Speak(0, "I'm not strong enough to push more than one block at a time.");
+												HelpSpeak(0, "I'm not strong enough to push more than one block at a time.");
 												break;
 											case 1:
-												Speak(0, "They're too heavy for me to push.");
+												HelpSpeak(0, "They're too heavy for me to push.");
 												break;
 										}
 									}
@@ -535,13 +534,13 @@ int Game() {
 									*/
 										switch (rand() % 3) {
 											case 0:
-												Speak(0, "I can't move it.");
+												HelpSpeak(0, "I can't move it.");
 												break;
 											case 1:
-												Speak(0, "It won't budge.");
+												HelpSpeak(0, "It won't budge.");
 												break;
 											case 2:
-												Speak(0, "It won't move.");
+												HelpSpeak(0, "It won't move.");
 												break;
 										}
 									/*
@@ -760,7 +759,7 @@ int Game() {
 												sprintf(buf2, "I can't.  There's a %s blocking it.", buf1);
 												break;
 										}
-										Speak(0, buf2);
+										HelpSpeak(0, buf2);
 										
 										delete [] buf1; buf1 = NULL;
 										delete [] buf2; buf2 = NULL;
@@ -773,8 +772,8 @@ int Game() {
 						else {
 							// Check if there is an ungrabbable block
 							if (BlockNumber(x, blocks[i].GetY() + (blocks[i].GetH() - 1), 1, 1) >= 0) {
-								Speak(0, "I can't get a grip on the bottom of it.");
-								if (rand() % 2) Speak(0, "My arms aren't very long, after all.", 1);
+								HelpSpeak(0, "I can't get a grip on the bottom of it.");
+								if (rand() % 2) HelpSpeak(0, "My arms aren't very long, after all.", 1);
 							}
 						}
 					}
@@ -1103,8 +1102,23 @@ int Game() {
 			}
 
 			/*** Stuff for when the player reached the exit ***/
-			if (wonLevel == 3 && SDL_GetTicks() > wonLevelTimer + 1000) {
-				if ((recordingReplay && option_replayOn) || showingReplay) {
+			if (wonLevel == 3 && SDL_GetTicks() > wonLevelTimer +
+				1000)
+			{
+				// "Unlock" the next level if it isn't already
+				if (option_levelSet == 0 &&
+					currentLevel + 1 > option_levelMax0)
+				{
+					option_levelMax0 = currentLevel + 1;
+				} else if (option_levelSet == 1 &&
+					currentLevel + 1 > option_levelMax1)
+				{
+					option_levelMax1 = currentLevel + 1;
+				}
+			
+				if ((recordingReplay && option_replayOn) ||
+					showingReplay)
+				{
 					// Show menu asking what to do next
 					switch (EndOfLevelMenu()) {
 						case -1: // Esc
@@ -1189,7 +1203,7 @@ int Game() {
 
 
 
-FILE *OpenLevel(uint level) {
+FILE *OpenLevel(int level) {
 	// Find the name of the levelset directory
 	char levelSet[16];
 	switch (option_levelSet) {
@@ -1213,12 +1227,16 @@ FILE *OpenLevel(uint level) {
 		strlen(levelSet) + 1 +
 		strlen(levelFile) + 1];
 
-	sprintf(filename,
-		"%s%s%s/%s",
-		DATA_PATH,
-		LEVEL_PATH,
-		levelSet,
-		levelFile);
+	if (level < 0) {
+		sprintf(filename, "%s%s000", DATA_PATH, LEVEL_PATH);
+	} else {
+		sprintf(filename,
+			"%s%s%s/%s",
+			DATA_PATH,
+			LEVEL_PATH,
+			levelSet,
+			levelFile);
+	}
 
 	#ifdef DEBUG
 	printf("\nOpening level %d...\n", level);
@@ -1229,9 +1247,7 @@ FILE *OpenLevel(uint level) {
 }
 
 
-
-
-char *LoadLevel(uint level) {
+char *LoadLevel(int level) {
 	char *errorMsg = new char[256]; // For holding error messages
 	errorMsg[0] = '\0';
 	char temp[256]; // For assembling strings of error messages
@@ -1765,6 +1781,8 @@ void TutorialSpeech(bool reset) {
 	   I can't jump any higher than that.
 	   My legs *are* pretty short...
 	 */
+	if (option_helpSpeech == false) return;
+
 	static uchar step = 0; // Remembers which step in the tutorial we are on
 	char temp[64]; // for holding strings
 

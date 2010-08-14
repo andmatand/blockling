@@ -46,6 +46,22 @@ void ClearSpeechTriggers() {
 
 
 // Overloaded for both <const char*> and <char*>
+void HelpSpeak(int block,const char* text, bool polite, char postDir)
+{
+	// Copy the <const char*> to a <char*>
+	char temp[strlen(text) + 1];
+	strcpy(temp, text);
+
+	HelpSpeak(block, temp, polite, postDir);
+}
+void HelpSpeak(int block, char* text, bool polite, char postDir) {
+	// Enforce the help-speech option
+	if (option_helpSpeech == false) return;
+
+	Speak(block, text, polite, postDir);
+}
+
+// Overloaded for both <const char*> and <char*>
 void Speak(int block, const char* text, bool polite, char postDir) {
 	// Copy the <const char*> to a <char*>
 	char temp[strlen(text) + 1];
@@ -238,6 +254,8 @@ void SpeechTrigger(int block, const char *text, int targetFrames, char type,
 }
 
 void SpeechTrigger(int block, char *text, int targetFrames, char type, int id) {
+	if (option_helpSpeech == false) return;
+
 	int t = -1; // the trigger number in the "triggers" array
 	
 	// Check if this trigger already exists

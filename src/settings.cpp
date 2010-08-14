@@ -32,7 +32,9 @@ char* ReadLine(FILE *file, uint maxLineLength) {
 		lineHasBreak = false;
 
 		// Remove the trailing newline character(s), LF or CR
-		while (line[strlen(line) - 1] == '\n' or line[strlen(line) - 1] == 13) {
+		while (line[strlen(line) - 1] == '\n' ||
+			line[strlen(line) - 1] == 13)
+		{
 			lineHasBreak = true;
 			line[strlen(line) - 1] = '\0';
 		}
@@ -79,7 +81,9 @@ void SaveSettings() {
 	FILE *f = fopen(filename, "wt");
 	
 	if (f == NULL) {
-		fprintf(stderr, "Error: Could not write settings to \"%s\"\n", filename);
+		fprintf(stderr, "Error: Could not write settings to \"%s\"\n",
+			filename);
+
 		return;
 	}
 	
@@ -124,6 +128,15 @@ void SaveSettings() {
 			case 10:
 				strcpy(name, "tileset");
 				break;
+			case 11:
+				strcpy(name, "helpSpeech");
+				break;
+			case 12:
+				strcpy(name, "levelMax0");
+				break;
+			case 13:
+				strcpy(name, "levelMax1");
+				break;
 		}		
 
 		// Get the string form of this option's value
@@ -161,6 +174,15 @@ void SaveSettings() {
 			case 10:
 				sprintf(value, "%s", option_tileset);
 				break;
+			case 11:
+				sprintf(value, "%u", option_helpSpeech);
+				break;
+			case 12:
+				sprintf(value, "%u", option_levelMax0);
+				break;
+			case 13:
+				sprintf(value, "%u", option_levelMax1);
+				break;
 		}
 		
 		// Construct the line
@@ -172,7 +194,8 @@ void SaveSettings() {
 	
 	// Write the game controls
 	for (uint i = 0; i < NUM_GAME_KEYS; i++) {
-		sprintf(line, "gameKeySym%d=%d\ngameKeyMod%d=%d\n", i, gameKeys[i].sym, i, gameKeys[i].mod);
+		sprintf(line, "gameKeySym%d=%d\ngameKeyMod%d=%d\n", i,
+			gameKeys[i].sym, i, gameKeys[i].mod);
 		
 		fputs(line, f);
 	}
@@ -187,7 +210,6 @@ void SaveSettings() {
 	// Write the current level
 	sprintf(line, "currentLevel=%d\n", currentLevel);
 	fputs(line, f);
-	
 	
 	fclose(f);
 }
@@ -205,16 +227,19 @@ void LoadSettings() {
 	FILE *f = fopen(filename, "rt");
 	
 	if (f == NULL) {
-		fprintf(stdout, "Notice: Could not open settings file \"%s\"; Using defaults...\n", filename);
+		fprintf(stdout, "Notice: Could not open settings file \"%s\"; "
+			"Using defaults...\n", filename);
+
 		return;
 	}
 	
 	char *line = NULL;
 	char name[13];
-	char value[sizeof(option_tileset) + 1]; // string form of the value
+	char value[sizeof(option_tileset) + 1]; // String form of the value
 	uint uintVal = 0;  // uint form of the value
-	uint midpoint; // position of '=' in the string
-	uchar n;       // holds string position when filling string, and parsed key number (e.g. 3 at end of "gameKeySym3")
+	uint midpoint; // Position of '=' in the string
+	uchar n;       // Holds string position when filling string, and parsed
+	               // key number (e.g. 3 at end of "gameKeySym3")
 	char c[2];     // holds one character
 	
 	while ((line = ReadLine(f, 16 + sizeof(option_tileset))) != NULL) {
@@ -226,7 +251,8 @@ void LoadSettings() {
 		midpoint = static_cast<uint>(strchr(line, '=') - line);
 		
 		#ifdef DEBUG
-			printf("\n\nline: \"%s\"\nposition of = is %d\n", line, midpoint);
+			printf("\n\nline: \"%s\"\nposition of = is %d\n", line,
+				midpoint);
 		#endif
 
 		/** Get the part of the string before the "=" ****/
@@ -272,7 +298,8 @@ void LoadSettings() {
 		uintVal = static_cast<uint>(atoi(value));
 		
 		#ifdef DEBUG
-			printf(" name = \"%s\"\n value = \"%s\"\n intVal = %d\n", name, value, uintVal);
+			printf(" name = \"%s\"\n value = \"%s\"\n intVal = "
+				"%d\n", name, value, uintVal);
 		#endif
 		
 		// Set the correct option
@@ -312,6 +339,15 @@ void LoadSettings() {
 		else if (strcmp(name, "tileset") == 0) {
 			strncpy(option_tileset, value, sizeof(option_tileset));
 		}
+		else if (strcmp(name, "helpSpeech") == 0) {
+			option_helpSpeech = static_cast<bool>(uintVal);
+		}
+		else if (strcmp(name, "levelMax0") == 0) {
+			option_levelMax0 = static_cast<uchar>(uintVal);
+		}
+		else if (strcmp(name, "levelMax1") == 0) {
+			option_levelMax1 = static_cast<uchar>(uintVal);
+		}
 		else {
 			// Get the number on the end of the setting name
 			c[0] = name[strlen(name) - 1];
@@ -325,7 +361,8 @@ void LoadSettings() {
 
 			// Set the correct option_playerKey
 			if (strncmp(name, "playerKey", 9) == 0) {
-				option_playerKeys[n].sym = static_cast<SDLKey>(uintVal);
+				option_playerKeys[n].sym =
+					static_cast<SDLKey>(uintVal);
 			}
 		}
 

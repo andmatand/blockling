@@ -25,7 +25,7 @@ void LoadSettings();
 
 
 /** Constants ***/
-const uchar NUM_OPTIONS = 11;
+const uchar NUM_OPTIONS = 14;
 
 
 /** Options ***/
@@ -40,3 +40,6 @@ bool option_timerOn;
 uchar option_cameraMode;
 bool option_fullscreen;
 char option_tileset[16 + 1];
+bool option_helpSpeech;
+uchar option_levelMax0;
+uchar option_levelMax1;

@@ -23,6 +23,9 @@ void AnimateSpeech();
 void ClearBubbles();
 void ClearSpeechTriggers();
 void DrawBubbles(bool decrementTTLs);
+void HelpSpeak(int block,const char* text, bool polite = false,
+	char postDir = -1);
+void HelpSpeak(int block, char* text, bool polite = false, char postDir = -1);
 void Speak(int block, const char* text, bool polite = false, char postDir = -1);
 void Speak(int block, char* text, bool polite = false, char postDir = -1);
 void SpeechTrigger(int block, char* text, int targetFrames, char type, int id);

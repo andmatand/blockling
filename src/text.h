@@ -149,6 +149,18 @@ class txt {
 				return false;
 			}
 		}
+		
+		uint GetH() const {
+			uint h = FONT_H;
+
+			txtLine* curLine = lineList->GetNext();
+			while (curLine != NULL) {
+				h += FONT_H + 2;
+				curLine = curLine->GetNext();
+			}
+
+			return h;
+		}
 
 		// Add/Remove Lines
 		void DelText(); // Deletes existing lines of text
@@ -158,6 +170,8 @@ class txt {
 		void Wrap(int wrapWidth = SCREEN_W);
 		void WrapLine(txtLine* line);
 		void Center();
+		void FitToScreen(bool on = false);
+		void AlignX(int ax) { xAlign = ax; };
 		void AlignY(int ay) { yAlign = ay; };
 		void Render();
 
@@ -494,6 +508,9 @@ void txt::Center() {
 	xAlign = 0;
 }
 
+void txt::FitToScreen(bool on) {
+	fitToScreen = on;
+}
 
 void txt::Render() {
 	int y2 = y; // Working y coordinate

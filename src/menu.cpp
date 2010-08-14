@@ -30,7 +30,7 @@ int ControlSetupMenu(bool inGame) {
 	SDLKey keySym;
 	
 	/** Set static menu items **/
-	csMenu.Move(inGame ? SCREEN_W / 2 : 75, FONT_H * 4);
+	csMenu.Move(inGame ? SCREEN_W / 2 : 75, FONT_H * 3);
 	csMenu.SetTitle("CONTROL SETUP");
 	csMenu.NameItem(numItems - 2, "Reset To Defaults");
 	csMenu.NameItem(numItems - 1, "Done");
@@ -106,12 +106,15 @@ int ControlSetupMenu(bool inGame) {
 			}
 			csMenu.AutoArrange(static_cast<char>(inGame ? 1 : 0));
 			
-			// Cheatingly position the items at a fixed x, if using the inGame text centering
+			// Cheatingly position the items at a fixed x, if using
+			// the inGame text centering
 			if (inGame) {
 				for (i = 0; i < numItems - 2; i++) {
 					csMenu.MoveItem(i, (SCREEN_W / 2) - (FONT_W * 10), csMenu.GetItemY(i));
 				}
 			}
+			csMenu.SpaceItems(5);
+			csMenu.SpaceItems(numItems - 3);
 			csMenu.SpaceItems(numItems - 2);
 			csMenu.Display();
 			UpdateScreen();
@@ -193,6 +196,7 @@ int Credits() {
 		"Aubree Dinsfriend\n"
 		"Scott Jonathan Dinsfriend\n"
 		"Matthew Galla\n"
+		"Margaret Gowen\n"
 		"Anna Hyldahl\n"
 		"JeTSpice <jetspicegames.com>\n"
 		"Aaron McGinn\n"
@@ -219,9 +223,10 @@ int Credits() {
 		"Yeshua: the Way, the Truth, and the Life");
 
 	credits.Center();
+	credits.FitToScreen(false);
 	credits.Wrap(SCREEN_W * .9);
 
-	while (y > -(FONT_H * 73)) {
+	while (y > -static_cast<int>(credits.GetH()) - (FONT_H / 2)) {
 		
 		if (y > SCREEN_H) y = SCREEN_H;
 		
@@ -334,7 +339,7 @@ int HelpMenu(bool inGame) {
 		
 		/** Input **/
 		action = helpMenu.Input();
-		
+
 		switch (action) {
 			case 1: // Enter
 				switch (helpMenu.GetSel()) {
@@ -396,7 +401,7 @@ int MainMenu() {
 
 
 int OptionsMenu(bool inGame) {
-	int numItems = 10;
+	int numItems = 11;
 	menu optMenu(numItems); // Create the menu object
 	char text[72]; // For temporarily holding menu items' text as it is
 	               // formed
@@ -411,10 +416,10 @@ int OptionsMenu(bool inGame) {
 	int action;
 	
 	/** Set static menu items **/
-	optMenu.Move(inGame ? SCREEN_W / 2 : 75, FONT_H * 4);
+	optMenu.Move(inGame ? SCREEN_W / 2 : 75, FONT_H * 3);
 	optMenu.SetTitle("OPTIONS");
-	optMenu.NameItem(8, "Control Setup");
-	optMenu.NameItem(9, "Done");
+	optMenu.NameItem(9, "Control Setup");
+	optMenu.NameItem(10, "Done");
 
 	// Make the note text
 	txt note(SCREEN_W / 2, FONT_H * 20,
@@ -451,22 +456,30 @@ int OptionsMenu(bool inGame) {
 		optMenu.SetLeftArrow(2,	(option_timerOn > 0));
 		optMenu.SetRightArrow(2, (option_timerOn < 1));
 
+		// Determine Sound text
+		sprintf(text, "Hints: ");
+		strcat(text, (option_helpSpeech ? "ON" : "OFF"));
+		optMenu.NameItem(3, text);
+
+		optMenu.SetLeftArrow(3,	(option_helpSpeech > 0));
+		optMenu.SetRightArrow(3, (option_helpSpeech < 1));
+
 		// Determine Timer on/off text
 		sprintf(text, "Replays: ");
 		strcat(text, (option_replayOn ? "ON" : "OFF"));
-		optMenu.NameItem(3, text);
+		optMenu.NameItem(4, text);
 
-		optMenu.SetLeftArrow(3,	(option_replayOn > 0));
-		optMenu.SetRightArrow(3, (option_replayOn < 1));
+		optMenu.SetLeftArrow(4,	(option_replayOn > 0));
+		optMenu.SetRightArrow(4, (option_replayOn < 1));
 
 
 		// Determine Fullscreen on/off text
 		sprintf(text, "Fullscreen: ");
 		strcat(text, (option_fullscreen ? "ON" : "OFF"));
-		optMenu.NameItem(4, text);
+		optMenu.NameItem(5, text);
 
-		optMenu.SetLeftArrow(4,	(option_fullscreen > 0));
-		optMenu.SetRightArrow(4, (option_fullscreen < 1));
+		optMenu.SetLeftArrow(5,	(option_fullscreen > 0));
+		optMenu.SetRightArrow(5, (option_fullscreen < 1));
 
 
 		// Determine Camera Setting text
@@ -479,10 +492,10 @@ int OptionsMenu(bool inGame) {
 				strcat(text, "MANUAL");
 				break;
 		}
-		optMenu.NameItem(5, text);
+		optMenu.NameItem(6, text);
 
-		optMenu.SetLeftArrow(5, (option_cameraMode > 0));
-		optMenu.SetRightArrow(5, (option_cameraMode < maxCameraMode));
+		optMenu.SetLeftArrow(6, (option_cameraMode > 0));
+		optMenu.SetRightArrow(6, (option_cameraMode < maxCameraMode));
 
 
 		// Determine Background text
@@ -501,19 +514,19 @@ int OptionsMenu(bool inGame) {
 				strcat(text, "SCROLLING");
 				break;
 		}
-		optMenu.NameItem(6, text);
+		optMenu.NameItem(7, text);
 
-		optMenu.SetLeftArrow(6, (option_background > 0));
-		optMenu.SetRightArrow(6, (option_background < maxBackground));
+		optMenu.SetLeftArrow(7, (option_background > 0));
+		optMenu.SetRightArrow(7, (option_background < maxBackground));
 
 
 		// Determine Undo text
 		sprintf(text, "Undo Memory: %d move", option_undoSize);
 		if (option_undoSize != 1) strcat(text, "s");
-		optMenu.NameItem(7, text);
+		optMenu.NameItem(8, text);
 		
-		optMenu.SetLeftArrow(7,	(option_undoSize > 0));
-		optMenu.SetRightArrow(7, (option_undoSize < maxUndoSize));
+		optMenu.SetLeftArrow(8,	(option_undoSize > 0));
+		optMenu.SetRightArrow(8, (option_undoSize < maxUndoSize));
 		
 
 		
@@ -526,12 +539,12 @@ int OptionsMenu(bool inGame) {
 			DrawBackground();
 		}
 		optMenu.AutoArrange(static_cast<char>(inGame ? 1 : 0));
-		optMenu.SpaceItems(8);
 		optMenu.SpaceItems(9);
+		optMenu.SpaceItems(10);
 		optMenu.Display();
 		// If the "replays" or "undo" options are selected
 		if (inGame &&
- 			(optMenu.GetSel() == 3 || optMenu.GetSel() == 7))
+ 			(optMenu.GetSel() == 4 || optMenu.GetSel() == 8))
 		{
 			note.Render();
 		}
@@ -549,41 +562,60 @@ int OptionsMenu(bool inGame) {
 						ToggleSound();
 						break;
 					case 1:
-						option_musicOn = (option_musicOn ? false : true);
+						option_musicOn =
+							(option_musicOn ?
+							 false : true);
 						break;
 					case 2:
-						option_timerOn = (option_timerOn ? false : true);
+						option_timerOn =
+							(option_timerOn ?
+							 false : true);
 						break;
 					case 3:
-						option_replayOn = (option_replayOn ? false : true);
+						option_helpSpeech =
+							(option_helpSpeech ?
+							 false : true);
 						break;
 					case 4:
-						ToggleFullscreen();
+						option_replayOn =
+							(option_replayOn ?
+							 false : true);
 						break;
 					case 5:
-						if (option_cameraMode < maxCameraMode) {
+						ToggleFullscreen();
+						break;
+					case 6:
+						if (option_cameraMode <
+						    maxCameraMode)
+						{
 							option_cameraMode++;
 						}
 						else {
 							option_cameraMode = 0;
 						}
 						break;
-					case 6:
-						if (option_background < maxBackground) {
+					case 7:
+						if (option_background <
+						    maxBackground)
+						{
 							option_background++;
 						}
 						else {
 							option_background = 0;
 						}
 						break;
-					case 7:
-						change_undoSize = 1;
-						if (option_undoSize == maxUndoSize) option_undoSize = 0;
-						break;
 					case 8:
-						if (ControlSetupMenu(inGame) == -2) return -2;
+						change_undoSize = 1;
+						if (option_undoSize ==
+						    maxUndoSize)
+							option_undoSize = 0;
 						break;
 					case 9:
+						if (ControlSetupMenu(inGame) ==
+						    -2)
+							return -2;
+						break;
+					case 10:
 						return -1;
 						break;
 				}
@@ -591,7 +623,8 @@ int OptionsMenu(bool inGame) {
 			case 3: // Left
 				switch (optMenu.GetSel()) {
 					case 0:
-						if (option_soundOn) ToggleSound();
+						if (option_soundOn)
+							ToggleSound();
 						break;
 					case 1:
 						option_musicOn = false;
@@ -600,18 +633,24 @@ int OptionsMenu(bool inGame) {
 						option_timerOn = false;
 						break;
 					case 3:
-						option_replayOn = false;
+						option_helpSpeech = false;
 						break;
 					case 4:
-						if (option_fullscreen) ToggleFullscreen();
+						option_replayOn = false;
 						break;
 					case 5:
-						if (option_cameraMode > 0) option_cameraMode--;
+						if (option_fullscreen)
+							ToggleFullscreen();
 						break;
 					case 6:
-						if (option_background > 0) option_background--;
+						if (option_cameraMode > 0)
+							option_cameraMode--;
 						break;
 					case 7:
+						if (option_background > 0)
+							option_background--;
+						break;
+					case 8:
 						change_undoSize = -1;						
 						break;
 				}
@@ -621,7 +660,12 @@ int OptionsMenu(bool inGame) {
 					case 0:
 						if (!option_soundOn) {
 							ToggleSound();
-							PlaySound(5); // Play sound again here, since the sound in the menu selection was muted.
+
+							// play sound again
+							// here, since the
+							// sound in the menu
+							// selection was muted.
+							PlaySound(5);
 						}
 						break;
 					case 1:
@@ -631,18 +675,26 @@ int OptionsMenu(bool inGame) {
 						option_timerOn = true;
 						break;
 					case 3:
-						option_replayOn = true;
+						option_helpSpeech = true;
 						break;
 					case 4:
-						if (!option_fullscreen) ToggleFullscreen();
+						option_replayOn = true;
 						break;
 					case 5:
-						if (option_cameraMode < maxCameraMode) option_cameraMode++;
+						if (!option_fullscreen)
+							ToggleFullscreen();
 						break;
 					case 6:
-						if (option_background < maxBackground) option_background++;
+						if (option_cameraMode <
+						    maxCameraMode)
+							option_cameraMode++;
 						break;
 					case 7:
+						if (option_background <
+						    maxBackground)
+							option_background++;
+						break;
+					case 8:
 						change_undoSize = 1;
 						break;
 				}
@@ -681,7 +733,8 @@ int OptionsMenu(bool inGame) {
 		}
 		
 		// Limit undoSize
-		if (option_undoSize > maxUndoSize) option_undoSize = maxUndoSize;
+		if (option_undoSize > maxUndoSize)
+			option_undoSize = maxUndoSize;
 	}
 }
 
@@ -867,6 +920,7 @@ int SelectLevelMenu() {
 	
 	FILE *testFile;
 	bool refreshLevel = true;
+	bool dummyLevel;
 	uint numLevels = 1000;
 	char *levelError = NULL; // For pointing to the (actual) error message
 	                         // returned by LoadLevel
@@ -884,44 +938,68 @@ int SelectLevelMenu() {
 	while (true) {
 		/** Load Level ****/
 		if (refreshLevel) {
+			dummyLevel = false;
 			while (true) {
 				// Load Level
 				delete [] levelError;
-				levelError = LoadLevel(currentLevel);
-				
-				// If the level could not be loaded (NULL file
-				// handle was returned)
-				sprintf(text, "!");
-				if (levelError != NULL &&
-					strcmp(levelError, text) == 0)
+				// If currentLevel is higher than the max
+				if ((option_levelSet == 0 &&
+				     currentLevel > option_levelMax0) ||
+				    (option_levelSet == 1 &&
+				     currentLevel > option_levelMax1))
 				{
-					//numLevels = currentLevel;
-					
-					// Update the errorNote's text
-					sprintf(text,
-						"Syntax errors exist in the"
-						"level file:\n\n%s\n"
-						"Please fix the errors and try"
-						"selecting the level again.",
-						levelError);
+					// Display a dummy level
+					levelError = LoadLevel(-1);
 
-					errorNote.SetText(text);
+					// Flag it as unplayable
+					dummyLevel = true;
 
-					if (currentLevel <= 0) {
-						sprintf(levelError,
-							"The file for level %d"
+					// Make the player say a message
+					char tmpMsg[37];
+					sprintf(tmpMsg, "You gotta do level %d "
+						"first!",
+						currentLevel - 1);
+					blocks[0].SetDir(2);
+					Speak(0, tmpMsg);
+
+				} else {
+					levelError = LoadLevel(currentLevel);
+				}
+
+				// If there was some error
+				if (levelError != NULL) {
+					// If the level could not be loaded
+					sprintf(text, "!");
+					if (strcmp(levelError, text) == 0) {
+						//numLevels = currentLevel;
+						if (currentLevel <= 0) {
+							sprintf(text,
+							"The file for level %d "
 							"doesn't exist!\n",
 							currentLevel);
 
-						numLevels = 1000;
-						break;
+							numLevels = 1000;
+						}
+						else {
+							// Try the previous
+							// level
+							currentLevel--;
+							continue;
+						}
+					} else {
+						// Update the errorNote's text
+						sprintf(text,
+						"Syntax errors exist in the "
+						"level file:\n\n%s\n"
+						"Please fix the errors and try "
+						"selecting the level again.",
+						levelError);
 					}
 
-					// Try the previous level
-					currentLevel--;
-					continue;
+					errorNote.SetText(text);
+					errorNote.Wrap();
 				}
-				
+
 				// Try to open the next level file, to see if
 				// it exists, so we know whether to display a
 				// right arrow
@@ -964,7 +1042,8 @@ int SelectLevelMenu() {
 		}
 		lvlMenu.NameItem(0, text);
 		lvlMenu.SetLeftArrow(0,	(option_levelSet > 0));
-		lvlMenu.SetRightArrow(0, (option_levelSet < NUM_LEVEL_SETS - 1));
+		lvlMenu.SetRightArrow(0,
+			(option_levelSet < NUM_LEVEL_SETS - 1));
 		
 		// Determine Level text
 		sprintf(text, "Level %d", currentLevel);
@@ -975,7 +1054,7 @@ int SelectLevelMenu() {
 		
 		/** Render ****/
 		if (levelError == NULL) {
-			Render(RENDER_BG | RENDER_MOVECAMERA);
+			Render(RENDER_BG | RENDER_MOVECAMERA | RENDER_ANIMATE);
 		}
 		else {
 			DrawBackground();
@@ -984,7 +1063,8 @@ int SelectLevelMenu() {
 		}
 		lvlMenu.AutoArrange(static_cast<char>(1));
 		
-		// Position the menu items to be stacked at the bottom of the screen
+		// Position the menu items to be stacked at the bottom of the
+		// screen
 		lvlMenu.MoveItem(0, lvlMenu.GetItemX(0), bottomY - FONT_H - 2);
 		lvlMenu.MoveItem(1, lvlMenu.GetItemX(1), bottomY);
 		
@@ -995,13 +1075,12 @@ int SelectLevelMenu() {
 		UpdateScreen();
 		
 		
-		
 		/** Input ******************/
 		action = lvlMenu.Input();
 		
 		switch (action) {
 			case 1: // Enter
-				if (levelError == NULL) {
+				if (levelError == NULL && dummyLevel == false) {
 					switch (lvlMenu.GetSel()) {
 						case 0:
 						case 1:
@@ -1014,12 +1093,16 @@ int SelectLevelMenu() {
 			case 3: // Left
 				switch (lvlMenu.GetSel()) {
 					case 0:
-						if (option_levelSet > 0) option_levelSet--;
+						if (option_levelSet > 0)
+							option_levelSet--;
+
 						numLevels = 1000;
 						refreshLevel = true;
 						break;
 					case 1:
-						if (currentLevel > 0) currentLevel--;
+						if (currentLevel > 0)
+							currentLevel--;
+
 						refreshLevel = true;
 						break;
 				}
@@ -1027,7 +1110,10 @@ int SelectLevelMenu() {
 			case 4: // Right
 				switch (lvlMenu.GetSel()) {
 					case 0:
-						if (option_levelSet < NUM_LEVEL_SETS - 1) option_levelSet++;
+						if (option_levelSet <
+						    NUM_LEVEL_SETS - 1)
+							option_levelSet++;
+
 						numLevels = 1000;
 						refreshLevel = true;
 						break;
