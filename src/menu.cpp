@@ -183,7 +183,10 @@ int Credits() {
 		"Andrew Anderson\n\n\n"
 
 		"GRAPHICS\n"
-		"Andrew Anderson\n\n\n"
+		"Default & \"Sci-Fi\"\n"
+		"Andrew Anderson\n\n"
+		"\"Sealife\"\n"
+		"Enrico Schettler\n\n\n"
 
 		"SOUND\n"
 		"Andrew Anderson\n\n\n"
@@ -210,7 +213,7 @@ int Credits() {
 
 		"SPECIAL THANKS TO\n"
 		"the teams behind the free/open-source software which made "
-		"this game possible:\n\n"
+		"this game possible:\n"
 		"Audacity <audacity.sourceforge.net>\n"
 		"GIMP <www.gimp.org>\n"
 		"GCC <gcc.gnu.org>\n"
@@ -244,11 +247,11 @@ int Credits() {
 				y -= FONT_H;
 				t = SDL_GetTicks();
 				break;
-			case 10: // Page Up
+			case 3: // Left
 				y += SCREEN_H;
 				t = SDL_GetTicks();
 				break;
-			case 11: // Page Down
+			case 4: // Right
 				y -= SCREEN_H;
 				t = SDL_GetTicks();
 				break;
@@ -922,6 +925,7 @@ int SelectLevelMenu() {
 	bool refreshLevel = true;
 	bool dummyLevel;
 	uint numLevels = 1000;
+	char notYetMsg = rand() % 3;
 	char *levelError = NULL; // For pointing to the (actual) error message
 	                         // returned by LoadLevel
 	
@@ -956,9 +960,26 @@ int SelectLevelMenu() {
 
 					// Make the player say a message
 					char tmpMsg[37];
-					sprintf(tmpMsg, "You gotta do level %d "
-						"first!",
-						currentLevel - 1);
+					switch (notYetMsg) {
+						case 0:
+							sprintf(tmpMsg,
+							"You gotta do level %d "
+							"first!",
+							currentLevel - 1);
+							break;
+						case 1:
+							sprintf(tmpMsg,
+							"Did you beat level %d "
+							"yet?",
+							currentLevel - 1);
+							break;
+						case 2:
+							sprintf(tmpMsg,
+							"You haven't done "
+							"level %d!",
+							currentLevel - 1);
+							break;
+					}
 					blocks[0].SetDir(2);
 					Speak(0, tmpMsg);
 
