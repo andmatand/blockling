@@ -1,10 +1,11 @@
-SHELL = /bin/sh
+SHELL=/bin/sh
 
-DATADIR = data/
-srcdir = src/
+DATADIR=data/
+SRCDIR=src/
 
-CC = g++
-CFLAGS = -ggdb -Wall -Wextra `sdl-config --cflags --libs` -lSDL_mixer -DDATA_PATH="\"$(DATADIR)\""
+CC=g++
+CFLAGS=-ggdb -Wall -Wextra -DDATA_PATH="\"$(DATADIR)\""
+LIBS=`sdl-config --libs` -lSDL_mixer
 
 # Comment out the line below to disable debug mode
 #DEFINE=-DDEBUG
@@ -13,4 +14,4 @@ default: all
 
 all:
 
-	$(CC) $(CFLAGS) $(DEFINE) -o ./blockling $(srcdir)main.cpp
+	$(CC) $(CFLAGS) $(DEFINE) $(SRCDIR)main.cpp $(LIBS) -o ./blockling
