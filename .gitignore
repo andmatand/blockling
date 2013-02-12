@@ -1,0 +1,8 @@
+# Temporary vim files
+*.swp
+
+# blockling settings file
+.blocklingrc
+
+# blockling binary
+blockling
