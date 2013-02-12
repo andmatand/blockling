@@ -647,7 +647,6 @@ void block::Physics() {
 			blocks[b].SetXMoving(x - oldX);
 			blocks[b].SetDidPhysics(true); // Pretend like we did physics on this block already, so gravity won't be applied to it.
 			blocks[b].Physics();
-			// Jesus is Lord.  Thank you Jesus for sacrificing yourself for me!
 		}
 	}
 	
