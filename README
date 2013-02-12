@@ -94,7 +94,6 @@ each character's meaning:
 
     .     a blank tile.  Note: Regular spaces (i.e. " ") are ignored.
     @     the player
-    A     a non-playable character (AI level: mostly random)
     X     a block
     0     a piece of land.  Note: Based on the tile's position relative to other
           tiles, it may automatically assume a different visual appearance (e.g.
