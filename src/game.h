@@ -17,9 +17,6 @@
  *   along with Blockling.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "level.h"
-#include "camera.h"
-
 
 // Function Prototypes
 int Game ();
@@ -30,21 +27,3 @@ FILE* OpenLevel(int level);
 
 // Variables
 bool showingReplay;
-
-
-class game {
-	public:
-		// Constructor prototype
-		game();
-
-	private:
-		SDL_Surface *screenSurf;
-
-		level *theLevel;
-		camera *Camera;
-};
-
-game::game() {
-	screenSurf = NULL;
-	theLevel = NULL;
-}
