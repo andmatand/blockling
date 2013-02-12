@@ -220,7 +220,7 @@ int Credits() {
 		"SDL <www.libsdl.org>\n"
 		"Ubuntu <www.ubuntu.com>\n"
 		"Valgrind <www.valgrind.org>\n"
-		"Vim <www.vim.org>\n\n\n");
+		"Vim <www.vim.org>");
 
 	credits.Center();
 	credits.FitToScreen(false);
