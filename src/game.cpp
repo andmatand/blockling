@@ -88,7 +88,7 @@ int Game() {
 	// Replay variables
 	bool recordingReplay = false;
 	showingReplay = false;
-	int currentReplayKey;
+	//int currentReplayKey;
 	menu *replayMenu = NULL;
 	uint frameNumber; // counts frames for doing frameskipping for fast replays
 	char replayTempFile[256]; // Will hold filenames for replay temp files
@@ -445,7 +445,7 @@ int Game() {
 						}
 						
 						if (physicsStarted) {
-							currentReplayKey = theReplays[i]->GetNextKey();
+							//currentReplayKey = theReplays[i]->GetNextKey();
 							//printf("pushing key %d\n", currentReplayKey);
 							theReplays[i]->PushNextKey();
 							//printf("currentReplayKey = %d\n", currentReplayKey);
