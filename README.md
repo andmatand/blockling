@@ -2,28 +2,28 @@
 
 
 ## About
-In 1993, Doug and Larry Murk of Soleau Software <www.soleau.com> released BLOCK-
-MAN 1.0.  I first played Block-Man at my grandmother's house as a young lad
-circa 1996.  I loved going to her house because she had a few of those old "demo
-CDs" which would have dozens of Shareware/Demo games on them (this was of course
-back before broadband Internet access was widely available).  Since Block-Man
-was "shareware", it happened to be included on one of those discs.
+In 1993, Doug and Larry Murk of Soleau Software <www.soleau.com> released
+BLOCK-MAN 1.0.  I first played Block-Man at my grandmother's house as a young
+lad circa 1996.  I loved going to her house because she had a few of those old
+"demo CDs" which would have dozens of Shareware/Demo games on them (this was of
+course back before broadband Internet access was widely available).  Since
+Block-Man was "shareware", it happened to be included on one of those discs.
 
-As I played the game, I was intrigued by its deceitfully simple gameplay: Little
-blocks, innocently stacked in random piles amidst a room, radiated with child-
-like playfulness; yet, as the levels progressed, the task of arranging them in
-such a way as to reach the exit became a puzzle far too complex for most grown
-men!  (Well, at least too complex for me at the time)
+As I played the game, I was intrigued by its deceitfully simple gameplay:
+Little blocks, innocently stacked in random piles amidst a room, radiated with
+childlike playfulness; yet, as the levels progressed, the task of arranging
+them in such a way as to reach the exit became a puzzle far too complex for
+most grown men!  (Well, at least too complex for me at the time)
 
 Being the avid nine-year-old BASIC programmer I was, I figured I'd attempt to
 implement my own version of Block-Man.  I did so rather succesfully, adding my
 own touches such as "telepads" and new abilities to push blocks and turn around
 without walking.  These additions gave the game a somewhat different dynamic,
 and I was pleased overall with the result, except for one big problem:  I had
-written the whole thing in Microsoft QBasic!  As my code grew larger and larger,
-eventually reaching the size-limit of the feeble QBasic interpreter, I came to
-the harsh realization that I would need to learn a real programming language if
-I ever wanted to finish my version of Block-Man.
+written the whole thing in Microsoft QBasic!  As my code grew larger and
+larger, eventually reaching the size-limit of the feeble QBasic interpreter, I
+came to the harsh realization that I would need to learn a real programming
+language if I ever wanted to finish my version of Block-Man.
 
 Many years elapsed, but I eventually discovered Linux and then finally got
 around to learning enough C++ that I was able to rewrite the game from scratch
@@ -119,7 +119,7 @@ If the game finds any syntax errors in your file, it will let you know with a
 ## License Stuff
 Please distribute this file with Blockling
 
-Blockling is free software.  It is distributed under the terms of the GNU 
+Blockling is free software.  It is distributed under the terms of the GNU
 General Public License:  http://www.gnu.org/copyleft/gpl.html
 
 The source code of Blockling is available from:
