@@ -1,25 +1,15 @@
--==Please distribute this file with Blockling==-
+![screenshot 1](http://www.billamonster.com/blockling/screenshots/1.png "A wild blockling carries a block on its head")
+
+[Please distribute this file with Blockling]
 
 Blockling is free software.  It is distributed under the terms of the GNU 
 General Public License:  http://www.gnu.org/copyleft/gpl.html
 
 The source code of Blockling is available from:
-http://sourceforge.net/projects/blockling
-
-Enjoy Blockling?  Absolutely hate it?  Have some cool level designs?
-All types of feedback are valued!
-  * Forum: http://sourceforge.net/projects/blockling/forums/forum/1112080
-  * or send e-mail to blockling@unfinishedblog.org 
+https://github.com/andmatand/blockling
 
 
-== TABLE OF CONTENTS ===========================================================
-I.   About
-II.  Controls
-III. Creating Your Own Levels
-
-
-
-== I. ABOUT ====================================================================
+## About
 In 1993, Doug and Larry Murk of Soleau Software <www.soleau.com> released BLOCK-
 MAN 1.0.  I first played Block-Man at my grandmother's house as a young lad
 circa 1996.  I loved going to her house because she had a few of those old "demo
@@ -47,15 +37,13 @@ Many years elapsed, but I eventually discovered Linux and then finally got
 around to learning enough C++ that I was able to rewrite the game from scratch
 and produce what I now call Blockling.
 
-I hope you enjoy it.  And feel free to help me make it even better!  It is a
-work in progress.
+I hope you enjoy it.
 
-Andrew Anderson <www.unfinishedblog.org>
+Andrew Anderson
 March 2010
 
 
-
-== II. CONTROLS ================================================================
+## Controls
 Esc           Menu
 F1            Help
 F2            Toggle Music
@@ -64,7 +52,7 @@ F5            Restart the current level
 Alt + Enter   Toggle Fullscreen
 PAGE UP/DOWN  Change tile-set
 
--- GAME CONTROLS (Customizable) --
+### Game Controls (customizable)
 UP      Pick up a block
 DOWN	Set down a block
 LEFT    Move/turn left
@@ -72,15 +60,14 @@ RIGHT   Move/turn right
 ENTER   Push a block
 U       Undo
 
--- CAMERA CONTROLS (Customizable) --
+### Camera Controls (customizable)
 w  Move camera up
 a  Move camera left
 s  Move camera down
 d  Move camera right
 
 
-
-== III. CREATING YOUR OWN LEVELS ===============================================
+### Creating Your Own Levels
 Levels can be easily created using a simple text editor.  Perhaps the easiest
 way to begin is by examining some existing levels.  The game's default levels
 may be found in the "levels/default/" directory within the "data/" directory.
@@ -116,11 +103,11 @@ each character's meaning:
 
 Additionally, note the following caveats:
 
-  - All characters are case sensitive, thus e.g. "X" will be interpreted as a
-    block, while "x" will be interpreted as a telepad.
-  - A line containing no characters (except the linebreak itself) will be
-    ignored.  Thus, to indicate an empty row of tiles use a "." followed by a
-    linebreak.
+- All characters are case sensitive, thus e.g. "X" will be interpreted as a
+  block, while "x" will be interpreted as a telepad.
+- A line containing no characters (except the linebreak itself) will be
+  ignored.  Thus, to indicate an empty row of tiles use a "." followed by a
+  linebreak.
 
 After you have constructed a custom level, place it in the the "levels/custom"
 directory within the data directory.  File names must begin with 000 and
