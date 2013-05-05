@@ -67,7 +67,7 @@ March 2010
     d  Move camera right
 
 
-### Creating Your Own Levels
+## Creating Your Own Levels
 Levels can be easily created using a simple text editor.  Perhaps the easiest
 way to begin is by examining some existing levels.  The game's default levels
 may be found in the "levels/default/" directory within the "data/" directory.
