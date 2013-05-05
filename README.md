@@ -39,32 +39,32 @@ and produce what I now call Blockling.
 
 I hope you enjoy it.
 
-Andrew Anderson
+Andrew Anderson  
 March 2010
 
 
 ## Controls
-Esc           Menu
-F1            Help
-F2            Toggle Music
-F3            Toggle Sound
-F5            Restart the current level
-Alt + Enter   Toggle Fullscreen
-PAGE UP/DOWN  Change tile-set
+    Esc           Menu
+    F1            Help
+    F2            Toggle Music
+    F3            Toggle Sound
+    F5            Restart the current level
+    Alt + Enter   Toggle Fullscreen
+    PAGE UP/DOWN  Change tile-set
 
 ### Game Controls (customizable)
-UP      Pick up a block
-DOWN	Set down a block
-LEFT    Move/turn left
-RIGHT   Move/turn right
-ENTER   Push a block
-U       Undo
+    UP      Pick up a block
+    DOWN    Set down a block
+    LEFT    Move/turn left
+    RIGHT   Move/turn right
+    ENTER   Push a block
+    U       Undo
 
 ### Camera Controls (customizable)
-w  Move camera up
-a  Move camera left
-s  Move camera down
-d  Move camera right
+    w  Move camera up
+    a  Move camera left
+    s  Move camera down
+    d  Move camera right
 
 
 ### Creating Your Own Levels
