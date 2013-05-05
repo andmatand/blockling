@@ -1,13 +1,5 @@
 ![screenshot 1](http://www.billamonster.com/blockling/screenshots/1.png "A wild blockling carries a block on its head")
 
-[Please distribute this file with Blockling]
-
-Blockling is free software.  It is distributed under the terms of the GNU 
-General Public License:  http://www.gnu.org/copyleft/gpl.html
-
-The source code of Blockling is available from:
-https://github.com/andmatand/blockling
-
 
 ## About
 In 1993, Doug and Larry Murk of Soleau Software <www.soleau.com> released BLOCK-
@@ -122,3 +114,13 @@ keyboard shortcut is particularly handy for quick reloading.
 
 If the game finds any syntax errors in your file, it will let you know with a
 (hopefully) helpful on-screen message (on the level-selection screen).
+
+
+## License Stuff
+Please distribute this file with Blockling
+
+Blockling is free software.  It is distributed under the terms of the GNU 
+General Public License:  http://www.gnu.org/copyleft/gpl.html
+
+The source code of Blockling is available from:
+https://github.com/andmatand/blockling
