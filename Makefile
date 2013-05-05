@@ -4,7 +4,7 @@ DATADIR=data/
 SRCDIR=src/
 
 CC=g++
-CFLAGS=-ggdb -Wall -Wextra -DDATA_PATH="\"$(DATADIR)\""
+CFLAGS=-ggdb -Wall -DDATA_PATH="\"$(DATADIR)\""
 LIBS=`sdl-config --libs` -lSDL_mixer
 
 # Comment out the line below to disable debug mode
