@@ -201,26 +201,17 @@ class torch {
 };
 
 void torch::FlickerFlame() {
-	// Default
-	//if (option_tileset == 0) {
+	if (rand() % 2 == 0) {
 		if (rand() % 2 == 0) {
-			if (rand() % 2 == 0) {
-				flame -= (rand() % 2) + 1;
-			}
-			else {
-				flame += (rand() % 2) + 1;
-			}
+			flame -= (rand() % 2) + 1;
 		}
+		else {
+			flame += (rand() % 2) + 1;
+		}
+	}
 
-		if (flame < 0) flame += 2;
-		if (flame > NUM_TORCH_FLAMES - 1) flame -= 2;
-	//}
-	// Sci-Fi
-	//else {
-		//if (rand() % 4 == 0) {
-			//flame = rand() % NUM_TORCH_FLAMES;
-		//}
-	//}
+	if (flame < 0) flame += 2;
+	if (flame > NUM_TORCH_FLAMES - 1) flame -= 2;
 }
 
 

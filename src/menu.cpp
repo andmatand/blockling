@@ -183,7 +183,7 @@ int Credits() {
 		"Andrew Anderson\n\n\n"
 
 		"GRAPHICS\n"
-		"Default & \"Sci-Fi\"\n"
+		"Default & \"SPACE\"\n"
 		"Andrew Anderson\n\n"
 		"\"Sealife\"\n"
 		"Enrico Schettler\n\n\n"
