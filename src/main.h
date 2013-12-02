@@ -50,14 +50,9 @@ const char LEVEL_PATH[] = "levels/";
 const char TILE_PATH[] = "tiles/";
 const char DEFAULT_TILESET[] = "default";
 const char DEFAULT_LEVELSET[] = "default";
-const char SETTINGS_PATH[] = "./";
-#ifdef _WIN32
-	const char TEMP_PATH[] = "./";
-	const char SETTINGS_FILE[] = "blockling.cfg";
-#else
-	const char TEMP_PATH[] = "/tmp/";
-	const char SETTINGS_FILE[] = ".blocklingrc";
-#endif
+const char* SETTINGS_PATH = getenv("HOME");
+const char TEMP_PATH[] = "/tmp/";
+const char SETTINGS_FILE[] = ".blocklingrc";
 
 
 

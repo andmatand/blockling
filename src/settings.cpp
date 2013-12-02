@@ -72,7 +72,7 @@ char* ReadLine(FILE *file, uint maxLineLength) {
 
 void SaveSettings() {
 	char filename[256];
-	sprintf(filename, "%s%s", SETTINGS_PATH, SETTINGS_FILE);
+	sprintf(filename, "%s/%s", SETTINGS_PATH, SETTINGS_FILE);
 
 	#ifdef DEBUG
 	printf("\nWriting to settings file \"%s\"...\n", filename);
@@ -218,7 +218,7 @@ void SaveSettings() {
 
 void LoadSettings() {
 	char filename[256];
-	sprintf(filename, "%s%s", SETTINGS_PATH, SETTINGS_FILE);
+	sprintf(filename, "%s/%s", SETTINGS_PATH, SETTINGS_FILE);
 
 	#ifdef DEBUG
 	printf("\nLoading settings from file \"%s\"...\n", filename);
