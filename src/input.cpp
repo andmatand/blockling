@@ -23,28 +23,11 @@ void GlobalInput(SDL_Event event) {
 	switch (event.type) {
 		case SDL_KEYDOWN:
 			switch (event.key.keysym.sym) {
-				// Toggle music
-				case SDLK_F2:
-					ToggleMusic();
-					break;
-				
-				// Toggle sound
-				case SDLK_F3:
-					ToggleSound();
-					break;
-					
-				// Toggle fullscreen
-				case SDLK_RETURN:
-					if (event.key.keysym.mod & KMOD_LALT || event.key.keysym.mod & KMOD_RALT) {
-						ToggleFullscreen();
-					}
-					break;
-
 				// Change tilesets
-				case SDLK_PAGEUP:
+				case SDLK_TAB:
 					SelectTileset(0);
 					break;
-				case SDLK_PAGEDOWN:
+				case SDLK_BACKSPACE:
 					SelectTileset(1);
 					break;
 
@@ -366,37 +349,24 @@ signed char MenuInput() {
 		switch (event.type) {
 			case SDL_KEYDOWN:
 				switch (event.key.keysym.sym) {
-					case SDLK_KP_ENTER:
-					case SDLK_RETURN:
-					case SDLK_SPACE:
+					case SDLK_LCTRL:
 						if (!(event.key.keysym.mod & KMOD_ALT)) {
 							return 5;
 						}
 						break;
 					case SDLK_UP:
-					case SDLK_k:
 						keyDown = 1;
 						break;
 					case SDLK_DOWN:
-					case SDLK_j:
 						keyDown = 2;
 						break;
 					case SDLK_LEFT:
-					case SDLK_h:
 						keyDown = 3;
 						break;
 					case SDLK_RIGHT:
-					case SDLK_l:
 						keyDown = 4;
 						break;
-					case SDLK_HOME:
-						return 6;
-						break;
-					case SDLK_END:
-						return 7;
-						break;
-					case SDLK_BACKSPACE:
-					case SDLK_ESCAPE:
+					case SDLK_LALT:
 						return 8;
 						break;
 					default:
@@ -406,19 +376,15 @@ signed char MenuInput() {
 			case SDL_KEYUP:
 				switch (event.key.keysym.sym) {
 					case SDLK_UP:
-					case SDLK_k:
 						if (keyDown == 1) keyDown = 0;
 						break;
 					case SDLK_DOWN:
-					case SDLK_j:
 						if (keyDown == 2) keyDown = 0;
 						break;
 					case SDLK_LEFT:
-					case SDLK_h:
 						if (keyDown == 3) keyDown = 0;
 						break;
 					case SDLK_RIGHT:
-					case SDLK_l:		
 						if (keyDown == 4) keyDown = 0;
 						break;
 					default:
@@ -470,33 +436,25 @@ void RefreshPlayerKeys() {
 
 void ResetDefaultKeys() {
 	/** Default Game Keys ****/
-	//gameKeys[0].sym = SDLK_LEFT;	// Move camera left
-	//gameKeys[0].mod = KMOD_LSHIFT;	// modifier
 	gameKeys[0].sym = SDLK_a;	// Move camera left
 	gameKeys[0].mod = KMOD_NONE;	// modifier
 
-	//gameKeys[1].sym = SDLK_RIGHT;	// Move camera right
-	//gameKeys[1].mod = KMOD_LSHIFT;	// modifier
 	gameKeys[1].sym = SDLK_d;	// Move camera right
-	gameKeys[1].mod = KMOD_NONE;	// modifier
+	gameKeys[1].mod = KMOD_LSHIFT;	// modifier
 	
-	//gameKeys[2].sym = SDLK_UP;	// Move camera up
-	//gameKeys[2].mod = KMOD_LSHIFT;	// modifier
 	gameKeys[2].sym = SDLK_w;	// Move camera up
-	gameKeys[2].mod = KMOD_NONE;	// modifier
+	gameKeys[2].mod = KMOD_LSHIFT;	// modifier
 	
-	//gameKeys[3].sym = SDLK_DOWN;	// Move camera down
-	//gameKeys[3].mod = KMOD_LSHIFT;	// modifier
 	gameKeys[3].sym = SDLK_s;	// Move camera down
-	gameKeys[3].mod = KMOD_NONE;	// modifier
+	gameKeys[3].mod = KMOD_LSHIFT;	// modifier
 
-	gameKeys[4].sym = SDLK_u;	// Undo
+	gameKeys[4].sym = SDLK_LSHIFT;	// Undo
 	gameKeys[4].mod = KMOD_NONE;	// modifier
 
 	gameKeys[5].sym = SDLK_F5;	// Restart Level
 	gameKeys[5].mod = KMOD_NONE;	// modifier
 
-	gameKeys[6].sym = SDLK_ESCAPE;	// Quit
+	gameKeys[6].sym = SDLK_RETURN;	// Quit
 	gameKeys[6].mod = KMOD_NONE;	// modifier
 	
 	gameKeys[7].sym = SDLK_F1;	// Help
@@ -509,7 +467,7 @@ void ResetDefaultKeys() {
 	option_playerKeys[1].sym = SDLK_RIGHT;		// Move player right
 	option_playerKeys[2].sym = SDLK_UP;		// Pick up block
 	option_playerKeys[3].sym = SDLK_DOWN;		// Set down block
-	option_playerKeys[4].sym = SDLK_RETURN;		// Push block
+	option_playerKeys[4].sym = SDLK_LCTRL;		// Push block
 }
 
 
@@ -544,181 +502,32 @@ const char* KeyName(SDLKey sym) {
 		case SDLK_DOWN:
 			return "DOWN";
 			break;
+
 		case SDLK_RETURN:
-			return "ENTER";
+			return "START";
 			break;
-		case SDLK_SPACE:
-			return "SPACE";
-			break;
-		case SDLK_INSERT:
-			return "INSERT";
-			break;
-		case SDLK_DELETE:
-			return "DELETE";
-			break;
-		case SDLK_HOME:
-			return "HOME";
-			break;
-		case SDLK_END:
-			return "END";
-			break;
-		case SDLK_BACKSPACE:
-			return "BACKSPACE";
+                case SDLK_ESCAPE:
+			return "SELECT";
 			break;
 
-		case SDLK_LSHIFT:
-			return "LEFT SHIFT";
-			break;
-		case SDLK_RSHIFT:
-			return "RIGHT SHIFT";
-			break;
 		case SDLK_LCTRL:
-			return "LEFT CTRL";
-			break;
-		case SDLK_RCTRL:
-			return "RIGHT CTRL";
+			return "A";
 			break;
 		case SDLK_LALT:
-			return "LEFT ALT";
+			return "B";
 			break;
-		case SDLK_RALT:
-			return "RIGHT ALT";
+		case SDLK_LSHIFT:
+			return "X";
 			break;
+		case SDLK_SPACE:
+			return "Y";
+			break;
+
 		case SDLK_TAB:
-			return "TAB";
+			return "L";
 			break;
-
-
-		case SDLK_1:
-			return "1";
-			break;
-		case SDLK_2:
-			return "2";
-			break;
-		case SDLK_3:
-			return "3";
-			break;
-		case SDLK_4:
-			return "4";
-			break;
-		case SDLK_5:
-			return "5";
-			break;
-		case SDLK_6:
-			return "6";
-			break;
-		case SDLK_7:
-			return "7";
-			break;
-		case SDLK_8:
-			return "8";
-			break;
-		case SDLK_9:
-			return "9";
-			break;
-		case SDLK_0:
-			return "0";
-			break;
-
-		case SDLK_LEFTBRACKET:
-			return "[";
-			break;
-		case SDLK_RIGHTBRACKET:
-			return "]";
-			break;
-		case SDLK_SEMICOLON:
-			return ";";
-			break;
-		case SDLK_QUOTE:
-			return "'";
-			break;
-		case SDLK_COMMA:
-			return ",";
-			break;
-		case SDLK_PERIOD:
-			return ".";
-			break;
-		case SDLK_SLASH:
-			return "/";
-			break;
-
-		case SDLK_a:
-			return "a";
-			break;
-		case SDLK_b:
-			return "b";
-			break;
-		case SDLK_c:
-			return "c";
-			break;
-		case SDLK_d:
-			return "d";
-			break;
-		case SDLK_e:
-			return "e";
-			break;
-		case SDLK_f:
-			return "f";
-			break;
-		case SDLK_g:
-			return "g";
-			break;
-		case SDLK_h:
-			return "h";
-			break;
-		case SDLK_i:
-			return "i";
-			break;
-		case SDLK_j:
-			return "j";
-			break;
-		case SDLK_k:
-			return "k";
-			break;
-		case SDLK_l:
-			return "l";
-			break;
-		case SDLK_m:
-			return "m";
-			break;
-		case SDLK_n:
-			return "n";
-			break;
-		case SDLK_o:
-			return "o";
-			break;
-		case SDLK_p:
-			return "p";
-			break;
-		case SDLK_q:
-			return "q";
-			break;
-		case SDLK_r:
-			return "r";
-			break;
-		case SDLK_s:
-			return "s";
-			break;
-		case SDLK_t:
-			return "t";
-			break;
-		case SDLK_u:
-			return "u";
-			break;
-		case SDLK_v:
-			return "v";
-			break;
-		case SDLK_w:
-			return "w";
-			break;
-		case SDLK_x:
-			return "x";
-			break;
-		case SDLK_y:
-			return "y";
-			break;
-		case SDLK_z:
-			return "z";
+		case SDLK_BACKSPACE:
+			return "R";
 			break;
 		default:
 			break;

@@ -30,7 +30,7 @@ typedef unsigned char uchar;
 
 /******* GLOBAL CONSTANTS *******/
 const unsigned char TILE_W = 16, TILE_H = 16;
-const unsigned short SCREEN_W = 640, SCREEN_H = 400, SCREEN_BPP = 8;
+const unsigned short SCREEN_W = 320, SCREEN_H = 240, SCREEN_BPP = 8;
 const char FPS = 30;
 
 const unsigned char NUM_PLAYER_SURFACES = 15;

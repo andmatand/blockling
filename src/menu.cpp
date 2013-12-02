@@ -19,7 +19,7 @@
 
 
 int ControlSetupMenu(bool inGame) {
-	int numItems = NUM_PLAYER_KEYS + 4 + 1 + 2;
+	int numItems = NUM_PLAYER_KEYS + 1 + 2;
 	menu csMenu(numItems); // Create the menu object
 	char text[256]; // For temporarily holding menu items' text as it is formed
 	char tempString[32];
@@ -30,7 +30,7 @@ int ControlSetupMenu(bool inGame) {
 	SDLKey keySym;
 	
 	/** Set static menu items **/
-	csMenu.Move(inGame ? SCREEN_W / 2 : 75, FONT_H * 3);
+	csMenu.Move(SCREEN_W / 2, FONT_H);
 	csMenu.SetTitle("CONTROL SETUP");
 	csMenu.NameItem(numItems - 2, "Reset To Defaults");
 	csMenu.NameItem(numItems - 1, "Done");
@@ -41,34 +41,22 @@ int ControlSetupMenu(bool inGame) {
 			// Determine text
 			switch (i) {
 				case 0:
-					sprintf(tempString, "Move Left:\t");
+					sprintf(tempString, "Move Left:\t ");
 					break;
 				case 1:
-					sprintf(tempString, "Move Right:\t");
+					sprintf(tempString, "Move Right:\t ");
 					break;
 				case 2:
-					sprintf(tempString, "Pick Up Block:");
+					sprintf(tempString, "Pick Up Block: ");
 					break;
 				case 3:
-					sprintf(tempString, "Drop Block:\t");
+					sprintf(tempString, "Drop Block:\t ");
 					break;
 				case 4:
-					sprintf(tempString, "Push Block:\t");
+					sprintf(tempString, "Push Block:\t ");
 					break;
 				case 5:
-					sprintf(tempString, "Move Camera Left:");
-					break;
-				case 6:
-					sprintf(tempString, "Move Camera Right:");
-					break;
-				case 7:
-					sprintf(tempString, "Move Camera Up:\t");
-					break;
-				case 8:
-					sprintf(tempString, "Move Camera Down:");
-					break;
-				case 9:
-					sprintf(tempString, "Undo:");
+					sprintf(tempString, "Undo: ");
 					break;
 			}
 			
@@ -76,14 +64,14 @@ int ControlSetupMenu(bool inGame) {
 			if (i < static_cast<int>(NUM_PLAYER_KEYS)) {
 				keySym = option_playerKeys[i].sym;
 			}
-			else if (i < static_cast<int>(NUM_PLAYER_KEYS) + 5) {
-				keySym = gameKeys[i - 5].sym;
+			else if (i == 5) {
+				keySym = gameKeys[4].sym;
 			}
 			
 			// Store this menu item's string in the text variable
 			sprintf(
 				text,
-				"%s\t%s",
+				"%s%s",
 				tempString,
 				(gettingKey && csMenu.GetSel() == static_cast<int>(i)) ?
 					"Press a key..." :
@@ -104,16 +92,14 @@ int ControlSetupMenu(bool inGame) {
 			else {
 				DrawBackground();
 			}
-			csMenu.AutoArrange(static_cast<char>(inGame ? 1 : 0));
+			csMenu.AutoArrange(static_cast<char>(1));
 			
-			// Cheatingly position the items at a fixed x, if using
-			// the inGame text centering
-			if (inGame) {
-				for (i = 0; i < numItems - 2; i++) {
-					csMenu.MoveItem(i, (SCREEN_W / 2) - (FONT_W * 10), csMenu.GetItemY(i));
-				}
-			}
-			csMenu.SpaceItems(5);
+                        // Cheatingly position the items at a fixed x, even
+                        // though we're supposed to be centering the text
+                        for (i = 0; i < numItems - 2; i++) {
+                                csMenu.MoveItem(i, (SCREEN_W / 2) - (FONT_W * 9), csMenu.GetItemY(i));
+                        }
+			//csMenu.SpaceItems(5);
 			csMenu.SpaceItems(numItems - 3);
 			csMenu.SpaceItems(numItems - 2);
 			csMenu.Display();
@@ -122,12 +108,14 @@ int ControlSetupMenu(bool inGame) {
 			if (gettingKey) {
 				while (SDL_PollEvent(&event)) {
 					if (event.type == SDL_KEYDOWN) {
-						if (event.key.keysym.sym != SDLK_ESCAPE) {
+                                                // If the key is not START
+						if (event.key.keysym.sym != SDLK_RETURN) {
 							if (csMenu.GetSel() < static_cast<int>(NUM_PLAYER_KEYS)) {
 								option_playerKeys[csMenu.GetSel()].sym = event.key.keysym.sym;
 							}
 							else {
-								gameKeys[csMenu.GetSel() - 5].sym = event.key.keysym.sym;
+                                                                // Change the UNDO key
+								gameKeys[4].sym = event.key.keysym.sym;
 							}
 						}
 						gettingKey = false;
@@ -224,7 +212,7 @@ int Credits() {
 
 	credits.Center();
 	credits.FitToScreen(false);
-	credits.Wrap(SCREEN_W * .9);
+	credits.Wrap(SCREEN_W - 2);
 
 	while (y > -static_cast<int>(credits.GetH()) - (FONT_H / 2)) {
 		
@@ -276,41 +264,28 @@ int HelpMenu(bool inGame) {
 	int numItems = 1;
 	menu helpMenu(numItems); // Create the menu object
 	
-	int x1 = (SCREEN_W / 2) - (FONT_W * 18); // Position of titles
-	int x2 = (SCREEN_W / 2) - (FONT_W * 17); // Position of body text
+	int x2 = (SCREEN_W / 2) - (FONT_W * 9); // Position of body text
 	
 	int action;
 	
 	/** Set menu items **/
-	helpMenu.Move(inGame ? SCREEN_W / 2 : 75, (FONT_H + 2) * 1);
+	helpMenu.Move(SCREEN_W / 2, 0);
 	helpMenu.SetTitle("HELP");
 	helpMenu.NameItem(0, "Done");
 	helpMenu.AutoArrange(static_cast<char>(inGame ? 1 : 0));
 
 	// Postion the "Done" button
-	helpMenu.MoveItem(0, helpMenu.GetItemX(0), (FONT_H + 2) * 20); 
+	helpMenu.MoveItem(0, helpMenu.GetItemX(0), (FONT_H + 2) * 11); 
 
 
 	/** Create help texts **/
-	txt help1(x2, (FONT_H + 2) * 3,
-		"Pick up blocks and stack them to get to the exit!  The young "
-		"BLOCKLING can only climb up steps one block high.");
-	help1.Wrap(static_cast<int>(SCREEN_W * .9) - x2);
+        txt help1(x2, (FONT_H + 2) * 1, "The young BLOCKLING must pick "
+                  "up blocks, stack them, and climb them to get to the exit!");
+        help1.Wrap(static_cast<int>(SCREEN_W) - x2 - 2);
 
-	txt help2(x2, (FONT_H + 2) * 8,
-		"Esc\t\t\tShow the pause menu\n"
-		"F1\t\t\tShow help\n"
-		"F5\t\t\tRestart the level\n"
-		"PAGE UP/DOWN\tChange the tileset\n"
-		"(See CONTROL SETUP in the OPTIONS menu to set the movement "
-		"controls)");
-	help2.Wrap(static_cast<int>(SCREEN_W * .9) - x2);
-
-	txt help3(x2, (FONT_H + 2) * 16,
-		"F2\t\t\tToggle music ON/OFF\n"
-		"F3\t\t\tToggle sound ON/OFF\n"
-		"Alt + Enter\tToggle fullscreen mode");
-	help3.Wrap(static_cast<int>(SCREEN_W * .9) - x2);
+	txt help2(x2, (FONT_H + 2) * 7,
+		"Press L/R to change tileset.  See OPTIONS for CONTROL SETUP.");
+	help2.Wrap(static_cast<int>(SCREEN_W) - x2 - 2);
 
 	while (true) {
 		/** Render **/
@@ -324,16 +299,10 @@ int HelpMenu(bool inGame) {
 		helpMenu.Display();
 
 		/** Show the help text ****/
-		DrawText(x1, (FONT_H + 2) * 2, "How to Play:", 3);
 		help1.Render();
 
-		DrawText(x1, (FONT_H + 2) * 7, "In-Game Controls:", 3);
 		help2.Render();
 		
-		DrawText(x1, (FONT_H + 2) * 15, "Global Keyboard Shortcuts:",
-			3);
-		help3.Render();
-
 		UpdateScreen();
 		
 		
@@ -371,7 +340,7 @@ int MainMenu() {
 	mainMenu.NameItem(2, "Credits");
 	mainMenu.NameItem(3, "Quit");
 	
-	mainMenu.Move(75, FONT_H * 7);
+	mainMenu.Move(75, (SCREEN_H / 2) - FONT_H * 3);
 	mainMenu.AutoArrange(0);
 	mainMenu.SpaceItems(3);
 	
@@ -401,13 +370,10 @@ int MainMenu() {
 
 
 int OptionsMenu(bool inGame) {
-	int numItems = 11;
+	int numItems = 9;
 	menu optMenu(numItems); // Create the menu object
 	char text[72]; // For temporarily holding menu items' text as it is
 	               // formed
-	
-	uint maxUndoSize = 500;
-	char change_undoSize;
 	
 	char maxBackground = 3;
 	
@@ -416,10 +382,10 @@ int OptionsMenu(bool inGame) {
 	int action;
 	
 	/** Set static menu items **/
-	optMenu.Move(inGame ? SCREEN_W / 2 : 75, FONT_H * 3);
+	optMenu.Move(SCREEN_W / 2, 0);
 	optMenu.SetTitle("OPTIONS");
-	optMenu.NameItem(9, "Control Setup");
-	optMenu.NameItem(10, "Done");
+	optMenu.NameItem(7, "Control Setup");
+	optMenu.NameItem(8, "Done");
 
 	// Make the note text
 	txt note(SCREEN_W / 2, FONT_H * 20,
@@ -473,15 +439,6 @@ int OptionsMenu(bool inGame) {
 		optMenu.SetRightArrow(4, (option_replayOn < 1));
 
 
-		// Determine Fullscreen on/off text
-		sprintf(text, "Fullscreen: ");
-		strcat(text, (option_fullscreen ? "ON" : "OFF"));
-		optMenu.NameItem(5, text);
-
-		optMenu.SetLeftArrow(5,	(option_fullscreen > 0));
-		optMenu.SetRightArrow(5, (option_fullscreen < 1));
-
-
 		// Determine Camera Setting text
 		sprintf(text, "Camera: ");
 		switch (option_cameraMode) {
@@ -492,10 +449,10 @@ int OptionsMenu(bool inGame) {
 				strcat(text, "MANUAL");
 				break;
 		}
-		optMenu.NameItem(6, text);
+		optMenu.NameItem(5, text);
 
-		optMenu.SetLeftArrow(6, (option_cameraMode > 0));
-		optMenu.SetRightArrow(6, (option_cameraMode < maxCameraMode));
+		optMenu.SetLeftArrow(5, (option_cameraMode > 0));
+		optMenu.SetRightArrow(5, (option_cameraMode < maxCameraMode));
 
 
 		// Determine Background text
@@ -514,19 +471,12 @@ int OptionsMenu(bool inGame) {
 				strcat(text, "SCROLLING");
 				break;
 		}
-		optMenu.NameItem(7, text);
+		optMenu.NameItem(6, text);
 
-		optMenu.SetLeftArrow(7, (option_background > 0));
-		optMenu.SetRightArrow(7, (option_background < maxBackground));
+		optMenu.SetLeftArrow(6, (option_background > 0));
+		optMenu.SetRightArrow(6, (option_background < maxBackground));
 
 
-		// Determine Undo text
-		sprintf(text, "Undo Memory: %d move", option_undoSize);
-		if (option_undoSize != 1) strcat(text, "s");
-		optMenu.NameItem(8, text);
-		
-		optMenu.SetLeftArrow(8,	(option_undoSize > 0));
-		optMenu.SetRightArrow(8, (option_undoSize < maxUndoSize));
 		
 
 		
@@ -538,14 +488,12 @@ int OptionsMenu(bool inGame) {
 		else {
 			DrawBackground();
 		}
-		optMenu.AutoArrange(static_cast<char>(inGame ? 1 : 0));
-		optMenu.SpaceItems(9);
-		optMenu.SpaceItems(10);
+		optMenu.AutoArrange(static_cast<char>(1));
+		optMenu.SpaceItems(7);
+		optMenu.SpaceItems(8);
 		optMenu.Display();
-		// If the "replays" or "undo" options are selected
-		if (inGame &&
- 			(optMenu.GetSel() == 4 || optMenu.GetSel() == 8))
-		{
+		// If the "replays" option is selected
+		if (inGame && optMenu.GetSel() == 4) {
 			note.Render();
 		}
 		UpdateScreen();
@@ -553,7 +501,6 @@ int OptionsMenu(bool inGame) {
 		
 		/** Input ******************/
 		action = optMenu.Input();
-		change_undoSize = 0;
 		
 		switch (action) {
 			case 1: // Enter
@@ -582,9 +529,6 @@ int OptionsMenu(bool inGame) {
 							 false : true);
 						break;
 					case 5:
-						ToggleFullscreen();
-						break;
-					case 6:
 						if (option_cameraMode <
 						    maxCameraMode)
 						{
@@ -594,7 +538,7 @@ int OptionsMenu(bool inGame) {
 							option_cameraMode = 0;
 						}
 						break;
-					case 7:
+					case 6:
 						if (option_background <
 						    maxBackground)
 						{
@@ -604,18 +548,12 @@ int OptionsMenu(bool inGame) {
 							option_background = 0;
 						}
 						break;
-					case 8:
-						change_undoSize = 1;
-						if (option_undoSize ==
-						    maxUndoSize)
-							option_undoSize = 0;
-						break;
-					case 9:
+					case 7:
 						if (ControlSetupMenu(inGame) ==
 						    -2)
 							return -2;
 						break;
-					case 10:
+					case 8:
 						return -1;
 						break;
 				}
@@ -639,19 +577,12 @@ int OptionsMenu(bool inGame) {
 						option_replayOn = false;
 						break;
 					case 5:
-						if (option_fullscreen)
-							ToggleFullscreen();
-						break;
-					case 6:
 						if (option_cameraMode > 0)
 							option_cameraMode--;
 						break;
-					case 7:
+					case 6:
 						if (option_background > 0)
 							option_background--;
-						break;
-					case 8:
-						change_undoSize = -1;						
 						break;
 				}
 				break;
@@ -681,21 +612,14 @@ int OptionsMenu(bool inGame) {
 						option_replayOn = true;
 						break;
 					case 5:
-						if (!option_fullscreen)
-							ToggleFullscreen();
-						break;
-					case 6:
 						if (option_cameraMode <
 						    maxCameraMode)
 							option_cameraMode++;
 						break;
-					case 7:
+					case 6:
 						if (option_background <
 						    maxBackground)
 							option_background++;
-						break;
-					case 8:
-						change_undoSize = 1;
 						break;
 				}
 				break;
@@ -706,35 +630,6 @@ int OptionsMenu(bool inGame) {
 				return -2;
 				break;
 		}
-
-		// Adjust undoSize according to which key was pushed,
-		// handling irregular sequence of 0, 1, 50, 100, etc.
-		if (change_undoSize == 1) { // Increase
-			if (option_undoSize == 0) {
-				option_undoSize = 1;
-			}
-			else if (option_undoSize == 1) {
-				option_undoSize = 50;
-			}
-			else {
-				option_undoSize += 50;
-			}
-		}
-		if (change_undoSize == -1) { // Decrease
-			if (option_undoSize == 50) {
-				option_undoSize = 1;
-			}
-			else if (option_undoSize == 1) {
-				option_undoSize = 0;
-			}
-			else if (option_undoSize > 50) {
-				option_undoSize -= 50;
-			}
-		}
-		
-		// Limit undoSize
-		if (option_undoSize > maxUndoSize)
-			option_undoSize = maxUndoSize;
 	}
 }
 
@@ -755,7 +650,7 @@ int PauseMenu() {
 	pauseMenu.NameItem(4, "Change Level");
 	pauseMenu.NameItem(5, "Quit Game");
 	
-	pauseMenu.Move(SCREEN_W / 2, 100);
+	pauseMenu.Move(SCREEN_W / 2, (SCREEN_H / 2) - (FONT_H * (numItems - 1)));
 	pauseMenu.AutoArrange(1);
 	pauseMenu.SpaceItems(3);
 
@@ -818,7 +713,7 @@ int EndOfLevelMenu() {
 	theMenu.NameItem(2, "Change Level");
 	theMenu.NameItem(3, "Quit Game");
 	
-	theMenu.Move(SCREEN_W / 2, 100);
+	theMenu.Move(SCREEN_W / 2, (SCREEN_H / 2) - (FONT_H * numItems));
 	theMenu.AutoArrange(1);
 	theMenu.SpaceItems(2);
 	
@@ -861,7 +756,7 @@ int ReplayPauseMenu() {
 	pauseMenu.NameItem(4, "Next Level");
 	pauseMenu.NameItem(5, "Quit Game");
 	
-	pauseMenu.Move(SCREEN_W / 2, 100);
+	pauseMenu.Move(SCREEN_W / 2, (SCREEN_H / 2) - (FONT_H * numItems));
 	pauseMenu.AutoArrange(1);
 	pauseMenu.SpaceItems(3);
 	pauseMenu.SpaceItems(4);

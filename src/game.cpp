@@ -1063,7 +1063,7 @@ int Game() {
 				if (wonLevel == 0) {
 					replayMenu->NameItem(0, s);
 					replayMenu->AutoArrange(1);
-					replayMenu->MoveItem(0, replayMenu->GetItemX(0), SCREEN_H - FONT_H - 4);
+					replayMenu->MoveItem(0, replayMenu->GetItemX(0), SCREEN_H - (FONT_H * 2) - 8);
 					replayMenu->Display();
 				}
 			}

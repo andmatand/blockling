@@ -242,7 +242,7 @@ void CenterCamera(char override) {
 	// Width and height of tracking box.  The camera will only bother
 	// moving if the target moves outside of this "box" in the middle
 	// of the screen.
-	int boxW = SCREEN_W / 4;
+	int boxW = SCREEN_W / 5;
 	int boxH = SCREEN_H / 5;
 	
 	// How much space to show beyond the edges of the level
@@ -314,7 +314,7 @@ void CenterCamera(char override) {
 			}
 		}
 		else {
-			targetY = -((SCREEN_H / 2) - (TILE_H / 2) - (TILE_H * 2));
+			targetY = -((SCREEN_H / 2) - (TILE_H / 2));
 		}
 	}	
 	
