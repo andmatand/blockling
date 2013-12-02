@@ -465,9 +465,9 @@ void ResetDefaultKeys() {
 	/** Default Player keys ****/
 	option_playerKeys[0].sym = SDLK_LEFT;		// Move player left
 	option_playerKeys[1].sym = SDLK_RIGHT;		// Move player right
-	option_playerKeys[2].sym = SDLK_UP;		// Pick up block
-	option_playerKeys[3].sym = SDLK_DOWN;		// Set down block
-	option_playerKeys[4].sym = SDLK_LCTRL;		// Push block
+	option_playerKeys[2].sym = SDLK_LCTRL;		// Pick up block
+	option_playerKeys[3].sym = SDLK_LCTRL;		// Set down block
+	option_playerKeys[4].sym = SDLK_LALT;		// Push block
 }
 
 
