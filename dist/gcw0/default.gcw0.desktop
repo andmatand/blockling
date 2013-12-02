@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Blockling
+Comment=You are a young blockling who must stack blocks!
+Exec=blockling
+Terminal=false
+Type=Application
+StartupNotify=true
+Icon=icon
+Categories=games;
