@@ -45,7 +45,6 @@ enum {
 
 void SelectTileset(bool dir);
 void SetCameraTargetBlock(uint b);
-void ToggleFullscreen();
 void UnlockSurface(SDL_Surface *surf);
 void UnloadTileset();
 void UpdateScreen();

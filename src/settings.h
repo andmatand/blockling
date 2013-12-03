@@ -25,7 +25,7 @@ void LoadSettings();
 
 
 /** Constants ***/
-const uchar NUM_OPTIONS = 14;
+const uchar NUM_OPTIONS = 13;
 
 
 /** Options ***/
@@ -38,7 +38,6 @@ uchar option_replaySpeed;
 uchar option_background;
 bool option_timerOn;
 uchar option_cameraMode;
-bool option_fullscreen;
 char option_tileset[16 + 1];
 bool option_helpSpeech;
 uchar option_levelMax0;

@@ -74,7 +74,6 @@ char Init() {
 	option_background = 3;
 	option_timerOn = true;
 	option_cameraMode = 0;
-	option_fullscreen = false;
 	strcpy(option_tileset, DEFAULT_TILESET);
 	currentLevel = 0;
 	option_helpSpeech = true;
@@ -136,7 +135,8 @@ char Init() {
 
 
 	/** Initialize SDL Video ****/
-	screenSurface = SDL_SetVideoMode(SCREEN_W, SCREEN_H, SCREEN_BPP, SDL_HWSURFACE | (option_fullscreen ? SDL_FULLSCREEN : 0));
+	screenSurface = SDL_SetVideoMode(SCREEN_W, SCREEN_H, SCREEN_BPP,
+                                         SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_FULLSCREEN);
 	if (screenSurface == NULL) {
 		fprintf(stderr, "Error: Unable to set up video: %s\n", SDL_GetError());
 		return 1;

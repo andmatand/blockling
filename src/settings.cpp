@@ -123,18 +123,15 @@ void SaveSettings() {
 				strcpy(name, "cameraMode");
 				break;
 			case 9:
-				strcpy(name, "fullscreen");
-				break;
-			case 10:
 				strcpy(name, "tileset");
 				break;
-			case 11:
+			case 10:
 				strcpy(name, "helpSpeech");
 				break;
-			case 12:
+			case 11:
 				strcpy(name, "levelMax0");
 				break;
-			case 13:
+			case 12:
 				strcpy(name, "levelMax1");
 				break;
 		}		
@@ -169,18 +166,15 @@ void SaveSettings() {
 				sprintf(value, "%u", option_cameraMode);
 				break;
 			case 9:
-				sprintf(value, "%u", option_fullscreen);
-				break;
-			case 10:
 				sprintf(value, "%s", option_tileset);
 				break;
-			case 11:
+			case 10:
 				sprintf(value, "%u", option_helpSpeech);
 				break;
-			case 12:
+			case 11:
 				sprintf(value, "%u", option_levelMax0);
 				break;
-			case 13:
+			case 12:
 				sprintf(value, "%u", option_levelMax1);
 				break;
 		}
@@ -332,9 +326,6 @@ void LoadSettings() {
 		}
 		else if (strcmp(name, "currentLevel") == 0) {
 			currentLevel = static_cast<uchar>(uintVal);
-		}
-		else if (strcmp(name, "fullscreen") == 0) {
-			option_fullscreen = static_cast<bool>(uintVal);
 		}
 		else if (strcmp(name, "tileset") == 0) {
 			strncpy(option_tileset, value, sizeof(option_tileset));

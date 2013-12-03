@@ -60,29 +60,6 @@ SDL_Surface* FillSurface(const char *file, bool transparent) {
 
 
 
-void ToggleFullscreen() {
-	option_fullscreen = (option_fullscreen ? false : true);
-	
-	#ifdef _WIN32
-		#ifdef DEBUG
-			printf("Windows fullscreen toggle\n");
-		#endif
-		//SDL_FreeSurface(screenSurface);
-		screenSurface = SDL_SetVideoMode(screenSurface->w,
-				screenSurface->h,
-				screenSurface->format->BitsPerPixel,
-				SDL_HWSURFACE |
-					(option_fullscreen ? SDL_FULLSCREEN : 0) |
-					SDL_ANYFORMAT
-					);
-	#else
-		#ifdef DEBUG
-			printf("X11 fullscreen toggle\n");
-		#endif
-		SDL_WM_ToggleFullScreen(screenSurface);
-	#endif
-}
-
 
 
 // Surface must be locked before calling this:
@@ -1111,8 +1088,7 @@ void Render (const char flags) {
 
 
 void UpdateScreen() {
-	// Tell SDL to update the whole screenSurface
-	SDL_UpdateRect(screenSurface, 0, 0, 0, 0);
+	SDL_Flip(screenSurface);
 	LimitFPS();
 }
 

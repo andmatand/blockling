@@ -20,7 +20,6 @@
  */
 
 /*** Function Prototypes ***/
-void CameraInput(SDL_Event event);
 int GameInput(char mode);
 const char* KeyName(SDLKey sym);
 signed char MenuInput();
