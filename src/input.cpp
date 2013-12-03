@@ -99,7 +99,6 @@ int GameInput(char mode) {
 
 	while (SDL_PollEvent(&event)) {
 		GlobalInput(event);
-		CameraInput(event);
 		if (mode == 1) ReplayInput(event);
 		
 		switch (event.type) {
@@ -291,34 +290,6 @@ void NPCInput() {
 
 
 
-void CameraInput(SDL_Event event) {
-	if (!physicsStarted) return;
-		
-	switch (event.type) {
-		case SDL_KEYDOWN:
-			// Turn on camera keys (first four gamekeys)
-			for (uint i = 0; i < 4; i++) {
-				if (event.key.keysym.sym == gameKeys[i].sym && (gameKeys[i].mod == KMOD_NONE || event.key.keysym.mod & gameKeys[i].mod)) {
-					if (gameKeys[i].on == 0) {
-						gameKeys[i].on = 1;
-						gameKeys[i].timer = SDL_GetTicks();
-					}
-				}
-			}
-
-			break;
-		case SDL_KEYUP:
-			// Turn off camera keys (first four gamekeys)
-			for (uint i = 0; i < 4; i++) {
-				if (event.key.keysym.sym == gameKeys[i].sym) {
-					gameKeys[i].on = 0;
-				}
-			}
-
-			break;
-	}
-}
-
 
 
 
@@ -345,7 +316,6 @@ signed char MenuInput() {
 	
 	while (SDL_PollEvent(&event)) {
 		GlobalInput(event);
-		CameraInput(event);
 		switch (event.type) {
 			case SDL_KEYDOWN:
 				switch (event.key.keysym.sym) {

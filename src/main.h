@@ -68,6 +68,7 @@ SDL_Surface *exitSurface[NUM_EXIT_FRAMES] = {NULL};
 SDL_Surface *bgSurface = NULL;
 SDL_Surface *playerSurface[NUM_PLAYER_SURFACES] = {NULL};
 SDL_Surface *player2Surface[NUM_PLAYER_SURFACES] = {NULL};
+SDL_Joystick *joystick = NULL;
 
 int blockXSpeed;
 int blockYSpeed;

@@ -86,7 +86,7 @@ char Init() {
 	
 
 	/** Initialize SDL ****/
-	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {
+	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_JOYSTICK) < 0) {
 		fprintf(
 			stderr,
 			"Error: Unable to initialize SDL: %s\n",
@@ -94,6 +94,15 @@ char Init() {
 
 		return 1;	
 	}
+
+        /** Initialize the joystick ****/
+        if (SDL_NumJoysticks() > 0) {
+            // Disable joystick events, since we will poll manually
+            SDL_JoystickEventState(SDL_DISABLE);
+
+            // Open the first joystick
+            joystick = SDL_JoystickOpen(0);
+        }
 
 	/** Initialize SDL_mixer ****/
 	if (Mix_OpenAudio(22050, AUDIO_S16SYS, 2, 1024) < 0) {
@@ -175,6 +184,10 @@ void DeInit() {
 	UnloadTileset();
 	UnloadFont();
 	SDL_FreeSurface(screenSurface);
+
+        /** Clean up the joystick ****/
+        SDL_JoystickClose(0);
+        joystick = NULL;
 
 	/** Clean up SDL_mixer ****/
 	for (uchar i = 0; i < NUM_SOUNDS; i++) {

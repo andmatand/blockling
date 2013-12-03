@@ -123,33 +123,29 @@ void SetCameraTargetBlock(uint b) {
 
 
 void MoveCamera() {
-	// Move camera left
-	if (gameKeys[0].on > 0) {
-		cameraXVel -= 2;
-		manualCameraTimer = SDL_GetTicks();
-	}
-	
-	// Move camera right
-	if (gameKeys[1].on > 0) {
-		cameraXVel += 2;
-		manualCameraTimer = SDL_GetTicks();
-	}
-	
-	// Move camera up
-	if (gameKeys[2].on > 0) {
-		cameraYVel -= 2;
-		manualCameraTimer = SDL_GetTicks();
+	// If there is a joystick
+	if (joystick != NULL) {
+		SDL_JoystickUpdate();
+		int x = SDL_JoystickGetAxis(joystick, 0);
+		int y = SDL_JoystickGetAxis(joystick, 1);
+		int threshold = 800;
+		int divisor = 8000;
+
+		if (x > threshold || x < -threshold) {
+			cameraXVel += x / divisor;
+			manualCameraTimer = SDL_GetTicks();
+		}
+		if (y > threshold || y < -threshold) {
+			cameraYVel += y / divisor;
+			manualCameraTimer = SDL_GetTicks();
+		}
 	}
 
-	// Move camera down
-	if (gameKeys[3].on > 0) {
-		cameraYVel += 2;
-		manualCameraTimer = SDL_GetTicks();
-	}
-	
-	// Exit the function if we aren't currently moving the camera with the keys
-	if (SDL_GetTicks() > manualCameraTimer + 2000)
+	// If we aren't currently moving the camera manually
+	if (SDL_GetTicks() > manualCameraTimer + 2000) {
+		// Exit the function
 		return;
+	}
 
 	// Enforce maximum camera velocity limitations
 	//if (cameraXVel > TILE_W) cameraXVel = TILE_W;/
@@ -163,6 +159,7 @@ void MoveCamera() {
 	cameraX += static_cast<int>(cameraXVel);
 	cameraY += static_cast<int>(cameraYVel);
 
+	// Add friction
 	cameraXVel *= .85f;
 	cameraYVel *= .85f;
 }
