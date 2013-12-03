@@ -687,6 +687,10 @@ int PauseMenu() {
 			case -1: // Esc
 				return -1;
 				break;
+			case 10: // Start
+				PlaySound(7);
+				return -1;
+				break;
 			case -2: // Close window
 				return -2;
 				break;
@@ -992,6 +996,8 @@ int SelectLevelMenu() {
 		action = lvlMenu.Input();
 		
 		switch (action) {
+			case 10: // Start
+				PlaySound(6);
 			case 1: // Enter
 				if (levelError == NULL && dummyLevel == false) {
 					switch (lvlMenu.GetSel()) {

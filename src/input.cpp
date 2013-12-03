@@ -300,11 +300,9 @@ void NPCInput() {
 //	2 Down
 //	3 Left
 //	4 Right
-//	5 Enter
-//	6 Home
-//	7 End
-//	8 Esc
-//	9 Window close button
+//	5 A
+//	8 B
+//	10 Start
 //	A negative value means that the key is being held down and this is a repetition
 signed char MenuInput() {
 	// Keep track of which key is currently held down
@@ -320,9 +318,7 @@ signed char MenuInput() {
 			case SDL_KEYDOWN:
 				switch (event.key.keysym.sym) {
 					case SDLK_LCTRL:
-						if (!(event.key.keysym.mod & KMOD_ALT)) {
-							return 5;
-						}
+						return 5;
 						break;
 					case SDLK_UP:
 						keyDown = 1;
@@ -338,6 +334,9 @@ signed char MenuInput() {
 						break;
 					case SDLK_LALT:
 						return 8;
+						break;
+					case SDLK_RETURN:
+						return 10;
 						break;
 					default:
 						break;

@@ -320,24 +320,19 @@ int menu::Input() {
 			}
 			return 4;
 			break;
-		case 5: // Enter
+		case 5: // A
 			PlaySound(6);
 			return 1;
 			break;
-		case 6: // Home
-			sel = 0;
-			arrowTimer = SDL_GetTicks();
-			break;
-		case 7: // End
-			sel = numItems - 1;
-			arrowTimer = SDL_GetTicks();
-			break;
-		case 8: // Esc
+		case 8: // B
 			PlaySound(7);
 			return -1;
 			break;
 		case 9: // Close window
 			return -2;
+			break;
+		case 10: // Start
+			return 10;
 			break;
 	}
 	
