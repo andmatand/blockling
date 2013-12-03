@@ -406,18 +406,6 @@ void RefreshPlayerKeys() {
 
 void ResetDefaultKeys() {
 	/** Default Game Keys ****/
-	gameKeys[0].sym = SDLK_a;	// Move camera left
-	gameKeys[0].mod = KMOD_NONE;	// modifier
-
-	gameKeys[1].sym = SDLK_d;	// Move camera right
-	gameKeys[1].mod = KMOD_LSHIFT;	// modifier
-	
-	gameKeys[2].sym = SDLK_w;	// Move camera up
-	gameKeys[2].mod = KMOD_LSHIFT;	// modifier
-	
-	gameKeys[3].sym = SDLK_s;	// Move camera down
-	gameKeys[3].mod = KMOD_LSHIFT;	// modifier
-
 	gameKeys[4].sym = SDLK_LSHIFT;	// Undo
 	gameKeys[4].mod = KMOD_NONE;	// modifier
 

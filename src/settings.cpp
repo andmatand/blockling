@@ -193,7 +193,7 @@ void SaveSettings() {
 	}
 	
 	// Write the game controls
-	for (uint i = 0; i < NUM_GAME_KEYS; i++) {
+	for (uint i = 4; i < NUM_GAME_KEYS; i++) {
 		sprintf(line, "gameKeySym%d=%d\ngameKeyMod%d=%d\n", i,
 			gameKeys[i].sym, i, gameKeys[i].mod);
 		
