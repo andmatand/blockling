@@ -152,7 +152,7 @@ void DrawBubbles(bool decrementTTLs) {
 	curBubble->GetText()->SetY(y);
 	curBubble->GetText()->Center();
 	curBubble->GetText()->AlignY(1); // Align to bottom
-	curBubble->GetText()->Wrap(FONT_W * 20);
+	curBubble->GetText()->Wrap(FONT_W * ((SCREEN_W / FONT_W) - 1));
 
 	// Draw the text
 	curBubble->GetText()->Render();
