@@ -161,11 +161,11 @@ int Credits() {
 	int y = SCREEN_H; // Position of the scrolling credits
 	uint t = SDL_GetTicks();
 	txt credits(SCREEN_W / 2, 0, "BLOCKLING\n\n"
-		"Copyright 2010 Andrew Anderson <www.unfinishedblog.org>\n\n"
+		"Copyright 2010 Andrew Anderson <github.com/andmatand>\n\n"
 		"This is free software, and you are welcome to change and " 
 			"redistribute it under the conditions of the GNU "
 			"General Public License (GPL) version 3 or later "
-			"<http://gnu.org/licenses/gpl.html>.  There is NO "
+			"<gnu.org/licenses/\ngpl.html>.  There is NO "
 			"WARRANTY, to the extent permitted by law.\n\n\n"
 		"PROGRAMMING\n"
 		"Andrew Anderson\n\n\n"
@@ -185,11 +185,11 @@ int Credits() {
 		"TESTING/FEEDBACK\n"
 		"Tyler Christensen\n"
 		"Aubree Dinsfriend\n"
-		"Scott Jonathan Dinsfriend\n"
+		"S.J. Dinsfriend\n"
 		"Matthew Galla\n"
 		"Margaret Gowen\n"
 		"Anna Hyldahl\n"
-		"JeTSpice <jetspicegames.com>\n"
+		"JeTSpice\n"
 		"Aaron McGinn\n"
 		"Peter Norland\n"
 		"Jeanette Ortiz\n\n\n"
@@ -202,13 +202,13 @@ int Credits() {
 		"SPECIAL THANKS TO\n"
 		"the teams behind the free/open-source software which made "
 		"this game possible:\n"
-		"Audacity <audacity.sourceforge.net>\n"
-		"GIMP <www.gimp.org>\n"
-		"GCC <gcc.gnu.org>\n"
-		"SDL <www.libsdl.org>\n"
-		"Ubuntu <www.ubuntu.com>\n"
-		"Valgrind <www.valgrind.org>\n"
-		"Vim <www.vim.org>");
+		"Audacity\n"
+		"GIMP\n"
+		"GCC\n"
+		"SDL\n"
+		"Ubuntu\n"
+		"Valgrind\n"
+		"Vim");
 
 	credits.Center();
 	credits.FitToScreen(false);
