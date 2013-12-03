@@ -74,7 +74,7 @@ int ControlSetupMenu(bool inGame) {
 				"%s%s",
 				tempString,
 				(gettingKey && csMenu.GetSel() == static_cast<int>(i)) ?
-					"Press a key..." :
+					"?" :
 					KeyName(keySym)
 			);
 
