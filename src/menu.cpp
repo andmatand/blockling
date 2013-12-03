@@ -161,7 +161,7 @@ int Credits() {
 	int y = SCREEN_H; // Position of the scrolling credits
 	uint t = SDL_GetTicks();
 	txt credits(SCREEN_W / 2, 0, "BLOCKLING\n\n"
-		"Copyright 2010 Andrew Anderson <github.com/andmatand>\n\n"
+		"Copyright 2010, 2013 Andrew Anderson <github.com/andmatand>\n\n"
 		"This is free software, and you are welcome to change and " 
 			"redistribute it under the conditions of the GNU "
 			"General Public License (GPL) version 3 or later "
