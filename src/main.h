@@ -25,6 +25,8 @@ typedef unsigned char uchar;
 #include <iostream>
 #include <SDL/SDL.h>
 #include <SDL/SDL_mixer.h>
+#include <sys/stat.h>
+#include <sys/errno.h>
 
 
 
@@ -50,9 +52,11 @@ const char LEVEL_PATH[] = "levels/";
 const char TILE_PATH[] = "tiles/";
 const char DEFAULT_TILESET[] = "default";
 const char DEFAULT_LEVELSET[] = "default";
-const char* SETTINGS_PATH = getenv("HOME");
-const char TEMP_PATH[] = "/tmp/";
+const char SETTINGS_FOLDER[] = ".blockling/";
+const char CUSTOM_LEVEL_PATH[] = "custom_levels/";
+const char* SETTINGS_ROOT = getenv("HOME");
 const char SETTINGS_FILE[] = ".blocklingrc";
+const char TEMP_PATH[] = "/tmp/";
 
 
 

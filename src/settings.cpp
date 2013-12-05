@@ -18,6 +18,21 @@
  */
 
 
+void CreateCustomLevelDirectory() {
+	char path1[strlen(SETTINGS_ROOT) + 1 +
+		   strlen(SETTINGS_FOLDER) + 1];
+	sprintf(path1, "%s/%s", SETTINGS_ROOT, SETTINGS_FOLDER);
+	mkdir(path1, S_IRUSR | S_IWUSR | S_IXUSR);
+
+	char path2[strlen(SETTINGS_ROOT) + 1 +
+		   strlen(SETTINGS_FOLDER) +
+		   strlen(CUSTOM_LEVEL_PATH) + 1];
+	sprintf(path2, "%s/%s%s", SETTINGS_ROOT, SETTINGS_FOLDER, CUSTOM_LEVEL_PATH);
+	mkdir(path2, S_IRUSR | S_IWUSR | S_IXUSR);
+}
+
+
+
 // Reads the next line from the file, ignoring # comments or lines which exceed
 // maxLineLength
 char* ReadLine(FILE *file, uint maxLineLength) {
@@ -72,7 +87,7 @@ char* ReadLine(FILE *file, uint maxLineLength) {
 
 void SaveSettings() {
 	char filename[256];
-	sprintf(filename, "%s/%s", SETTINGS_PATH, SETTINGS_FILE);
+	sprintf(filename, "%s/%s", SETTINGS_ROOT, SETTINGS_FILE);
 
 	#ifdef DEBUG
 	printf("\nWriting to settings file \"%s\"...\n", filename);
@@ -212,7 +227,7 @@ void SaveSettings() {
 
 void LoadSettings() {
 	char filename[256];
-	sprintf(filename, "%s/%s", SETTINGS_PATH, SETTINGS_FILE);
+	sprintf(filename, "%s/%s", SETTINGS_ROOT, SETTINGS_FILE);
 
 	#ifdef DEBUG
 	printf("\nLoading settings from file \"%s\"...\n", filename);

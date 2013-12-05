@@ -1204,37 +1204,32 @@ int Game() {
 
 
 FILE *OpenLevel(int level) {
-	// Find the name of the levelset directory
-	char levelSet[16];
+	// Find the levelSet directory
+	char levelSetPath[256];
 	switch (option_levelSet) {
 		case 0:
-			sprintf(levelSet, "default");
+			sprintf(levelSetPath, "%s%sdefault/", DATA_PATH, LEVEL_PATH);
 			break;
 		case 1:
-			sprintf(levelSet, "bman1");
+			sprintf(levelSetPath, "%s%sbman1/", DATA_PATH, LEVEL_PATH);
 			break;
 		case 2:
-			sprintf(levelSet, "custom");
+			sprintf(levelSetPath, "%s/%s%s",
+				SETTINGS_ROOT, SETTINGS_FOLDER, CUSTOM_LEVEL_PATH);
 			break;
 	}
 
 	char levelFile[4];
 	sprintf(levelFile, "%03d", level);
 
-	char filename[
-		strlen(DATA_PATH) +
-		strlen(LEVEL_PATH) +
-		strlen(levelSet) + 1 +
-		strlen(levelFile) + 1];
+	char filename[strlen(levelSetPath) + strlen(levelFile) + 1];
 
 	if (level < 0) {
 		sprintf(filename, "%s%s000", DATA_PATH, LEVEL_PATH);
 	} else {
 		sprintf(filename,
-			"%s%s%s/%s",
-			DATA_PATH,
-			LEVEL_PATH,
-			levelSet,
+			"%s%s",
+			levelSetPath,
 			levelFile);
 	}
 

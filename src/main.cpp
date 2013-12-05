@@ -82,6 +82,9 @@ char Init() {
 
 	/** Load any settings found in the settings file ***/
 	LoadSettings();
+
+        // Create the custom level directory (if it doesn't exist)
+        CreateCustomLevelDirectory();
 	
 
 	/** Initialize SDL ****/
