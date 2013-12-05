@@ -6,3 +6,6 @@
 
 # blockling binary
 blockling
+
+# opk package
+*.opk
