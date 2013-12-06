@@ -39,27 +39,17 @@ In December of 2013, I made this port for the GCW Zero!
 
 
 ## Controls
-    Esc           Menu
-    F1            Help
-    F2            Toggle Music
-    F3            Toggle Sound
-    F5            Restart the current level
-    Alt + Enter   Toggle Fullscreen
-    PAGE UP/DOWN  Change tile-set
+    START         Pause/Menu
+    L/R           Change tile-set
+    Analog Stick  Move Camera
 
 ### Game Controls (customizable)
-    UP      Pick up a block
-    DOWN    Set down a block
-    LEFT    Move/turn left
-    RIGHT   Move/turn right
-    ENTER   Push a block
-    U       Undo
-
-### Camera Controls (customizable)
-    w  Move camera up
-    a  Move camera left
-    s  Move camera down
-    d  Move camera right
+    A      Pick up a block
+    A      Set down a block
+    LEFT   Move/turn left
+    RIGHT  Move/turn right
+    B      Push a block
+    X      Undo
 
 
 ## Creating Your Own Levels
