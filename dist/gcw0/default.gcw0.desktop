@@ -7,3 +7,4 @@ Type=Application
 StartupNotify=true
 Icon=icon
 Categories=games;
+X-OD-Manual=README.md

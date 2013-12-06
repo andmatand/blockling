@@ -13,6 +13,7 @@ mkdir $TEMPDIR
 cp default.gcw0.desktop $TEMPDIR
 cp icon.png $TEMPDIR
 cp ../../blockling $TEMPDIR
+cp ../../README.md $TEMPDIR
 mkdir -p $TEMPDIR/$DATADIR
 rsync -av --exclude='*.xcf' ../../data/* $TEMPDIR/$DATADIR
 
