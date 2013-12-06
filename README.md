@@ -34,6 +34,9 @@ I hope you enjoy it.
 Andrew Anderson  
 March 2010
 
+P.S.
+In December of 2013, I made this port for the GCW Zero!
+
 
 ## Controls
     Esc           Menu
@@ -60,18 +63,19 @@ March 2010
 
 
 ## Creating Your Own Levels
-Levels can be easily created using a simple text editor.  Perhaps the easiest
-way to begin is by examining some existing levels.  The game's default levels
-may be found in the "levels/default/" directory within the "data/" directory.
+Levels can be easily created using a simple text editor. As an example, this is
+what Level 0 looks like:
 
-When examining those levels on non-Unix systems, you will need to be sure to
-use a text editor capable of displaying Unix LF linebreaks.
+    0
+    0*..........0
+    000.........T
+    0.....X...@.0
+    0000000000000
 
-From examining those existing levels, you will likely come to an understanding
-as to the format of a level file, but I shall here offer a complete listing of
-each character's meaning:
+As you can see, each character represents one tile in the game.  Here are all
+the valid characters:
 
-    .     a blank tile.  Note: Regular spaces (i.e. " ") are ignored.
+    .     a blank tile.  Note: Spaces (i.e. " ") are ignored.
     @     the player
     X     a block
     0     a piece of land.  Note: Based on the tile's position relative to other
@@ -88,10 +92,7 @@ each character's meaning:
     ^     a spike
     #     indicates that the rest of this line is a comment and will not be
           parsed.  You can type whatever you want here (e.g. your name)
-    (LF)  A Unix linebreak indicates a new row of tiles in the level.  On 
-          Windows systems, a Windows linebreak (CR + LF) may be used, since it
-          also contains the LF character.  Don't worry; you don't need to
-          understand what this means.  Just push Enter =)
+    (LF)  A Unix linebreak indicates a new row of tiles in the level.
 
 Additionally, note the following caveats:
 
@@ -101,19 +102,20 @@ Additionally, note the following caveats:
   ignored.  Thus, to indicate an empty row of tiles use a "." followed by a
   linebreak.
 
-After you have constructed a custom level, place it in the the "levels/custom"
-directory within the data directory.  File names must begin with 000 and
-proceed in numerical order (e.g. 000, 001, 002, etc.).
+After you have constructed a custom level, place it in
+"~/.blockling/custom_levels/". File names must begin with 000 and proceed in
+numerical order (i.e. 000, 001, 002, etc.).
 
-When designing a level, it can be helpful to try out your changes by playing
-through the level, or simply observing how the level is being parsed by the
-game.  Since the game loads levels afresh from disk each time they are
-reloaded, this can be accomplished by running the game and displaying the level
-upon which you are working, reloading it whenever you save a change.  The F5
-keyboard shortcut is particularly handy for quick reloading.
+As a tip, it can be helpful, when designing a level, to try out your changes by
+playing through the level, or simply observing how the level is being parsed by
+the game.  To faciliate this, the game reloads the level from disk every time
+it is displayed; you may press left/right on the level-selection screen to
+reload and display the level repeatedly.
 
 If the game finds any syntax errors in your file, it will let you know with a
-(hopefully) helpful on-screen message (on the level-selection screen).
+(hopefully) helpful on-screen message (on the level-selection screen), although
+the error messages don't fit very well on the screen in this GCW Zero port,
+sorry :)
 
 
 ## License Stuff
