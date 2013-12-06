@@ -166,7 +166,10 @@ int Credits() {
 			"redistribute it under the conditions of the GNU "
 			"General Public License (GPL) version 3 or later "
 			"<gnu.org/licenses/\ngpl.html>.  There is NO "
-			"WARRANTY, to the extent permitted by law.\n\n\n"
+			"WARRANTY, to the extent permitted by law.\n\n"
+		"The source code for Blockling is available at "
+                "<github.com/andmatand/\nblockling/tree/gcw0>\n\n\n"
+
 		"PROGRAMMING\n"
 		"Andrew Anderson\n\n\n"
 
