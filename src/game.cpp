@@ -560,9 +560,6 @@ int Game() {
 								// Flag that the player should not climb
 								j = 0;
 
-								// Save the keypress in the replay
-								if (recordingReplay) theReplays[i]->SaveKey(0);
-
 								blocks[i].SetDir(0);
 								pushedKey = true;
 							}
@@ -607,9 +604,6 @@ int Game() {
 							if (blocks[i].GetDir() == 0 && playerBlock[i] == -1) {
 								// Flag that the player should not climb
 								j = 0;
-
-								// Save the keypress in the replay
-								if (recordingReplay) theReplays[i]->SaveKey(1);
 
 								blocks[i].SetDir(1);
 								pushedKey = true;
