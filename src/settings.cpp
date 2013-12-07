@@ -146,9 +146,6 @@ void SaveSettings() {
 			case 11:
 				strcpy(name, "levelMax0");
 				break;
-			case 12:
-				strcpy(name, "levelMax1");
-				break;
 		}		
 
 		// Get the string form of this option's value
@@ -188,9 +185,6 @@ void SaveSettings() {
 				break;
 			case 11:
 				sprintf(value, "%u", option_levelMax0);
-				break;
-			case 12:
-				sprintf(value, "%u", option_levelMax1);
 				break;
 		}
 		
@@ -350,9 +344,6 @@ void LoadSettings() {
 		}
 		else if (strcmp(name, "levelMax0") == 0) {
 			option_levelMax0 = static_cast<uchar>(uintVal);
-		}
-		else if (strcmp(name, "levelMax1") == 0) {
-			option_levelMax1 = static_cast<uchar>(uintVal);
 		}
 		else {
 			// Get the number on the end of the setting name

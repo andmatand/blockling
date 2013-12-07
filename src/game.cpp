@@ -457,8 +457,7 @@ int Game() {
 					if (
 						pushedKey == false &&
 						playerBlock[i] == -1 &&
-						playerKeys[(i * NUM_PLAYER_KEYS) + 4].on > 0 &&
-						option_levelSet != 1) // For retro BLOCKMAN-1 mode, disable pushing
+						playerKeys[(i * NUM_PLAYER_KEYS) + 4].on > 0)
 					{
 						
 						// Determine which tile the player is looking at.
@@ -553,18 +552,7 @@ int Game() {
 					
 					// Left
 					if (pushedKey == false && playerKeys[(i * NUM_PLAYER_KEYS) + 0].on > 0) {
-						// For retro BLOCKMAN-1 mode, disable turning "in place"
 						j = 1; // Autoclimb = on
-						if (option_levelSet == 1) {
-							if (blocks[i].GetDir() == 1 && playerBlock[i] == -1) {
-								// Flag that the player should not climb
-								j = 0;
-
-								blocks[i].SetDir(0);
-								pushedKey = true;
-							}
-						}
-
 						if (blocks[i].GetDir() == 0) {
 							// Player musn't be waiting for a block he's acted upon
 							if (playerBlock[i] == -1) {
@@ -587,7 +575,7 @@ int Game() {
 								}
 							}
 						}
-						else if (option_levelSet != 1) {
+						else {
 							// Save the keypress in the replay
 							if (recordingReplay) theReplays[i]->SaveKey(0);
 							
@@ -598,17 +586,7 @@ int Game() {
 
 					// Right
 					if (pushedKey == false && playerKeys[(i * NUM_PLAYER_KEYS) + 1].on > 0) {
-						// For retro BLOCKMAN-1 mode, disable turning "in place"
 						j = 1; // Autoclimb = on
-						if (option_levelSet == 1) {
-							if (blocks[i].GetDir() == 0 && playerBlock[i] == -1) {
-								// Flag that the player should not climb
-								j = 0;
-
-								blocks[i].SetDir(1);
-								pushedKey = true;
-							}
-						}
 
 						if (blocks[i].GetDir() == 1) {
 							// Player musn't be waiting for a block he's acted upon
@@ -629,7 +607,7 @@ int Game() {
 								}
 							}
 						}
-						else if (option_levelSet != 1) {
+						else {
 							// Save the keypress in the replay
 							if (recordingReplay) theReplays[i]->SaveKey(1);
 
@@ -1104,12 +1082,8 @@ int Game() {
 					currentLevel + 1 > option_levelMax0)
 				{
 					option_levelMax0 = currentLevel + 1;
-				} else if (option_levelSet == 1 &&
-					currentLevel + 1 > option_levelMax1)
-				{
-					option_levelMax1 = currentLevel + 1;
 				}
-			
+
 				if ((recordingReplay && option_replayOn) ||
 					showingReplay)
 				{
@@ -1205,9 +1179,6 @@ FILE *OpenLevel(int level) {
 			sprintf(levelSetPath, "%s%sdefault/", DATA_PATH, LEVEL_PATH);
 			break;
 		case 1:
-			sprintf(levelSetPath, "%s%sbman1/", DATA_PATH, LEVEL_PATH);
-			break;
-		case 2:
 			sprintf(levelSetPath, "%s/%s%s",
 				SETTINGS_ROOT, SETTINGS_FOLDER, CUSTOM_LEVEL_PATH);
 			break;
@@ -1848,7 +1819,3 @@ void TutorialSpeech(bool reset) {
 			break;
 	}
 }
-
-
-
-

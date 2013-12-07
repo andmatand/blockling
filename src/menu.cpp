@@ -846,10 +846,8 @@ int SelectLevelMenu() {
 				// Load Level
 				delete [] levelError;
 				// If currentLevel is higher than the max
-				if ((option_levelSet == 0 &&
-				     currentLevel > option_levelMax0) ||
-				    (option_levelSet == 1 &&
-				     currentLevel > option_levelMax1))
+				if (option_levelSet == 0 &&
+				     currentLevel > option_levelMax0)
 				{
 					// Display a dummy level
 					levelError = LoadLevel(-1);
@@ -954,9 +952,6 @@ int SelectLevelMenu() {
 				strcat(text, GAME_TITLE);
 				break;
 			case 1:
-				strcat(text, "BLOCK-MAN 1");
-				break;
-			case 2:
 				strcat(text, "CUSTOM");
 				break;
 		}

@@ -78,7 +78,6 @@ char Init() {
 	currentLevel = 0;
 	option_helpSpeech = true;
 	option_levelMax0 = 0;
-	option_levelMax1 = 0;
 
 	/** Load any settings found in the settings file ***/
 	LoadSettings();
