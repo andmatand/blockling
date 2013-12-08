@@ -373,7 +373,7 @@ int MainMenu() {
 
 
 int OptionsMenu(bool inGame) {
-	int numItems = 9;
+	int numItems = 8;
 	menu optMenu(numItems); // Create the menu object
 	char text[72]; // For temporarily holding menu items' text as it is
 	               // formed
@@ -385,10 +385,10 @@ int OptionsMenu(bool inGame) {
 	int action;
 	
 	/** Set static menu items **/
-	optMenu.Move(SCREEN_W / 2, 0);
+	optMenu.Move(SCREEN_W / 2, FONT_H * 1);
 	optMenu.SetTitle("OPTIONS");
-	optMenu.NameItem(7, "Control Setup");
-	optMenu.NameItem(8, "Done");
+	optMenu.NameItem(6, "Control Setup");
+	optMenu.NameItem(7, "Done");
 
 	// Make the note text
 	txt note(SCREEN_W / 2, FONT_H * 20,
@@ -408,38 +408,29 @@ int OptionsMenu(bool inGame) {
 		optMenu.SetLeftArrow(0,	(option_soundOn > 0));
 		optMenu.SetRightArrow(0, (option_soundOn < 1));
 
-		
-		// Determine Music text
-		sprintf(text, "Music: ");
-		strcat(text, (option_musicOn ? "ON" : "OFF"));
-		optMenu.NameItem(1, text);
-
-		optMenu.SetLeftArrow(1,	(option_musicOn > 0));
-		optMenu.SetRightArrow(1, (option_musicOn < 1));
-
 		// Determine Timer on/off text
 		sprintf(text, "Game Timer: ");
 		strcat(text, (option_timerOn ? "ON" : "OFF"));
-		optMenu.NameItem(2, text);
+		optMenu.NameItem(1, text);
 
-		optMenu.SetLeftArrow(2,	(option_timerOn > 0));
-		optMenu.SetRightArrow(2, (option_timerOn < 1));
+		optMenu.SetLeftArrow(1,	(option_timerOn > 0));
+		optMenu.SetRightArrow(1, (option_timerOn < 1));
 
 		// Determine Sound text
 		sprintf(text, "Hints: ");
 		strcat(text, (option_helpSpeech ? "ON" : "OFF"));
-		optMenu.NameItem(3, text);
+		optMenu.NameItem(2, text);
 
-		optMenu.SetLeftArrow(3,	(option_helpSpeech > 0));
-		optMenu.SetRightArrow(3, (option_helpSpeech < 1));
+		optMenu.SetLeftArrow(2,	(option_helpSpeech > 0));
+		optMenu.SetRightArrow(2, (option_helpSpeech < 1));
 
 		// Determine Timer on/off text
 		sprintf(text, "Replays: ");
 		strcat(text, (option_replayOn ? "ON" : "OFF"));
-		optMenu.NameItem(4, text);
+		optMenu.NameItem(3, text);
 
-		optMenu.SetLeftArrow(4,	(option_replayOn > 0));
-		optMenu.SetRightArrow(4, (option_replayOn < 1));
+		optMenu.SetLeftArrow(3,	(option_replayOn > 0));
+		optMenu.SetRightArrow(3, (option_replayOn < 1));
 
 
 		// Determine Camera Setting text
@@ -452,10 +443,10 @@ int OptionsMenu(bool inGame) {
 				strcat(text, "MANUAL");
 				break;
 		}
-		optMenu.NameItem(5, text);
+		optMenu.NameItem(4, text);
 
-		optMenu.SetLeftArrow(5, (option_cameraMode > 0));
-		optMenu.SetRightArrow(5, (option_cameraMode < maxCameraMode));
+		optMenu.SetLeftArrow(4, (option_cameraMode > 0));
+		optMenu.SetRightArrow(4, (option_cameraMode < maxCameraMode));
 
 
 		// Determine Background text
@@ -474,10 +465,10 @@ int OptionsMenu(bool inGame) {
 				strcat(text, "SCROLLING");
 				break;
 		}
-		optMenu.NameItem(6, text);
+		optMenu.NameItem(5, text);
 
-		optMenu.SetLeftArrow(6, (option_background > 0));
-		optMenu.SetRightArrow(6, (option_background < maxBackground));
+		optMenu.SetLeftArrow(5, (option_background > 0));
+		optMenu.SetRightArrow(5, (option_background < maxBackground));
 
 
 		
@@ -492,11 +483,11 @@ int OptionsMenu(bool inGame) {
 			DrawBackground();
 		}
 		optMenu.AutoArrange(static_cast<char>(1));
+		optMenu.SpaceItems(6);
 		optMenu.SpaceItems(7);
-		optMenu.SpaceItems(8);
 		optMenu.Display();
 		// If the "replays" option is selected
-		if (inGame && optMenu.GetSel() == 4) {
+		if (inGame && optMenu.GetSel() == 3) {
 			note.Render();
 		}
 		UpdateScreen();
@@ -512,26 +503,21 @@ int OptionsMenu(bool inGame) {
 						ToggleSound();
 						break;
 					case 1:
-						option_musicOn =
-							(option_musicOn ?
-							 false : true);
-						break;
-					case 2:
 						option_timerOn =
 							(option_timerOn ?
 							 false : true);
 						break;
-					case 3:
+					case 2:
 						option_helpSpeech =
 							(option_helpSpeech ?
 							 false : true);
 						break;
-					case 4:
+					case 3:
 						option_replayOn =
 							(option_replayOn ?
 							 false : true);
 						break;
-					case 5:
+					case 4:
 						if (option_cameraMode <
 						    maxCameraMode)
 						{
@@ -541,7 +527,7 @@ int OptionsMenu(bool inGame) {
 							option_cameraMode = 0;
 						}
 						break;
-					case 6:
+					case 5:
 						if (option_background <
 						    maxBackground)
 						{
@@ -551,12 +537,12 @@ int OptionsMenu(bool inGame) {
 							option_background = 0;
 						}
 						break;
-					case 7:
+					case 6:
 						if (ControlSetupMenu(inGame) ==
 						    -2)
 							return -2;
 						break;
-					case 8:
+					case 7:
 						return -1;
 						break;
 				}
@@ -568,22 +554,19 @@ int OptionsMenu(bool inGame) {
 							ToggleSound();
 						break;
 					case 1:
-						option_musicOn = false;
-						break;
-					case 2:
 						option_timerOn = false;
 						break;
-					case 3:
+					case 2:
 						option_helpSpeech = false;
 						break;
-					case 4:
+					case 3:
 						option_replayOn = false;
 						break;
-					case 5:
+					case 4:
 						if (option_cameraMode > 0)
 							option_cameraMode--;
 						break;
-					case 6:
+					case 5:
 						if (option_background > 0)
 							option_background--;
 						break;
@@ -603,23 +586,20 @@ int OptionsMenu(bool inGame) {
 						}
 						break;
 					case 1:
-						option_musicOn = true;
-						break;
-					case 2:
 						option_timerOn = true;
 						break;
-					case 3:
+					case 2:
 						option_helpSpeech = true;
 						break;
-					case 4:
+					case 3:
 						option_replayOn = true;
 						break;
-					case 5:
+					case 4:
 						if (option_cameraMode <
 						    maxCameraMode)
 							option_cameraMode++;
 						break;
-					case 6:
+					case 5:
 						if (option_background <
 						    maxBackground)
 							option_background++;
