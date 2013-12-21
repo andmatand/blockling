@@ -115,4 +115,4 @@ Blockling is free software.  It is distributed under the terms of the GNU
 General Public License:  http://www.gnu.org/copyleft/gpl.html
 
 The source code of Blockling is available from:
-https://github.com/andmatand/blockling
+https://github.com/andmatand/blockling/tree/gcw0
