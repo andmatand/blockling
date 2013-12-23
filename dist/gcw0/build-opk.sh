@@ -1,6 +1,8 @@
 #!/bin/sh
 DATADIR=usr/local/games/blockling
 
+export PATH=/opt/gcw0-toolchain/usr/bin:$PATH
+
 # Compile the executable and then come back to this directory
 cd ../..
 make DATADIR=$DATADIR/
