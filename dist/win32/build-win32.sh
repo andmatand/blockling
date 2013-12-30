@@ -4,6 +4,7 @@
 if [ $# -lt 1 ]; then
     echo "usage: $0 <path/to/MXE>"
     echo "    Get MXE cross-compiling environment here: http://mxe.cc/"
+
     exit -1
 fi
 
@@ -14,9 +15,9 @@ ZIPFILE=blockling-win32.zip
 rm -f $ZIPFILE
 
 # Compile blockling.exe
-ln -s ../../data/ ./data
-make MXE_PATH=$1
-rm data
+MXE_PATH=$1
+export PATH=$MXE_PATH/usr/bin:$PATH
+make MXE_PATH=$MXE_PATH
 
 # Create a directory to be zipped
 mkdir $ZIPDIR
