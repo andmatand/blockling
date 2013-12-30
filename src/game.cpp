@@ -1770,7 +1770,6 @@ void TutorialSpeech(bool reset) {
 			if (blocks[0].GetX() == blocks[1].GetX() +
 				blocks[1].GetW())
 			{
-				Speak(0, "Hey!");
 				Speak(0, "A block!", true);
 
 				sprintf(temp, "Push %s and I'll pick it up!",
