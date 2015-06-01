@@ -1,4 +1,4 @@
-![screenshot 1](http://www.billamonster.com/blockling/screenshots/1.png "A wild blockling carries a block on its head")
+![screenshot 1](http://i.imgur.com/2EQ3oNc.png "A wild blockling carries a block on its head")
 
 
 ## About
